@@ -1,0 +1,43 @@
+# Secrets & Environment Variables (NEVER commit these!)
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets.json
+secrets.yaml
+secrets.yml
+credentials.json
+*id_rsa*
+*id_ed25519*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.pytest_cache/
+
+# Lab Artifacts & Large Dumps
+*.pcap
+*.pcapng
+*.cap
+*.iso
+*.ova
+*.vmdk
+*.raw
+*.mem
+*.dmp
+*.log
+!**/sample_logs/*.log
+
+# OS & Editor Junk
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+.idea/

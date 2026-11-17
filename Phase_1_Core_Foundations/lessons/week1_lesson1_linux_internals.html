@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 1 Lesson 1: Linux OS Internals, DAC Permissions, SUID &amp; Capabilities</title>
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #111827;
+      --bg-card: #161f33;
+      --bg-card-hover: #1c2740;
+      --bg-code: #080c15;
+      --border: #26334d;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-cyan: #06b6d4;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.65;
+      padding-bottom: 72px;
+    }
+
+    a { color: var(--accent-cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.88em;
+      background: rgba(6, 182, 212, 0.1);
+      color: #67e8f9;
+      padding: 2px 6px;
+      border-radius: 5px;
+      border: 1px solid rgba(6, 182, 212, 0.2);
+    }
+
+    pre {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.84rem;
+      line-height: 1.55;
+      color: #e2e8f0;
+      margin: 12px 0;
+    }
+
+    pre .cmd { color: #34d399; }
+    pre .cmt { color: #64748b; }
+    pre .warn { color: #fbbf24; }
+    pre .danger { color: #fb7185; }
+
+    header {
+      background: radial-gradient(circle at top right, rgba(6, 182, 212, 0.16), transparent 45%),
+                  radial-gradient(circle at top left, rgba(16, 185, 129, 0.14), transparent 45%),
+                  var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 24px 24px;
+    }
+
+    .container { max-width: 1120px; margin: 0 auto; }
+
+    .nav-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      font-size: 0.85rem;
+    }
+
+    .nav-links { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    .btn-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      padding: 7px 13px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .btn-nav:hover {
+      border-color: var(--accent-cyan);
+      background: var(--bg-card-hover);
+      text-decoration: none;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .badge-cyan {
+      background: rgba(6, 182, 212, 0.15);
+      color: #22d3ee;
+      border: 1px solid rgba(6, 182, 212, 0.35);
+    }
+
+    .badge-emerald {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .badge-purple {
+      background: rgba(139, 92, 246, 0.15);
+      color: #c4b5fd;
+      border: 1px solid rgba(139, 92, 246, 0.35);
+    }
+
+    h1 {
+      font-size: 1.95rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 0.96rem;
+      max-width: 820px;
+    }
+
+    .layout {
+      max-width: 1120px;
+      margin: 28px auto 0;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 920px) {
+      .layout { grid-template-columns: 1fr; }
+      .toc { position: static !important; }
+    }
+
+    .toc {
+      position: sticky;
+      top: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .toc h2 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .toc ul { list-style: none; }
+    .toc li { margin-bottom: 7px; }
+    .toc a {
+      display: block;
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    .toc a:hover {
+      background: var(--bg-card);
+      color: #ffffff;
+      text-decoration: none;
+    }
+
+    .content { min-width: 0; }
+
+    .section-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .section-num {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-cyan);
+      margin-bottom: 4px;
+    }
+
+    .section-card h2 {
+      font-size: 1.38rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+
+    .section-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin: 18px 0 8px;
+    }
+
+    .section-card p, .section-card li {
+      font-size: 0.93rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .section-card ul, .section-card ol {
+      padding-left: 20px;
+      margin-bottom: 10px;
+    }
+
+    .diagram-box {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 16px 0;
+      overflow-x: auto;
+    }
+
+    .diagram-caption {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .dual-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 14px 0;
+    }
+
+    @media (max-width: 700px) {
+      .dual-grid { grid-template-columns: 1fr; }
+    }
+
+    .perspective {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 15px;
+    }
+
+    .perspective.attacker { border-top: 3px solid var(--accent-rose); }
+    .perspective.defender { border-top: 3px solid var(--accent-emerald); }
+
+    .perspective-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .perspective.attacker .perspective-title { color: #fb7185; }
+    .perspective.defender .perspective-title { color: #34d399; }
+
+    .callout {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.32);
+      border-left: 4px solid var(--accent-amber);
+      border-radius: 8px;
+      padding: 12px 15px;
+      margin: 14px 0;
+      font-size: 0.88rem;
+      color: #fde68a;
+    }
+
+    .callout strong { color: #fbbf24; }
+
+    .callout-info {
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-left: 4px solid var(--accent-cyan);
+      color: #bae6fd;
+    }
+
+    .callout-info strong { color: #22d3ee; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.86rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 9px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--bg-secondary);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    td { color: var(--text-secondary); }
+
+    /* Interactive Permissions Calculator */
+    .calc-wrap {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin: 16px 0;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    @media (max-width: 680px) {
+      .calc-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .calc-col {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .calc-col h4 {
+      font-size: 0.78rem;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .calc-col label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84rem;
+      color: var(--text-primary);
+      padding: 3px 0;
+      cursor: pointer;
+    }
+
+    .calc-output {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+    }
+
+    .calc-sym {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #34d399;
+    }
+
+    .calc-risk {
+      font-size: 0.82rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    .risk-safe { background: rgba(16, 185, 129, 0.16); color: #34d399; }
+    .risk-warn { background: rgba(245, 158, 11, 0.16); color: #fbbf24; }
+    .risk-crit { background: rgba(244, 63, 94, 0.18); color: #fb7185; }
+
+    /* Quiz Styling */
+    .quiz-item {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .quiz-q {
+      font-weight: 700;
+      color: #ffffff;
+      font-size: 0.94rem;
+      margin-bottom: 10px;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .quiz-btn {
+      text-align: left;
+      background: var(--bg-code);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 13px;
+      font-size: 0.86rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .quiz-btn:hover { border-color: var(--accent-cyan); background: var(--bg-card-hover); }
+    .quiz-btn.correct { border-color: var(--accent-emerald); background: rgba(16, 185, 129, 0.15); color: #6ee7b7; }
+    .quiz-btn.wrong { border-color: var(--accent-rose); background: rgba(244, 63, 94, 0.15); color: #fda4af; }
+
+    .quiz-feedback {
+      margin-top: 9px;
+      font-size: 0.84rem;
+      display: none;
+      padding: 8px 11px;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border);
+    }
+
+    .score-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .btn-reset {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .btn-reset:hover { border-color: var(--accent-cyan); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <div class="nav-bar">
+        <div class="nav-links">
+          <a class="btn-nav" href="../../index.html">← Learning Hub</a>
+          <a class="btn-nav" href="../phase_1_detailed_plan.html">Phase 1 (8-Week Syllabus)</a>
+          <a class="btn-nav" href="../../cybersecurity_5_year_roadmap.html">5-Year Master Roadmap</a>
+        </div>
+        <span style="color: var(--text-muted); font-weight: 600;">5-Step Loop • Step 1: Visual HTML Lecture</span>
+      </div>
+
+      <div class="badge-row">
+        <span class="badge badge-emerald">Phase 1 • Week 1 • Lesson 1</span>
+        <span class="badge badge-cyan">Linux OS Internals</span>
+        <span class="badge badge-purple">Attacker vs. Defender</span>
+      </div>
+
+      <h1>Linux OS Internals: Processes, <code>/proc</code>, DAC Permissions, SUID &amp; Capabilities</h1>
+      <p class="subtitle">
+        Before touching automated scanners or exploits, understand how the Linux kernel creates processes, exposes live state in <code>/proc</code>, enforces Discretionary Access Control (DAC), and splits root power using SUID and POSIX Capabilities.
+      </p>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="toc" aria-label="Lesson Navigation">
+      <h2>Lesson Sections</h2>
+      <ul>
+        <li><a href="#sec-processes">1. Boot, Processes &amp; <code>/proc</code></a></li>
+        <li><a href="#sec-dac">2. DAC Permissions &amp; Octal Calc</a></li>
+        <li><a href="#sec-suid">3. Special Bits: SUID, SGID, Sticky</a></li>
+        <li><a href="#sec-caps">4. Linux POSIX Capabilities</a></li>
+        <li><a href="#sec-triage">5. Security Triage CLI Pipeline</a></li>
+        <li><a href="#sec-quiz">6. Self-Check Quiz</a></li>
+        <li><a href="#sec-lab">7. Launch Lab 1A (Docker)</a></li>
+      </ul>
+    </aside>
+
+    <main class="content">
+
+      <!-- SECTION 1 -->
+      <section class="section-card" id="sec-processes">
+        <div class="section-num">Module 1.1 • Execution Model</div>
+        <h2>1. Linux Boot, Process Hierarchy &amp; the <code>/proc</code> Virtual Filesystem</h2>
+        <p>
+          In Linux, almost everything runs either in <strong>Kernel Space</strong> (hardware access, memory, scheduling, security checks) or <strong>User Space</strong> (isolated processes making system calls into the kernel).
+        </p>
+        <ul>
+          <li><strong>Boot Chain:</strong> Firmware (UEFI) → Bootloader (<code>GRUB2</code>) → Kernel (<code>vmlinuz</code>) + <code>initramfs</code> → mounts root filesystem → spawns <strong><code>PID 1</code></strong> (<code>systemd</code> on a host OS, or your container's entrypoint inside Docker).</li>
+          <li><strong><code>fork()</code> + <code>execve()</code>:</strong> Processes spawn children by cloning their kernel descriptor (<code>task_struct</code>, giving a child its own <code>PID</code> and linking its <code>PPID</code> to the parent), then calling <code>execve()</code> to load the target ELF binary into memory.</li>
+          <li><strong><code>/proc</code> (procfs):</strong> Not stored on disk (<code>0 bytes</code>)! It is a live window into kernel memory. Every running process <code>&lt;PID&gt;</code> has a folder <code>/proc/&lt;PID&gt;/</code>.</li>
+        </ul>
+
+        <div class="diagram-box">
+          <svg viewBox="0 0 820 280" width="100%" height="auto" role="img" aria-label="Linux Kernel, Process Tree, and /proc Virtual Filesystem Diagram">
+            <rect x="10" y="10" width="800" height="260" rx="10" fill="#0b1120" stroke="#26334d" />
+            <!-- User Space Box -->
+            <rect x="28" y="24" width="470" height="148" rx="8" fill="#111b30" stroke="#3b82f6" stroke-dasharray="4 3" />
+            <text x="42" y="44" fill="#60a5fa" font-size="12" font-weight="700">USER SPACE (Isolated Virtual Memory per Process)</text>
+
+            <!-- PID 1 -->
+            <rect x="46" y="62" width="118" height="48" rx="6" fill="#162544" stroke="#06b6d4" />
+            <text x="105" y="82" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="700">PID 1 (init)</text>
+            <text x="105" y="99" text-anchor="middle" fill="#94a3b8" font-size="10">systemd / sh</text>
+
+            <!-- Arrow PID 1 -> sshd/docker -->
+            <line x1="164" y1="86" x2="196" y2="86" stroke="#06b6d4" stroke-width="2" />
+            <polygon points="196,81 205,86 196,91" fill="#06b6d4" />
+
+            <!-- Parent Shell -->
+            <rect x="206" y="62" width="122" height="48" rx="6" fill="#162544" stroke="#06b6d4" />
+            <text x="267" y="82" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="700">PID 412 (bash)</text>
+            <text x="267" y="99" text-anchor="middle" fill="#94a3b8" font-size="10">PPID: 1 • UID: 1000</text>
+
+            <!-- Arrow bash -> child -->
+            <line x1="328" y1="86" x2="360" y2="86" stroke="#10b981" stroke-width="2" />
+            <polygon points="360,81 369,86 360,91" fill="#10b981" />
+            <text x="348" y="76" text-anchor="middle" fill="#34d399" font-size="9" font-weight="700">fork+exec</text>
+
+            <!-- Child Process -->
+            <rect x="370" y="56" width="114" height="60" rx="6" fill="#1a2c38" stroke="#10b981" />
+            <text x="427" y="76" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="700">PID 819</text>
+            <text x="427" y="92" text-anchor="middle" fill="#34d399" font-size="10">audit-find</text>
+            <text x="427" y="106" text-anchor="middle" fill="#fbbf24" font-size="9">EUID: 0 (SUID!)</text>
+
+            <text x="260" y="148" text-anchor="middle" fill="#94a3b8" font-size="11">Syscalls: open(), execve(), setuid(), read() ↓↓↓</text>
+
+            <!-- Kernel Space Box -->
+            <rect x="28" y="188" width="470" height="66" rx="8" fill="#1a132b" stroke="#8b5cf6" />
+            <text x="263" y="210" text-anchor="middle" fill="#c4b5fd" font-size="12" font-weight="700">LINUX KERNEL SPACE (Enforces UID/GID, Capabilities &amp; DAC)</text>
+            <text x="263" y="232" text-anchor="middle" fill="#94a3b8" font-size="11">Maintains task_struct (RUID, EUID, SUID, CapEff, Open FDs, Memory Maps)</text>
+
+            <!-- /proc View Box -->
+            <rect x="520" y="24" width="272" height="230" rx="8" fill="#0d1726" stroke="#10b981" />
+            <text x="656" y="46" text-anchor="middle" fill="#34d399" font-size="12" font-weight="700">/proc/819/ (RAM-Backed View)</text>
+            <text x="536" y="74" fill="#67e8f9" font-size="11" font-family="monospace">exe      → /usr/local/bin/...</text>
+            <text x="536" y="98" fill="#67e8f9" font-size="11" font-family="monospace">cmdline  → argv[] (\0 sep)</text>
+            <text x="536" y="122" fill="#67e8f9" font-size="11" font-family="monospace">status   → Uid / Gid / Cap*</text>
+            <text x="536" y="146" fill="#67e8f9" font-size="11" font-family="monospace">environ  → ENV secrets/PATH</text>
+            <text x="536" y="170" fill="#67e8f9" font-size="11" font-family="monospace">fd/      → open files/sockets</text>
+            <text x="536" y="194" fill="#67e8f9" font-size="11" font-family="monospace">maps     → RAM regions/libs</text>
+            <line x1="536" y1="210" x2="776" y2="210" stroke="#26334d" />
+            <text x="656" y="232" text-anchor="middle" fill="#fbbf24" font-size="10">Kernel projects live state directly to /proc</text>
+
+            <!-- Link Kernel -> /proc -->
+            <line x1="498" y1="220" x2="520" y2="220" stroke="#10b981" stroke-width="2" />
+            <polygon points="514,215 522,220 514,225" fill="#10b981" />
+          </svg>
+          <div class="diagram-caption">Figure 1: Process spawning via fork()+execve(), kernel security enforcement, and live inspection via /proc.</div>
+        </div>
+
+<pre><span class="cmt"># Inspect your current shell's process tree, credentials, and capabilities</span>
+<span class="cmd">ps -eo pid,ppid,user,ruid,euid,comm --forest</span>
+<span class="cmd">ls -la /proc/$$/</span>
+<span class="cmd">grep -E '^(Name|Pid|PPid|Uid|Gid|Cap)' /proc/$$/status</span>
+<span class="cmd">tr '\0' ' ' &lt; /proc/$$/cmdline; echo</span></pre>
+
+        <div class="dual-grid">
+          <div class="perspective attacker">
+            <div class="perspective-title">Attacker Lens</div>
+            <p>Enumerates <code>ps aux</code> and <code>/proc/*/environ</code> or <code>cmdline</code> looking for plaintext passwords, API tokens, or root processes spawning subshells with unsafe environment variables.</p>
+          </div>
+          <div class="perspective defender">
+            <div class="perspective-title">Defender / Forensic Lens</div>
+            <p>Uses <code>ls -la /proc/*/exe | grep deleted</code> to spot fileless/deleted malware still executing in RAM, and audits unexpected <code>PPID → PID</code> chains (e.g., <code>nginx</code> spawning <code>/bin/sh</code>).</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2 -->
+      <section class="section-card" id="sec-dac">
+        <div class="section-num">Module 1.2 • Discretionary Access Control</div>
+        <h2>2. DAC Permissions, Directory Semantics &amp; Interactive Octal Calculator</h2>
+        <p>
+          Standard Linux permissions (DAC) assign three rights—Read (<code>r=4</code>), Write (<code>w=2</code>), and Execute (<code>x=1</code>)—across three identities: <strong>Owner (u)</strong>, <strong>Group (g)</strong>, and <strong>Others (o)</strong>.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Permission</th>
+              <th>Meaning on a Regular File</th>
+              <th>Meaning on a Directory (Common Security Trap!)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>r</code> (4)</td>
+              <td>Read file contents.</td>
+              <td>List filenames inside (<code>ls</code>), without metadata unless <code>x</code> is also set.</td>
+            </tr>
+            <tr>
+              <td><code>w</code> (2)</td>
+              <td>Modify or truncate file contents.</td>
+              <td><strong>Create, rename, or delete</strong> files inside — <em>even if you don't own those files</em> (unless Sticky Bit is set!).</td>
+            </tr>
+            <tr>
+              <td><code>x</code> (1)</td>
+              <td>Execute as a program / script.</td>
+              <td>Traverse (<code>cd</code>) into the directory and access file inodes inside.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>
+          <strong><code>umask</code>:</strong> Masks off permissions when creating new files. Files start with max <code>0666</code> (never executable by default), directories with <code>0777</code>. A default <code>umask 0022</code> produces <code>0644</code> files (<code>rw-r--r--</code>) and <code>0755</code> directories (<code>rwxr-xr-x</code>). Security-sensitive files/keys should use <code>umask 0077</code> (<code>0600</code> / <code>0700</code>).
+        </p>
+
+        <div class="calc-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <strong style="color:#ffffff; font-size:0.95rem;">Interactive Linux Permission &amp; Risk Simulator</strong>
+            <span style="font-size:0.8rem; color:var(--text-muted);">Toggle bits to inspect octal, symbolic mode, and security risk</span>
+          </div>
+          <div class="calc-grid">
+            <div class="calc-col">
+              <h4>Special Bits</h4>
+              <label><input type="checkbox" id="bit_suid" onchange="updatePermCalc()"> SUID (4000)</label>
+              <label><input type="checkbox" id="bit_sgid" onchange="updatePermCalc()"> SGID (2000)</label>
+              <label><input type="checkbox" id="bit_sticky" onchange="updatePermCalc()"> Sticky (1000)</label>
+            </div>
+            <div class="calc-col">
+              <h4>Owner (u)</h4>
+              <label><input type="checkbox" id="ur" checked onchange="updatePermCalc()"> Read (4)</label>
+              <label><input type="checkbox" id="uw" checked onchange="updatePermCalc()"> Write (2)</label>
+              <label><input type="checkbox" id="ux" checked onchange="updatePermCalc()"> Exec (1)</label>
+            </div>
+            <div class="calc-col">
+              <h4>Group (g)</h4>
+              <label><input type="checkbox" id="gr" checked onchange="updatePermCalc()"> Read (4)</label>
+              <label><input type="checkbox" id="gw" onchange="updatePermCalc()"> Write (2)</label>
+              <label><input type="checkbox" id="gx" checked onchange="updatePermCalc()"> Exec (1)</label>
+            </div>
+            <div class="calc-col">
+              <h4>Others (o)</h4>
+              <label><input type="checkbox" id="or" checked onchange="updatePermCalc()"> Read (4)</label>
+              <label><input type="checkbox" id="ow" onchange="updatePermCalc()"> Write (2)</label>
+              <label><input type="checkbox" id="ox" checked onchange="updatePermCalc()"> Exec (1)</label>
+            </div>
+          </div>
+          <div class="calc-output">
+            <div>
+              <div style="font-size:0.78rem; color:var(--text-muted);">Symbolic &amp; Octal Command</div>
+              <div class="calc-sym" id="calcResult">-rwxr-xr-x &nbsp;|&nbsp; chmod 0755</div>
+            </div>
+            <div id="calcRiskBadge" class="calc-risk risk-safe">Standard executable permissions</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3 -->
+      <section class="section-card" id="sec-suid">
+        <div class="section-num">Module 1.3 • Privilege Transitions</div>
+        <h2>3. Special Bits: SUID (<code>4000</code>), SGID (<code>2000</code>) &amp; Sticky Bit (<code>1000</code>)</h2>
+        <p>
+          Every running process carries multiple UIDs in the kernel. The two most important for privilege escalation are:
+        </p>
+        <ul>
+          <li><strong>Real UID (<code>RUID</code>):</strong> Who launched the process (e.g., <code>student</code>, UID <code>1000</code>).</li>
+          <li><strong>Effective UID (<code>EUID</code>):</strong> Whose permissions the kernel actually checks when accessing files or syscalls!</li>
+        </ul>
+        <p>
+          Normally, <code>RUID == EUID</code>. When you run a <strong>SUID binary</strong> owned by <code>root</code> (such as <code>/usr/bin/passwd</code>), the kernel keeps <code>RUID = 1000</code>, sets <code>EUID = 0</code>, and lets that binary temporarily edit <code>/etc/shadow</code> safely.
+        </p>
+
+        <div class="diagram-box">
+          <svg viewBox="0 0 820 220" width="100%" height="auto" role="img" aria-label="SUID EUID vs RUID transition diagram">
+            <rect x="10" y="10" width="800" height="200" rx="10" fill="#0b1120" stroke="#26334d" />
+
+            <!-- Normal Process -->
+            <rect x="30" y="34" width="210" height="150" rx="8" fill="#111b30" stroke="#3b82f6" />
+            <text x="135" y="58" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="700">1. Normal Shell (student)</text>
+            <text x="48" y="88" fill="#e2e8f0" font-size="11" font-family="monospace">RUID: 1000 (student)</text>
+            <text x="48" y="110" fill="#e2e8f0" font-size="11" font-family="monospace">EUID: 1000 (student)</text>
+            <line x1="48" y1="126" x2="222" y2="126" stroke="#26334d" />
+            <text x="135" y="150" text-anchor="middle" fill="#fb7185" font-size="11">cat /etc/shadow → DENIED</text>
+            <text x="135" y="168" text-anchor="middle" fill="#94a3b8" font-size="10">(EUID != 0)</text>
+
+            <!-- Arrow to SUID -->
+            <line x1="242" y1="108" x2="288" y2="108" stroke="#f59e0b" stroke-width="2" />
+            <polygon points="288,103 297,108 288,113" fill="#f59e0b" />
+            <text x="270" y="96" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="700">execve</text>
+
+            <!-- SUID Binary -->
+            <rect x="300" y="34" width="235" height="150" rx="8" fill="#1e1b2e" stroke="#f59e0b" />
+            <text x="417" y="58" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="700">2. SUID Binary (-rwsr-xr-x root)</text>
+            <text x="318" y="88" fill="#e2e8f0" font-size="11" font-family="monospace">RUID: 1000 (student)</text>
+            <text x="318" y="110" fill="#34d399" font-size="11" font-family="monospace" font-weight="700">EUID: 0    (root!)</text>
+            <line x1="318" y1="126" x2="517" y2="126" stroke="#26334d" />
+            <text x="417" y="148" text-anchor="middle" fill="#cbd5e1" font-size="10">Kernel checks EUID for access.</text>
+            <text x="417" y="166" text-anchor="middle" fill="#fb7185" font-size="10">If binary spawns shell/edits files → PWNED</text>
+
+            <!-- Arrow to Shell Trap -->
+            <line x1="536" y1="108" x2="574" y2="108" stroke="#10b981" stroke-width="2" />
+            <polygon points="574,103 583,108 574,113" fill="#10b981" />
+
+            <!-- Shell behavior -->
+            <rect x="585" y="34" width="205" height="150" rx="8" fill="#0d1b24" stroke="#10b981" />
+            <text x="687" y="58" text-anchor="middle" fill="#34d399" font-size="12" font-weight="700">3. Shell Drop Protection</text>
+            <text x="600" y="88" fill="#fb7185" font-size="10.5" font-family="monospace">/bin/sh    → resets EUID=RUID</text>
+            <text x="600" y="112" fill="#34d399" font-size="10.5" font-family="monospace">/bin/sh -p → KEEPS EUID=0!</text>
+            <line x1="600" y1="128" x2="775" y2="128" stroke="#26334d" />
+            <text x="687" y="150" text-anchor="middle" fill="#94a3b8" font-size="10">Note: Kernel ignores SUID on</text>
+            <text x="687" y="166" text-anchor="middle" fill="#94a3b8" font-size="10">#!/bin/bash scripts (race safety).</text>
+          </svg>
+          <div class="diagram-caption">Figure 2: How SUID elevates EUID to the file owner, and why Debian/Ubuntu /bin/sh requires -p to preserve EUID.</div>
+        </div>
+
+        <div class="callout">
+          <strong>Key Kernel &amp; Shell Rules to Remember:</strong>
+          <ul style="margin-top:6px; margin-bottom:0;">
+            <li><strong>No SUID on Shebang Scripts:</strong> Linux ignores SUID/SGID bits on interpreted scripts starting with <code>#!</code> (e.g. <code>#!/bin/bash</code>) to prevent Time-of-Check-to-Time-of-Use (TOCTOU) race attacks. Only ELF binaries obey SUID.</li>
+            <li><strong><code>dash</code> / <code>bash</code> EUID Drop:</strong> On Ubuntu, <code>/bin/sh</code> (dash) detects <code>EUID != RUID</code> and silently drops privileges back to <code>RUID</code> unless invoked with <code>-p</code> (privileged mode)!</li>
+            <li><strong>SGID (<code>2000</code>) &amp; Sticky (<code>1000</code>):</strong> SGID on directories forces new files to inherit the directory's group. Sticky bit on <code>/tmp</code> (<code>1777</code>) stops users from deleting other users' temp files.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- SECTION 4 -->
+      <section class="section-card" id="sec-caps">
+        <div class="section-num">Module 1.4 • Fine-Grained Privileges</div>
+        <h2>4. Linux POSIX Capabilities: Beyond All-or-Nothing Root</h2>
+        <p>
+          Historically, if a tool like <code>ping</code> needed to open a raw ICMP socket, admins had to make it <strong>SUID root</strong>—handing over <em>full god-mode root access</em> just for one network syscall.
+          <strong>Linux Capabilities</strong> break <code>root</code> into 40+ discrete privileges stored in a file's extended attributes (<code>security.capability</code>), not in <code>chmod</code> permission bits!
+        </p>
+
+        <div class="diagram-box">
+          <svg viewBox="0 0 820 210" width="100%" height="auto" role="img" aria-label="Monolithic Root vs Fine-Grained Linux Capabilities">
+            <rect x="10" y="10" width="800" height="190" rx="10" fill="#0b1120" stroke="#26334d" />
+
+            <!-- Legacy Monolithic -->
+            <rect x="30" y="30" width="320" height="150" rx="8" fill="#23121b" stroke="#f43f5e" />
+            <text x="190" y="55" text-anchor="middle" fill="#fb7185" font-size="12" font-weight="700">OLD MODEL: SUID Root (All-or-Nothing)</text>
+            <rect x="65" y="72" width="250" height="58" rx="6" fill="#3a1626" stroke="#fb7185" />
+            <text x="190" y="96" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="700">EUID = 0 (Full Root)</text>
+            <text x="190" y="114" text-anchor="middle" fill="#fda4af" font-size="10">Raw Sockets + Mount + Kernel Modules + Read All Files</text>
+            <text x="190" y="156" text-anchor="middle" fill="#94a3b8" font-size="10.5">Any single bug = Total system compromise</text>
+
+            <!-- Arrow -->
+            <line x1="360" y1="105" x2="405" y2="105" stroke="#06b6d4" stroke-width="2" />
+            <polygon points="405,100 414,105 405,110" fill="#06b6d4" />
+
+            <!-- Capability Model -->
+            <rect x="420" y="30" width="370" height="150" rx="8" fill="#0f2128" stroke="#10b981" />
+            <text x="605" y="55" text-anchor="middle" fill="#34d399" font-size="12" font-weight="700">MODERN MODEL: POSIX Capabilities (Least Privilege)</text>
+
+            <rect x="440" y="70" width="160" height="36" rx="5" fill="#132d33" stroke="#06b6d4" />
+            <text x="520" y="92" text-anchor="middle" fill="#67e8f9" font-size="10" font-family="monospace">CAP_NET_BIND_SERVICE</text>
+
+            <rect x="612" y="70" width="160" height="36" rx="5" fill="#132d33" stroke="#06b6d4" />
+            <text x="692" y="92" text-anchor="middle" fill="#67e8f9" font-size="10" font-family="monospace">CAP_NET_RAW</text>
+
+            <rect x="440" y="118" width="160" height="36" rx="5" fill="#2d1724" stroke="#f59e0b" />
+            <text x="520" y="140" text-anchor="middle" fill="#fbbf24" font-size="10" font-family="monospace">CAP_DAC_READ_SEARCH</text>
+
+            <rect x="612" y="118" width="160" height="36" rx="5" fill="#331524" stroke="#f43f5e" />
+            <text x="692" y="140" text-anchor="middle" fill="#fb7185" font-size="10" font-family="monospace">CAP_SETUID (DANGER!)</text>
+          </svg>
+          <div class="diagram-caption">Figure 3: Splitting monolithic root into discrete capabilities—and why some capabilities still equal full root.</div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Capability</th>
+              <th>Intended Purpose</th>
+              <th>Security Impact If Misconfigured on Tool/Interpreter</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>cap_net_bind_service</code></td>
+              <td>Bind privileged ports (&lt; 1024) like 80/443 without root.</td>
+              <td>Low direct escalation risk; good least-privilege practice for web servers.</td>
+            </tr>
+            <tr>
+              <td><code>cap_net_raw</code></td>
+              <td>Open raw/packet sockets (<code>ping</code>, <code>tcpdump</code>).</td>
+              <td>Allows packet sniffing / ARP/ICMP spoofing on the attached network segment.</td>
+            </tr>
+            <tr>
+              <td><code>cap_dac_read_search</code></td>
+              <td>Bypass file read &amp; directory read/search permission checks.</td>
+              <td><strong>Critical Confidentiality Breach:</strong> Lets any user read <code>/etc/shadow</code>, SSH private keys, or root files! (Note: dropped from Docker's default bounding set.)</td>
+            </tr>
+            <tr>
+              <td><code>cap_dac_override</code></td>
+              <td>Bypass file read, write, AND execute DAC permission checks.</td>
+              <td><strong>Critical Read/Write Breach:</strong> Lets a binary read <code>/etc/shadow</code> OR overwrite root-owned files (and is active in Docker's default bounding set!).</td>
+            </tr>
+            <tr>
+              <td><code>cap_setuid</code></td>
+              <td>Allow a process to arbitrarily set its own UID (<code>setuid(0)</code>).</td>
+              <td><strong>Instant Full Root:</strong> On Python/Perl/Node/custom binary, one syscall grants <code>UID=0</code> root shell!</td>
+            </tr>
+            <tr>
+              <td><code>cap_sys_admin</code></td>
+              <td>Mount filesystems, namespaces, BPF, trace/admin tasks.</td>
+              <td><strong>Equivalent to Full Root:</strong> Can mount host/cgroups or escape containers.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout callout-info">
+          <strong>Important Blind Spot:</strong> A file with <code>cap_setuid+ep</code> shows completely normal permissions (<code>-rwxr-xr-x</code>) in <code>ls -la</code> and will <strong>NOT</strong> show up in <code>find / -perm -4000</code>. Always audit BOTH SUID/SGID (<code>find</code>) AND Capabilities (<code>getcap -r / 2&gt;/dev/null</code>)! Also note: <code>+ep</code> means <em>Effective</em> and <em>Permitted</em> (active immediately upon execution).
+        </div>
+      </section>
+
+      <!-- SECTION 5 -->
+      <section class="section-card" id="sec-triage">
+        <div class="section-num">Module 1.5 • Command-Line Security Triage</div>
+        <h2>5. Essential Security Triage Commands</h2>
+        <p>Memorize these manual enumeration &amp; verification commands before writing Python automation in Step 4:</p>
+<pre><span class="cmt"># 1. Find all SUID (4000) or SGID (2000) binaries cleanly</span>
+<span class="cmd">find / -perm -4000 -type f 2&gt;/dev/null</span>
+<span class="cmd">find / -perm /6000 -type f -exec ls -la {} + 2&gt;/dev/null</span>
+
+<span class="cmt"># 2. Find all binaries carrying Linux File Capabilities</span>
+<span class="cmd">getcap -r / 2&gt;/dev/null</span>
+
+<span class="cmt"># 3. Check for rogue UID 0 users in /etc/passwd</span>
+<span class="cmd">awk -F: '$3 == 0 {print $1, $3, $7}' /etc/passwd</span>
+
+<span class="cmt"># 4. Find world-writable directories missing the Sticky Bit (1000)</span>
+<span class="cmd">find / -xdev -type d \( -perm -0002 -a ! -perm -1000 \) 2&gt;/dev/null</span>
+
+<span class="cmt"># 5. Decode process effective capabilities from /proc/self/status</span>
+<span class="cmd">grep CapEff /proc/self/status</span>
+<span class="cmd">capsh --decode=0000000000000000</span></pre>
+      </section>
+
+      <!-- SECTION 6 -->
+      <section class="section-card" id="sec-quiz">
+        <div class="section-num">Module 1.6 • Concept Verification</div>
+        <h2>6. Interactive Self-Check Quiz</h2>
+        <div class="score-bar">
+          <span>Score: <span id="quizScore" style="color:var(--accent-emerald);">0</span> / 5</span>
+          <button class="btn-reset" onclick="resetQuiz()">Reset Quiz</button>
+        </div>
+
+        <div class="quiz-item" data-answer="1" data-explain="Correct! On Linux, /proc/<PID>/exe is a magic symlink to the executable inode. If an attacker deletes the binary after launching it, reading that symlink reveals '(deleted)' — a classic live-forensic indicator.">
+          <div class="quiz-q">Q1. During live incident triage, an attacker starts malware from <code>/tmp/implant</code> and immediately runs <code>rm /tmp/implant</code>. Where can you still detect and recover the running binary?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) Look inside <code>/etc/passwd</code> for a deleted entry</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) Inspect <code>/proc/&lt;PID&gt;/exe</code> (which shows <code>(deleted)</code>)</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) Run <code>chmod 4000 /tmp</code></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="2" data-explain="Correct! A binary with file capabilities (like cap_setuid+ep) keeps standard 0755 permissions without any SUID bit, so find -perm -4000 completely misses it. Only getcap -r / detects file capabilities.">
+          <div class="quiz-q">Q2. Why did <code>find / -perm -4000 2&gt;/dev/null</code> fail to detect a binary granted <code>cap_setuid+ep</code>?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) Capabilities are stored in <code>/etc/shadow</code></button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) <code>find</code> ignores binaries in <code>/usr/local/bin</code></button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) Capabilities live in extended attributes (<code>security.capability</code>), not the SUID permission bit</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="0" data-explain="Correct! On Debian/Ubuntu, /bin/sh (dash) drops EUID back to RUID on startup unless -p (privileged mode) is explicitly supplied.">
+          <div class="quiz-q">Q3. You trigger an SUID-root binary that spawns <code>/bin/sh</code> without arguments on Ubuntu, yet <code>id</code> still shows <code>uid=1000(student)</code> with no <code>euid=0</code>. Why?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) <code>dash</code> (<code>/bin/sh</code>) resets EUID to RUID unless invoked with <code>-p</code></button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) SUID only changes Group ID, never User ID</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) Docker blocks all SUID binaries on Ubuntu</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="1" data-explain="Correct! The Linux kernel deliberately ignores SUID/SGID on #! interpreted scripts to prevent TOCTOU race conditions between reading the script header and launching the interpreter.">
+          <div class="quiz-q">Q4. An admin runs <code>chmod 4755 backup.sh</code> (a <code>#!/bin/bash</code> script owned by root). When a low-priv user runs <code>./backup.sh</code>, what happens?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) It executes with <code>EUID=0</code></button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) The Linux kernel ignores SUID on <code>#!</code> interpreted scripts; it runs as the normal user</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) The kernel converts it into a sticky bit file</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="2" data-explain="Correct! CAP_DAC_READ_SEARCH bypasses discretionary read permission checks on files and read/search checks on directories, letting a process read /etc/shadow or /root secrets directly.">
+          <div class="quiz-q">Q5. Which Linux capability allows a binary to bypass file read permissions and read <code>/etc/shadow</code> without having <code>UID=0</code>?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) <code>CAP_NET_BIND_SERVICE</code></button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) <code>CAP_NET_RAW</code></button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) <code>CAP_DAC_READ_SEARCH</code></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+      </section>
+
+      <!-- SECTION 7 -->
+      <section class="section-card" id="sec-lab">
+        <div class="section-num">Module 1.7 • Step 3: Live Docker Lab</div>
+        <h2>7. Next Step: Launch Lab 1A (SUID &amp; Capabilities PrivEsc + Hardening)</h2>
+        <p>
+          Now switch from reading to hands-on terminal practice in <code>Phase_1_Core_Foundations/labs/week1_lab1_suid_caps/</code>.
+        </p>
+        <ul>
+          <li><strong>Environment:</strong> Ultra-lightweight Ubuntu 24.04 Docker container (~3–20 MB RAM).</li>
+          <li><strong>Your Mission (Manual First):</strong> Enter as low-privilege user <code>student</code>, discover <strong>3 intentionally misconfigured binaries</strong> (SUID &amp; Capabilities), independently verify privilege escalation / secret extraction for all 3 vectors, and then switch to root admin to remediate every flaw and pass <code>verify_hardening.sh</code>!</li>
+        </ul>
+<pre><span class="cmt"># Build and enter Lab 1A as low-priv user 'student'</span>
+<span class="cmd">cd Phase_1_Core_Foundations/labs/week1_lab1_suid_caps</span>
+<span class="cmd">./run_lab.sh</span></pre>
+        <p style="font-size:0.86rem; color:var(--text-muted); margin-top:8px;">
+          Follow the step-by-step instructions and progressive hints inside <a href="../labs/week1_lab1_suid_caps/README.md"><code>Phase_1_Core_Foundations/labs/week1_lab1_suid_caps/README.md</code></a> (or <a href="https://github.com/marajulcsecu/cybersecurity-5-year-journey/tree/main/Phase_1_Core_Foundations/labs/week1_lab1_suid_caps" target="_blank" rel="noopener">view Lab 1A on GitHub</a>). Do NOT jump straight to scripts until you solve all 3 manually!
+        </p>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    function updatePermCalc() {
+      const g = (id) => document.getElementById(id).checked;
+      const suid = g("bit_suid"), sgid = g("bit_sgid"), sticky = g("bit_sticky");
+      const special = (suid ? 4 : 0) + (sgid ? 2 : 0) + (sticky ? 1 : 0);
+
+      const u = (g("ur") ? 4 : 0) + (g("uw") ? 2 : 0) + (g("ux") ? 1 : 0);
+      const grp = (g("gr") ? 4 : 0) + (g("gw") ? 2 : 0) + (g("gx") ? 1 : 0);
+      const oth = (g("or") ? 4 : 0) + (g("ow") ? 2 : 0) + (g("ox") ? 1 : 0);
+
+      const symTriad = (r, w, x, specChar, specOn) => {
+        const rc = r ? "r" : "-";
+        const wc = w ? "w" : "-";
+        let xc = x ? "x" : "-";
+        if (specOn) xc = x ? specChar.toLowerCase() : specChar.toUpperCase();
+        return rc + wc + xc;
+      };
+
+      const sym = "-" +
+        symTriad(g("ur"), g("uw"), g("ux"), "s", suid) +
+        symTriad(g("gr"), g("gw"), g("gx"), "s", sgid) +
+        symTriad(g("or"), g("ow"), g("ox"), "t", sticky);
+
+      const octal = `${special}${u}${grp}${oth}`;
+      document.getElementById("calcResult").innerHTML = `${sym} &nbsp;|&nbsp; chmod ${octal}`;
+
+      const badge = document.getElementById("calcRiskBadge");
+      if (suid && g("ow")) {
+        badge.className = "calc-risk risk-crit";
+        badge.textContent = "CRITICAL: SUID + World-Writable (anyone can overwrite binary!)";
+      } else if (suid) {
+        badge.className = "calc-risk risk-warn";
+        badge.textContent = "HIGH AUDIT: SUID runs with owner's EUID — check for GTFOBins abuse";
+      } else if (g("ow") && !sticky) {
+        badge.className = "calc-risk risk-crit";
+        badge.textContent = "HIGH RISK: World-writable without Sticky Bit";
+      } else if (sgid) {
+        badge.className = "calc-risk risk-warn";
+        badge.textContent = "AUDIT: SGID elevates EGID or enforces directory group inheritance";
+      } else {
+        badge.className = "calc-risk risk-safe";
+        badge.textContent = "Standard DAC permissions";
+      }
+    }
+
+    let quizAnswered = {};
+    function answerQuiz(btn, chosenIdx) {
+      const card = btn.closest(".quiz-item");
+      const items = Array.from(document.querySelectorAll(".quiz-item"));
+      const qIdx = items.indexOf(card);
+      const correctIdx = parseInt(card.dataset.answer, 10);
+      const btns = card.querySelectorAll(".quiz-btn");
+      const fb = card.querySelector(".quiz-feedback");
+
+      btns.forEach(b => b.classList.remove("correct", "wrong"));
+      if (chosenIdx === correctIdx) {
+        btn.classList.add("correct");
+        fb.style.color = "#6ee7b7";
+        fb.textContent = "✓ " + card.dataset.explain;
+        quizAnswered[qIdx] = true;
+      } else {
+        btn.classList.add("wrong");
+        fb.style.color = "#fda4af";
+        fb.textContent = "✗ Not quite — think about what the kernel checks at execve() or syscall time and try again.";
+        quizAnswered[qIdx] = false;
+      }
+      fb.style.display = "block";
+
+      const score = Object.values(quizAnswered).filter(Boolean).length;
+      document.getElementById("quizScore").textContent = score;
+    }
+
+    function resetQuiz() {
+      quizAnswered = {};
+      document.getElementById("quizScore").textContent = "0";
+      document.querySelectorAll(".quiz-item").forEach(card => {
+        card.querySelectorAll(".quiz-btn").forEach(b => b.classList.remove("correct", "wrong"));
+        const fb = card.querySelector(".quiz-feedback");
+        fb.style.display = "none";
+        fb.textContent = "";
+      });
+    }
+
+    updatePermCalc();
+  </script>
+</body>
+</html>
