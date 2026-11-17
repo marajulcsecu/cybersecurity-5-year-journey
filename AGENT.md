@@ -64,23 +64,27 @@ Job_role-3_Cybersecurity/
 ## 5. Live Progress & Current State (Update Regularly!)
 - **Last Updated:** 2026-11-17
 - **Current Phase:** Year 1 — **Phase 1: Core Foundations, Network Defense & Hybrid AI Workflow** (Months 1–2 / Weeks 1–8)
-- **Current Week / Topic:** **Week 1 (Pre-Start / Environment & Repo Setup)**
+- **Current Week / Topic:** **Week 1 — Lesson 1 & Lab 1A Active (Steps 1–3 of 5-Step Loop)**
+- **GitHub Repository & Live Pages:**
+  - **Repo:** <https://github.com/marajulcsecu/cybersecurity-5-year-journey> (`main` branch, public)
+  - **GitHub Pages Hub:** <https://marajulcsecu.github.io/cybersecurity-5-year-journey/>
 - **Completed Artifacts:**
   - [x] 5-Year Master Roadmap v2.0 (`cybersecurity_5_year_roadmap.html` & `.pdf`)
   - [x] Phase 1 Detailed 8-Week Plan (`Phase_1_Core_Foundations/phase_1_detailed_plan.html` & `.pdf`)
-  - [x] Public Learning Hub (`index.html`) & `.gitignore`
+  - [x] Public Learning Hub (`index.html`), `.gitignore`, `.nojekyll`
+  - [x] GitHub Repo & GitHub Pages configured (`marajulcsecu/cybersecurity-5-year-journey`)
+  - [x] **Week 1 Lesson 1** (`Phase_1_Core_Foundations/lessons/week1_lesson1_linux_internals.html`) — Linux processes, `/proc`, DAC permissions + interactive octal calculator, SUID (`dash -p`), POSIX Capabilities (`cap_setuid`, `cap_dac_override`, `cap_dac_read_search`), CLI triage, and 5-question interactive quiz
+  - [x] **Week 1 Lab 1A** (`Phase_1_Core_Foundations/labs/week1_lab1_suid_caps/`) — Ultra-lightweight `ubuntu:24.04` Docker lab (`lab1a-suid-caps:latest`, ~106 MB image, ~2.5 MiB container RAM) with 3 independent vectors (`audit-find` SUID, `py-diag` `cap_setuid+ep`, `backup-tar` `cap_dac_override+ep`) + `run_lab.sh` + `verify_hardening.sh` (tested 6/6 pass after hardening)
   - [x] Persistent Agent Memory (`AGENT.md`)
-- **Known System Facts (Observed 2026-11-15 & Verified 2026-11-17):**
-  - `python3` (`3.12.3`), `git` (`2.43.0`, user `MD. MARAJUL HAQUE` / `marajul.cu@gmail.com`), `docker` (`29.1.3`, runs without `sudo`) are installed.
-  - `tshark` & `nmap` were missing on host (use Docker image or install in Week 3).
-  - `git init` has NOT been run in this directory yet.
-  - **GitHub CLI (`gh`):** In the student's desktop terminal (`~/Course_Learning/Job_role-3_Cybersecurity`), `gh auth status` is **valid and logged in** as `marajulcsecu` via `keyring` (`https`, scopes: `codespace`, `gist`, `read:org`, `repo`, `workflow`). Note: Antigravity's subprocess shell may not inherit the desktop GNOME keyring session, so if `gh` fails from agent shell, have the student run `gh`/`git push` directly in their desktop terminal tab (do NOT recreate old tokens unnecessarily).
-  - Laptop RAM is `7.4 GiB` total (`open-webui` container was running in background—suggest stopping when not needed to save RAM).
+- **Known System Facts (Observed 2026-11-17):**
+  - `python3` (`3.12.3`), `git` (`2.43.0`, user `MD. MARAJUL HAQUE` / `marajul.cu@gmail.com`), `docker` (`29.1.3`, runs without `sudo`, `overlay2` storage driver) are installed.
+  - Default Docker container capability bounding set drops `cap_dac_read_search`, while `cap_setuid` and `cap_dac_override` are permitted without `--cap-add`.
+  - `gh` CLI (`2.100.0`) works directly from workspace shell as `marajulcsecu` via keyring (`repo`, `workflow` scopes).
+  - Laptop RAM is `7.4 GiB` total (`open-webui` container running in background—can stop when not needed to save RAM).
 - **Exact Next Steps (Immediate Action Items):**
-  1. Initialize Git (`git init`), create GitHub repo (`gh repo create` — or give exact command for student's terminal tab if agent shell keyring differs), and enable GitHub Pages (`index.html`).
-  2. Create **Phase 1, Week 1, Lesson 1** (`Phase_1_Core_Foundations/lessons/week1_lesson1_linux_internals.html`) — *Linux OS Internals, Processes, `/proc`, DAC Permissions, SUID & Capabilities* with SVG diagrams and interactive quiz.
-  3. Build **Lab 1A** (`Phase_1_Core_Foundations/labs/week1_lab1_suid_caps/`) — ultra-lightweight Docker privilege escalation & hardening lab (`< 50 MB` RAM).
-  4. Build **Tool #1 Script** (`Phase_1_Core_Foundations/tools/suid_cap_scanner.py`) + set up Google Colab GPU Ollama tunnel.
+  1. **Step 2 & Step 3 (Student Action):** Read Lesson 1 in browser, ask any Bangla/Banglish Q&A, then run `./Phase_1_Core_Foundations/labs/week1_lab1_suid_caps/run_lab.sh` to solve all 3 Lab 1A vectors **manually first**, fix them as root, and pass `./verify_hardening.sh`.
+  2. **Step 4 (Automate Second):** Build `Phase_1_Core_Foundations/tools/suid_cap_scanner.py` + set up Google Colab GPU Ollama (`cloudflared`) tunnel.
+  3. **Step 5 (Feynman & Publish):** Student writes Lab 1A proof/Feynman summary in `Phase_1_Core_Foundations/writeups/`, updates checklists, and pushes to GitHub.
 
 ---
 
