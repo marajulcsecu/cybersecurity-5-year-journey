@@ -53,20 +53,14 @@ Job_role-3_Cybersecurity/
 ├── AGENT.md                          # Single source of truth for AI mentor & live state (KEEP UPDATED)
 ├── README.md                         # Repo overview
 ├── index.html                        # Public Learning Hub Portal (GitHub Pages entry)
-├── master_roadmap.html               # Timeless First-Principles Master Roadmap (v3.0, Stages 0–7)
+├── master_roadmap.html               # Timeless First-Principles Master Roadmap (v3.1, Stages 0–7)
 ├── .nojekyll                         # Clean static GitHub Pages serving
 ├── .gitignore                        # Blocks .env, keys, large pcaps, binaries, caches
-├── Stage_0_CS_Systems_Bedrock/       # ★ ACTIVE STAGE (Modules 0.1–0.5 + Mastery Gate 0)
-│   ├── README.md
-│   ├── stage_0_detailed_plan.html
-│   ├── lessons/
-│   ├── labs/
-│   ├── writeups/
-│   └── tools/
-└── Stage_1_OS_Internals/             # Pre-staged Stage 1 (unlocks after Mastery Gate 0)
+└── Stage_0_CS_Systems_Bedrock/       # ★ ACTIVE STAGE (Modules 0.1–0.5 + Mastery Gate 0)
     ├── README.md
-    ├── lessons/stage1_lesson1_linux_internals.html
-    ├── labs/lab1a_suid_caps/
+    ├── stage_0_detailed_plan.html
+    ├── lessons/module0_1_bits_integers_encoding.html
+    ├── labs/lab0a_bits_integer_overflow/
     ├── writeups/
     └── tools/
 ```
@@ -81,21 +75,23 @@ Job_role-3_Cybersecurity/
 ## 6. Live Progress & Current State (Update Regularly!)
 - **Last Updated:** 2026-11-19
 - **Current Tier / Stage:** **Tier I — Stage 0: Computing & Systems Bedrock (Security Lens)**
-- **Current Module:** **Ready to start Module 0.1** (*Data Representation, Two's Complement, Integer Overflows, Endianness & Encoding Pitfalls*)
+- **Current Module:** **Module 0.1 & Lab 0A Active (Steps 1–4 of 5-Step Loop)** — *Data Representation, Two's Complement, Integer Overflows, Endianness & Encoding Pitfalls*
 - **GitHub Repository & Live Pages:**
   - **Repo:** <https://github.com/marajulcsecu/cybersecurity-5-year-journey> (`main` branch, public)
   - **GitHub Pages Hub:** <https://marajulcsecu.github.io/cybersecurity-5-year-journey/>
 - **Completed Artifacts:**
-  - [x] Timeless First-Principles Master Roadmap v3.0 (`master_roadmap.html`)
+  - [x] Timeless First-Principles Master Roadmap v3.1 (`master_roadmap.html`, Obsidian/Light UI, Workflow Playbook)
   - [x] Stage 0 Detailed Mastery Syllabus (`Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html` & `README.md`)
-  - [x] Refreshed Public Learning Hub (`index.html`), `README.md`, and `AGENT.md`
-  - [x] Pre-staged Stage 1 Linux Internals Lesson 1 & Docker Lab 1A (`Stage_1_OS_Internals/`, tested 6/6 hardening pass, ~2.5 MiB RAM) — held cleanly for after Mastery Gate 0
+  - [x] Refreshed Public Learning Hub (`index.html`), `README.md`, and `AGENT.md` (cleanly removed premature `Stage_1_OS_Internals/` to enforce strict 1-stage-at-a-time discipline)
+  - [x] **Stage 0, Module 0.1 Visual HTML Lecture** (`Stage_0_CS_Systems_Bedrock/lessons/module0_1_bits_integers_encoding.html`) — Trust invariants, Hex/Bitwise, Two's Complement SVG, Interactive Integer Overflow/Signedness Simulator, Endianness SVG, Null-Byte Parser Differential SVG, 6-question self-check quiz
+  - [x] **Stage 0, Lab 0A** (`Stage_0_CS_Systems_Bedrock/labs/lab0a_bits_integer_overflow/`) — Native C + `gdb` lab (`part1_byte_inspector.c`, `part2_vuln_vault.c` with 3 real flaws, `Makefile`, `verify_lab0a.sh` tested 9/9 pass under `-Wall -Wextra -Werror -fsanitize=address,undefined`, collapsible hints `README.md`)
 - **Known System Facts (Verified 2026-11-19):**
   - `python3` (`3.12.3`), `git` (`2.43.0`, user `MD. MARAJUL HAQUE` / `marajul.cu@gmail.com`), `docker` (`29.1.3`, runs without `sudo`, `overlay2` driver), `gh` (`2.100.0`, logged in as `marajulcsecu`).
-  - Stage 0 native C/systems toolchain already installed on host: `gcc`, `g++`, `gdb`, `readelf`, `objdump`, `nm`, `strings`, `strace` (`ltrace` not installed yet).
+  - Stage 0 native C/systems toolchain already installed on host: `gcc`, `g++`, `gdb`, `readelf`, `objdump`, `nm`, `strings`, `strace` (`ltrace` optional).
 - **Exact Next Steps (Immediate Action Items):**
-  1. Create **Stage 0, Module 0.1 Visual HTML Lecture** (`Stage_0_CS_Systems_Bedrock/lessons/module0_1_bits_integers_encoding.html`) — Binary/Hex, Two's Complement, Integer Overflow/Signedness CVEs, Endianness, UTF-8/Null-byte traps + interactive bit/overflow simulator + quiz.
-  2. Build **Lab 0A** (`Stage_0_CS_Systems_Bedrock/labs/lab0a_bits_integer_overflow/`) — hands-on C byte/endianness inspector + vulnerable C allocator/balance integer-overflow Break & Fix lab (runs natively with `gcc`/`gdb`).
+  1. **Steps 1–4 (Student Action):** Study Module 0.1 HTML lecture + pass the 6-question quiz, ask any Bangla/Banglish Q&A, run `make` in `lab0a_bits_integer_overflow/`, inspect memory in `gdb`, capture all 3 flags manually, patch `part2_patched_vault.c`, and pass `./verify_lab0a.sh`.
+  2. **Step 5 (Feynman & Publish):** Student explains Module 0.1 concepts in 4–5 lines + saves proof in `Stage_0_CS_Systems_Bedrock/writeups/lab0a_writeup.md`.
+  3. **Next Module:** Launch **Module 0.2** (*C Programming & Memory Internals: Pointers, Structs/Padding, Stack vs Heap, OOB, UAF & ASan*) + **Lab 0B**.
 
 ---
 

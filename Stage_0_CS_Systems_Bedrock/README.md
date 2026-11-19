@@ -4,7 +4,9 @@
 - **Master Roadmap:** [`../master_roadmap.html`](../master_roadmap.html)
 
 ## Modules (Self-Paced, Mastery-Gated)
-1. **Module 0.1:** Data Representation, Two's Complement, Integer Overflows & Encoding Pitfalls
+1. **Module 0.1 ★ (Active):** Data Representation, Two's Complement, Integer Overflows & Encoding Pitfalls
+   - Visual HTML Lecture: [`lessons/module0_1_bits_integers_encoding.html`](./lessons/module0_1_bits_integers_encoding.html)
+   - Native C + `gdb` Lab 0A: [`labs/lab0a_bits_integer_overflow/README.md`](./labs/lab0a_bits_integer_overflow/README.md)
 2. **Module 0.2:** C Programming & Memory Internals (Pointers, Stack, Heap & Undefined Behavior)
 3. **Module 0.3:** Build Toolchain, Compilers, Linkers & ELF Binary Anatomy (`readelf`, `objdump`, `ldd`, `nm`)
 4. **Module 0.4:** CPU Architecture, x86_64 Assembly Reading & `gdb` Debugging Craft

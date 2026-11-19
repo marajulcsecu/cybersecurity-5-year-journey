@@ -849,8 +849,6 @@
             label: "Stage 1",
             prereq: "Requires: Mastery Gate 0",
             active: false,
-            detailLink: "./Stage_1_OS_Internals/lessons/stage1_lesson1_linux_internals.html",
-            detailLabel: "Preview Stage 1 Lesson 1 →",
             title: "Operating Systems Internals & Host Security (Linux Deep-Dive → Windows Internals)",
             desc: "Understand how kernels manage processes, threads, locks, access control, container isolation, and host security telemetry.",
             concepts: [
@@ -861,7 +859,7 @@
               "Windows OS Internals Foundation: Processes/Threads, Access Tokens & SIDs, Integrity Levels, ACLs/DACLs, Registry, Services, Win32/NT API boundary, PowerShell & Event Logs"
             ],
             deliverables: [
-              "Complete Lab 1A (Docker SUID & POSIX Capabilities PrivEsc + Hardening verification — pre-staged in Stage_1_OS_Internals/)",
+              "Complete Linux SUID & POSIX Capabilities PrivEsc + Hardening Docker Lab manually, then remove all flaws",
               "Solve OverTheWire Bandit Levels 0 → 25 purely manually for fluent Linux CLI mastery",
               "Build a minimal container-like sandbox manually using Linux unshare (namespaces) & inspect /proc/<pid>/ns",
               "Write a clean deterministic Python auditor (suid_cap_scanner.py & host hardening checker) with zero LLM fluff"

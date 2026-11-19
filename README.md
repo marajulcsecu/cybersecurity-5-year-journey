@@ -22,4 +22,5 @@ A timeless, **Mastery-Gated** cybersecurity engineering curriculum built from tr
 ## Current Active Stage
 - **Tier I — Stage 0:** [`Stage_0_CS_Systems_Bedrock/`](./Stage_0_CS_Systems_Bedrock/README.md) — *Computing & Systems Bedrock (Bits, C Memory, Build Toolchain/ELF, x86_64 Assembly Reading, Virtual Memory & Syscalls)*
   - Interactive Syllabus: [`Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html`](./Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html)
-- **Tier I — Stage 1 (Pre-Staged, unlocks after Mastery Gate 0):** [`Stage_1_OS_Internals/`](./Stage_1_OS_Internals/README.md) — includes Lesson 1 & Docker Lab 1A (`lab1a_suid_caps`).
+  - **Active Module 0.1 Lecture:** [`module0_1_bits_integers_encoding.html`](./Stage_0_CS_Systems_Bedrock/lessons/module0_1_bits_integers_encoding.html)
+  - **Active Lab 0A (C + GDB):** [`labs/lab0a_bits_integer_overflow/`](./Stage_0_CS_Systems_Bedrock/labs/lab0a_bits_integer_overflow/README.md)

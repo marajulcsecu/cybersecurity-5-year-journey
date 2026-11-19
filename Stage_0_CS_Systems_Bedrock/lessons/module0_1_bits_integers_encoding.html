@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Module 0.1: Data Representation, Two's Complement, Integer Overflows &amp; Encoding Pitfalls</title>
+  <style>
+    :root {
+      --bg: #09090b;
+      --bg-elevated: #111114;
+      --bg-card: #141418;
+      --bg-subtle: #1c1c22;
+      --bg-code: #0d0d11;
+      --border: #26262e;
+      --border-strong: #383844;
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --text-dim: #71717a;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --accent-ink: #03261d;
+      --accent-soft: rgba(16, 185, 129, 0.12);
+      --accent-border: rgba(16, 185, 129, 0.35);
+      --link: #38bdf8;
+      --sky-soft: rgba(56, 189, 248, 0.12);
+      --amber: #f59e0b;
+      --amber-soft: rgba(245, 158, 11, 0.12);
+      --purple: #a78bfa;
+      --rose: #f43f5e;
+      --rose-soft: rgba(244, 63, 94, 0.14);
+      --radius: 10px;
+    }
+
+    [data-theme="light"] {
+      --bg: #fafafa;
+      --bg-elevated: #ffffff;
+      --bg-card: #ffffff;
+      --bg-subtle: #f4f4f5;
+      --bg-code: #111114;
+      --border: #e4e4e7;
+      --border-strong: #d4d4d8;
+      --text: #18181b;
+      --text-muted: #52525b;
+      --text-dim: #71717a;
+      --accent: #059669;
+      --accent-hover: #047857;
+      --accent-ink: #ffffff;
+      --accent-soft: rgba(5, 150, 105, 0.1);
+      --accent-border: rgba(5, 150, 105, 0.35);
+      --link: #0284c7;
+      --sky-soft: rgba(2, 132, 199, 0.1);
+      --amber: #d97706;
+      --amber-soft: rgba(217, 119, 6, 0.1);
+      --purple: #7c3aed;
+      --rose: #e11d48;
+      --rose-soft: rgba(225, 29, 72, 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.66;
+      padding-bottom: 72px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.85em;
+      background: var(--bg-subtle);
+      color: var(--link);
+      padding: 2px 6px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+    }
+
+    pre {
+      background: #0d0d11;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.83rem;
+      line-height: 1.56;
+      color: #e4e4e7;
+      margin: 12px 0;
+    }
+
+    pre .kw { color: #c084fc; }
+    pre .ty { color: #38bdf8; }
+    pre .fn { color: #34d399; }
+    pre .cm { color: #71717a; }
+    pre .nu { color: #fbbf24; }
+    pre .bad { color: #fb7185; font-weight: 700; }
+
+    /* Slim 52px Sticky Topbar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 52px;
+      background: color-mix(in srgb, var(--bg-elevated) 92%, transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+    }
+
+    .topbar-inner {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .breadcrumb a { color: var(--text-muted); }
+    .breadcrumb a:hover { color: var(--text); text-decoration: none; }
+    .breadcrumb .sep { color: var(--text-dim); }
+
+    .top-actions { display: flex; align-items: center; gap: 8px; }
+
+    .top-btn {
+      background: var(--bg-subtle);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .top-btn:hover { border-color: var(--border-strong); text-decoration: none; }
+
+    /* Normal-Flow Scrolling Hero */
+    .hero {
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      padding: 32px 24px 26px;
+    }
+
+    .container { max-width: 1120px; margin: 0 auto; }
+
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+
+    .pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+    }
+
+    .pill-accent { color: var(--accent); background: var(--accent-soft); border-color: var(--accent-border); }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 820px;
+    }
+
+    /* Main 2-Column Layout (Sticky TOC + Reading Column) */
+    .layout {
+      max-width: 1120px;
+      margin: 28px auto 0;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 230px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .toc { position: static !important; }
+    }
+
+    .toc {
+      position: sticky;
+      top: 68px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 15px;
+    }
+
+    .toc h2 {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+
+    .toc ul { list-style: none; }
+    .toc li { margin-bottom: 5px; }
+    .toc a {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    .toc a:hover { background: var(--bg-subtle); color: var(--text); text-decoration: none; }
+
+    .content { min-width: 0; }
+
+    .section-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 22px;
+    }
+
+    .sec-eyebrow {
+      font-size: 0.73rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .section-card h2 {
+      font-size: 1.32rem;
+      font-weight: 800;
+      letter-spacing: -0.015em;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .section-card h3 {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 18px 0 8px;
+    }
+
+    .section-card p, .section-card li {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .section-card strong { color: var(--text); }
+    .section-card ul, .section-card ol { padding-left: 20px; margin-bottom: 10px; }
+
+    .diagram-box {
+      background: #0d0d11;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      overflow-x: auto;
+    }
+
+    .diagram-caption {
+      font-size: 0.78rem;
+      color: #a1a1aa;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .dual-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 14px 0;
+    }
+
+    @media (max-width: 700px) { .dual-grid { grid-template-columns: 1fr; } }
+
+    .lens {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .lens.attacker { border-top: 3px solid var(--rose); }
+    .lens.defender { border-top: 3px solid var(--accent); }
+
+    .lens-title {
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 7px;
+    }
+
+    .lens.attacker .lens-title { color: var(--rose); }
+    .lens.defender .lens-title { color: var(--accent); }
+
+    .callout {
+      background: var(--amber-soft);
+      border: 1px solid color-mix(in srgb, var(--amber) 35%, transparent);
+      border-left: 3px solid var(--amber);
+      border-radius: 8px;
+      padding: 12px 15px;
+      margin: 14px 0;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .callout strong { color: var(--amber); }
+
+    .callout-accent {
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      border-left: 3px solid var(--accent);
+    }
+
+    .callout-accent strong { color: var(--accent); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.85rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 9px 11px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--bg-subtle);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    td { color: var(--text-muted); }
+
+    /* Interactive Overflow Simulator */
+    .sim-wrap {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 18px;
+      margin: 16px 0;
+    }
+
+    .sim-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 10px 0 14px;
+    }
+
+    .preset-btn {
+      background: var(--bg-subtle);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .preset-btn:hover { border-color: var(--accent); }
+
+    .sim-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 680px) { .sim-controls { grid-template-columns: 1fr; } }
+
+    .sim-field label {
+      display: block;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+
+    .sim-field select, .sim-field input {
+      width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.86rem;
+    }
+
+    .sim-out {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 13px 15px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.83rem;
+      line-height: 1.7;
+    }
+
+    .sim-alert {
+      margin-top: 10px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.83rem;
+      font-weight: 600;
+    }
+
+    .alert-ok { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-border); }
+    .alert-bad { background: var(--rose-soft); color: var(--rose); border: 1px solid color-mix(in srgb, var(--rose) 40%, transparent); }
+
+    /* Quiz Styling */
+    .score-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 15px;
+      margin-bottom: 14px;
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .quiz-item {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 12px;
+    }
+
+    .quiz-q {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.91rem;
+      margin-bottom: 10px;
+    }
+
+    .quiz-options { display: flex; flex-direction: column; gap: 7px; }
+
+    .quiz-btn {
+      text-align: left;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 9px 12px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .quiz-btn:hover { border-color: var(--border-strong); background: var(--bg-subtle); }
+    .quiz-btn.correct { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+    .quiz-btn.wrong { border-color: var(--rose); background: var(--rose-soft); color: var(--rose); }
+
+    .quiz-feedback {
+      margin-top: 9px;
+      font-size: 0.83rem;
+      display: none;
+      padding: 8px 11px;
+      border-radius: 6px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="topbar" aria-label="Breadcrumb">
+    <div class="topbar-inner">
+      <div class="breadcrumb">
+        <a href="../../index.html">Hub</a>
+        <span class="sep">/</span>
+        <a href="../../master_roadmap.html">Roadmap</a>
+        <span class="sep">/</span>
+        <a href="../stage_0_detailed_plan.html">Stage 0</a>
+        <span class="sep">/</span>
+        <span>Module 0.1</span>
+      </div>
+      <div class="top-actions">
+        <a class="top-btn" href="../stage_0_detailed_plan.html">Stage 0 Plan</a>
+        <button class="top-btn" id="themeBtn" onclick="toggleTheme()">Light</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="container">
+      <div class="badge-row">
+        <span class="pill pill-accent">Tier I • Stage 0 • Module 0.1</span>
+        <span class="pill">5-Step Loop • Step 1: Visual Lecture</span>
+        <span class="pill">Security Lens</span>
+      </div>
+      <h1>Data Representation, Two's Complement, Integer Overflows &amp; Encoding Pitfalls</h1>
+      <p class="subtitle">
+        CPUs do not know what "money", "permissions", or "safe filenames" are—they only manipulate fixed-width bits. Learn how bit-width wrap-around, signed/unsigned promotion, byte order, and NUL-byte parser mismatches create real-world CVEs.
+      </p>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="toc" aria-label="Lesson Sections">
+      <h2>Module 0.1 Contents</h2>
+      <ul>
+        <li><a href="#sec-invariants">1. Invariants &amp; Trust Boundaries</a></li>
+        <li><a href="#sec-bits">2. Hex, Bits &amp; Bitmasks</a></li>
+        <li><a href="#sec-twos">3. Two's Complement &amp; Overflows</a></li>
+        <li><a href="#sec-sim">4. Interactive Overflow Lab</a></li>
+        <li><a href="#sec-endian">5. Endianness in RAM &amp; Wire</a></li>
+        <li><a href="#sec-encoding">6. NUL Bytes &amp; Parser Bugs</a></li>
+        <li><a href="#sec-quiz">7. Self-Check Quiz (6 Qs)</a></li>
+        <li><a href="#sec-lab">8. Launch Lab 0A (C + GDB)</a></li>
+      </ul>
+    </aside>
+
+    <main class="content">
+
+      <!-- SECTION 1 -->
+      <section class="section-card" id="sec-invariants">
+        <div class="sec-eyebrow">Section 0.1.1 • Day-1 Security Mental Model</div>
+        <h2>1. Thinking in Invariants &amp; Trust Boundaries</h2>
+        <p>
+          In university programming, you mostly ask: <em>"Does my code work for normal inputs?"</em>
+          In cybersecurity engineering, you ask a completely different question:
+          <strong>"What hidden assumption (invariant) did the programmer rely on—and what untrusted input breaks it?"</strong>
+        </p>
+        <ul>
+          <li><strong>Trust Boundary:</strong> Any edge where untrusted external bytes (network packet, file, HTTP body, CLI argument, game client packet) cross into trusted logic (allocator, database, kernel, access check).</li>
+          <li><strong>Broken Invariant Example:</strong> In ordinary math, <code>x + 16 &gt; x</code> is always true. On a 32-bit unsigned CPU register, if <code>x = 0xFFFFFFF8</code>, then <code>x + 16 == 8</code>! The programmer's math assumption breaks, and a buffer overflow is born.</li>
+        </ul>
+      </section>
+
+      <!-- SECTION 2 -->
+      <section class="section-card" id="sec-bits">
+        <div class="sec-eyebrow">Section 0.1.2 • Speaking the Machine's Native Language</div>
+        <h2>2. Binary, Hexadecimal &amp; Bitwise Operations</h2>
+        <p>
+          Security engineers read Hexadecimal (<code>0x</code>) fluently because <strong>1 hex digit maps to exactly 4 bits (1 nibble)</strong>, and <strong>2 hex digits equal 1 byte (8 bits: <code>0x00</code> to <code>0xFF</code>)</strong>.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Operator</th>
+              <th>Meaning</th>
+              <th>Real Security / Systems Use</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>&amp;</code> (AND)</td>
+              <td>Keep only selected bits (masking)</td>
+              <td>Check TCP flags (<code>flags &amp; 0x02</code> = SYN), check permission bits, page alignment (<code>addr &amp; ~0xFFF</code>)</td>
+            </tr>
+            <tr>
+              <td><code>|</code> (OR)</td>
+              <td>Turn specific bits ON</td>
+              <td>Combine Linux <code>open()</code> flags (<code>O_CREAT | O_WRONLY</code>) or chmod bits</td>
+            </tr>
+            <tr>
+              <td><code>^</code> (XOR)</td>
+              <td>Toggle bits / self-inverse (<code>A ^ K ^ K = A</code>)</td>
+              <td>Stream ciphers, one-time pad, malware obfuscation, zeroing CPU registers (<code>xor eax, eax</code>)</td>
+            </tr>
+            <tr>
+              <td><code>&lt;&lt;</code> / <code>&gt;&gt;</code></td>
+              <td>Shift left (×2) / right (÷2)</td>
+              <td>Bit-packing headers; <strong>Watch out:</strong> right-shifting a negative signed integer performs <em>sign extension</em> (arithmetic shift), keeping the MSB <code>1</code>!</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- SECTION 3 -->
+      <section class="section-card" id="sec-twos">
+        <div class="sec-eyebrow">Section 0.1.3 • Classic C &amp; Game/Systems CVEs</div>
+        <h2>3. Two's Complement, Signedness Bugs &amp; Integer Overflows</h2>
+        <p>
+          Computers don't store a separate minus sign. They use <strong>Two's Complement</strong> so the exact same adder hardware handles both signed and unsigned math. To negate a value in Two's Complement: <strong>invert all bits and add 1</strong> (<code>-x == (~x) + 1</code>).
+        </p>
+        <p>
+          That means the <strong>exact same bit pattern <code>0xFF</code> (<code>11111111</code>)</strong> means <strong><code>255</code></strong> as <code>uint8_t</code>, and <strong><code>-1</code></strong> as <code>int8_t</code>! The bits themselves have NO type—the <em>instruction or C type</em> decides how to interpret them.
+        </p>
+
+        <div class="diagram-box">
+          <svg viewBox="0 0 820 230" width="100%" height="auto" role="img" aria-label="8-bit Unsigned vs Signed Two's Complement Wrap-Around">
+            <rect x="6" y="6" width="808" height="218" rx="8" fill="#09090b" stroke="#26262e" />
+
+            <!-- Unsigned Box -->
+            <rect x="24" y="24" width="372" height="182" rx="8" fill="#141418" stroke="#38bdf8" />
+            <text x="210" y="48" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="700">UNSIGNED 8-BIT (uint8_t: 0 .. 255)</text>
+            <rect x="44" y="66" width="142" height="44" rx="6" fill="#1c1c22" stroke="#383844" />
+            <text x="115" y="85" text-anchor="middle" fill="#f4f4f5" font-size="11" font-family="monospace">0xFF = 255</text>
+            <text x="115" y="101" text-anchor="middle" fill="#a1a1aa" font-size="10">1111 1111</text>
+
+            <line x1="186" y1="88" x2="226" y2="88" stroke="#f59e0b" stroke-width="2" />
+            <polygon points="224,83 233,88 224,93" fill="#f59e0b" />
+            <text x="208" y="78" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="700">+ 1</text>
+
+            <rect x="234" y="66" width="142" height="44" rx="6" fill="#2a1219" stroke="#f43f5e" />
+            <text x="305" y="85" text-anchor="middle" fill="#fb7185" font-size="11" font-family="monospace" font-weight="700">0x00 = 0 !</text>
+            <text x="305" y="101" text-anchor="middle" fill="#fda4af" font-size="10">0000 0000 (wrap!)</text>
+
+            <text x="210" y="138" text-anchor="middle" fill="#a1a1aa" font-size="10.5">Well-defined modulo 2^N arithmetic in C.</text>
+            <text x="210" y="158" text-anchor="middle" fill="#fb7185" font-size="10.5">Bug: uint32_t sz = len + 16 wraps to tiny malloc()!</text>
+            <text x="210" y="178" text-anchor="middle" fill="#fbbf24" font-size="10.5">Bug: count * price wraps to &lt; balance in game stores!</text>
+
+            <!-- Signed Box -->
+            <rect x="424" y="24" width="372" height="182" rx="8" fill="#141418" stroke="#10b981" />
+            <text x="610" y="48" text-anchor="middle" fill="#10b981" font-size="12" font-weight="700">SIGNED 8-BIT (int8_t: -128 .. +127)</text>
+            <rect x="444" y="66" width="142" height="44" rx="6" fill="#1c1c22" stroke="#383844" />
+            <text x="515" y="85" text-anchor="middle" fill="#f4f4f5" font-size="11" font-family="monospace">0x7F = +127</text>
+            <text x="515" y="101" text-anchor="middle" fill="#a1a1aa" font-size="10">0111 1111 (MSB=0)</text>
+
+            <line x1="586" y1="88" x2="626" y2="88" stroke="#f59e0b" stroke-width="2" />
+            <polygon points="624,83 633,88 624,93" fill="#f59e0b" />
+            <text x="608" y="78" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="700">+ 1</text>
+
+            <rect x="634" y="66" width="142" height="44" rx="6" fill="#2a1219" stroke="#f43f5e" />
+            <text x="705" y="85" text-anchor="middle" fill="#fb7185" font-size="11" font-family="monospace" font-weight="700">0x80 = -128 !</text>
+            <text x="705" y="101" text-anchor="middle" fill="#fda4af" font-size="10">1000 0000 (MSB=1)</text>
+
+            <text x="610" y="138" text-anchor="middle" fill="#fb7185" font-size="10.5">Signed overflow in C is UNDEFINED BEHAVIOR!</text>
+            <text x="610" y="158" text-anchor="middle" fill="#a1a1aa" font-size="10.5">gcc -O2 may DELETE 'if (a + b &lt; a)' checks completely!</text>
+            <text x="610" y="178" text-anchor="middle" fill="#34d399" font-size="10.5">Fix: Check BEFORE adding / __builtin_add_overflow()</text>
+          </svg>
+          <div class="diagram-caption">Figure 1: Fixed-width arithmetic wraps around mod 2^N—turning large positive sizes into tiny buffers or negative numbers.</div>
+        </div>
+
+        <h3>3 Real-World Integer CVE Patterns Every Engineer Must Recognize</h3>
+<pre><span class="cm">/* Pattern 1: Unsigned Wrap-Around before malloc() */</span>
+<span class="ty">uint32_t</span> total = user_len + <span class="nu">16</span>;      <span class="cm">// If user_len = 0xFFFFFFF8, total wraps to 8!</span>
+<span class="ty">char</span> *buf = <span class="fn">malloc</span>(total);            <span class="cm">// Allocates only 8 bytes on the heap!</span>
+<span class="fn">memcpy</span>(buf, untrusted, user_len);    <span class="bad">// Copies ~4 GB into an 8-byte buffer -> HEAP OVERFLOW!</span>
+
+<span class="cm">/* Pattern 2: Signed-to-Unsigned Promotion Trap */</span>
+<span class="ty">int32_t</span> len = <span class="fn">read_packet_len</span>();     <span class="cm">// Attacker sends -5 (0xFFFFFFFB)</span>
+<span class="kw">if</span> (len &gt; <span class="nu">1024</span>) <span class="kw">return</span> -<span class="nu">1</span>;           <span class="bad">// -5 &gt; 1024 is FALSE! Upper bound bypassed!</span>
+<span class="fn">memcpy</span>(dst, src, len);               <span class="bad">// 3rd param is size_t (unsigned) -> HUGE copy!</span>
+
+<span class="cm">/* Pattern 3: Broken Signed Overflow Check Deleted by Compiler Optimization */</span>
+<span class="kw">if</span> (a + b &lt; a) { ... }               <span class="bad">// WRONG for signed int: UB lets gcc -O2 delete this check!</span>
+<span class="kw">if</span> (__builtin_add_overflow(a, b, &amp;res)) { <span class="fn">reject</span>(); } <span class="cm">// SAFE &amp; deterministic!</span></pre>
+      </section>
+
+      <!-- SECTION 4 -->
+      <section class="section-card" id="sec-sim">
+        <div class="sec-eyebrow">Section 0.1.4 • Hands-On Mental Model Sandbox</div>
+        <h2>4. Interactive Integer Overflow &amp; Signedness Simulator</h2>
+        <p>Experiment with bit widths, wrap-around, and signed-vs-unsigned reinterpretation directly before writing C in Lab 0A:</p>
+
+        <div class="sim-wrap">
+          <div style="font-size:0.84rem; font-weight:700; color:var(--text);">Quick Real-World CVE Presets:</div>
+          <div class="sim-presets">
+            <button class="preset-btn" onclick="loadPreset('u32', 4294967288, 16, 'add')">malloc(0xFFFFFFF8 + 16)</button>
+            <button class="preset-btn" onclick="loadPreset('u32', 4294968, 1000, 'mul')">Game Store: 4294968 × 1000</button>
+            <button class="preset-btn" onclick="loadPreset('i8', 127, 1, 'add')">int8_t: 127 + 1</button>
+            <button class="preset-btn" onclick="loadPreset('u8', 0, 1, 'sub')">uint8_t Underflow: 0 - 1</button>
+            <button class="preset-btn" onclick="loadPreset('i32', -5, 0, 'add')">int32_t -5 as uint32_t</button>
+          </div>
+
+          <div class="sim-controls">
+            <div class="sim-field">
+              <label for="simType">Integer Type &amp; Operation</label>
+              <select id="simType" onchange="runSim()">
+                <option value="u32_add">uint32_t (A + B)</option>
+                <option value="u32_mul">uint32_t (A * B)</option>
+                <option value="u8_add">uint8_t (A + B)</option>
+                <option value="u8_sub">uint8_t (A - B)</option>
+                <option value="i8_add">int8_t (A + B)</option>
+                <option value="i32_add">int32_t (A + B)</option>
+              </select>
+            </div>
+            <div class="sim-field">
+              <label for="simA">Operand A (Decimal)</label>
+              <input type="number" id="simA" value="4294967288" oninput="runSim()" />
+            </div>
+            <div class="sim-field">
+              <label for="simB">Operand B (Decimal)</label>
+              <input type="number" id="simB" value="16" oninput="runSim()" />
+            </div>
+          </div>
+
+          <div class="sim-out" id="simOutput"></div>
+          <div class="sim-alert alert-ok" id="simAlert"></div>
+        </div>
+      </section>
+
+      <!-- SECTION 5 -->
+      <section class="section-card" id="sec-endian">
+        <div class="sec-eyebrow">Section 0.1.5 • Byte Order in RAM vs. Network Packets</div>
+        <h2>5. Endianness: Little-Endian (x86_64/ARM64) vs. Big-Endian (Network)</h2>
+        <p>
+          A single byte has no endianness. Endianness only applies when storing a <strong>multi-byte integer</strong> (<code>uint16_t</code>, <code>uint32_t</code>, <code>uint64_t</code>, memory addresses) across consecutive memory bytes:
+        </p>
+        <ul>
+          <li><strong>Little-Endian (x86_64, ARM64 default):</strong> The <strong>Least Significant Byte (LSB)</strong> sits at the <strong>lowest memory address</strong>. When inspecting memory in <code>gdb</code> (<code>x/4xb</code>), multi-byte numbers appear "reversed" byte-by-byte!</li>
+          <li><strong>Big-Endian (Network Byte Order — TCP/IP headers):</strong> The <strong>Most Significant Byte (MSB)</strong> sits at the lowest address (human left-to-right reading order). That is why socket code uses <code>htons()</code> / <code>ntohs()</code> / <code>htonl()</code>!</li>
+        </ul>
+
+        <div class="diagram-box">
+          <svg viewBox="0 0 820 190" width="100%" height="auto" role="img" aria-label="Little-Endian vs Big-Endian memory byte order for 0x12345678">
+            <rect x="6" y="6" width="808" height="178" rx="8" fill="#09090b" stroke="#26262e" />
+            <text x="410" y="30" text-anchor="middle" fill="#f4f4f5" font-size="12" font-weight="700">Storing uint32_t val = 0x12345678 at Address 0x1000 .. 0x1003</text>
+
+            <!-- Little Endian -->
+            <text x="40" y="64" fill="#10b981" font-size="11.5" font-weight="700">Little-Endian (Your Linux x86_64 RAM &amp; GDB)</text>
+            <g font-family="monospace" font-size="12" text-anchor="middle">
+              <rect x="40" y="76" width="82" height="44" rx="5" fill="#132a2c" stroke="#10b981" />
+              <text x="81" y="96" fill="#34d399" font-weight="700">0x78</text>
+              <text x="81" y="113" fill="#a1a1aa" font-size="9.5">0x1000 (LSB)</text>
+
+              <rect x="130" y="76" width="82" height="44" rx="5" fill="#141418" stroke="#383844" />
+              <text x="171" y="96" fill="#f4f4f5">0x56</text>
+              <text x="171" y="113" fill="#a1a1aa" font-size="9.5">0x1001</text>
+
+              <rect x="220" y="76" width="82" height="44" rx="5" fill="#141418" stroke="#383844" />
+              <text x="261" y="96" fill="#f4f4f5">0x34</text>
+              <text x="261" y="113" fill="#a1a1aa" font-size="9.5">0x1002</text>
+
+              <rect x="310" y="76" width="82" height="44" rx="5" fill="#141418" stroke="#383844" />
+              <text x="351" y="96" fill="#f4f4f5">0x12</text>
+              <text x="351" y="113" fill="#a1a1aa" font-size="9.5">0x1003 (MSB)</text>
+            </g>
+
+            <!-- Big Endian -->
+            <text x="430" y="64" fill="#38bdf8" font-size="11.5" font-weight="700">Big-Endian (TCP/IP Network Wire Order)</text>
+            <g font-family="monospace" font-size="12" text-anchor="middle">
+              <rect x="430" y="76" width="82" height="44" rx="5" fill="#0f2233" stroke="#38bdf8" />
+              <text x="471" y="96" fill="#38bdf8" font-weight="700">0x12</text>
+              <text x="471" y="113" fill="#a1a1aa" font-size="9.5">0x1000 (MSB)</text>
+
+              <rect x="520" y="76" width="82" height="44" rx="5" fill="#141418" stroke="#383844" />
+              <text x="561" y="96" fill="#f4f4f5">0x34</text>
+              <text x="561" y="113" fill="#a1a1aa" font-size="9.5">0x1001</text>
+
+              <rect x="610" y="76" width="82" height="44" rx="5" fill="#141418" stroke="#383844" />
+              <text x="651" y="96" fill="#f4f4f5">0x56</text>
+              <text x="651" y="113" fill="#a1a1aa" font-size="9.5">0x1002</text>
+
+              <rect x="700" y="76" width="82" height="44" rx="5" fill="#141418" stroke="#383844" />
+              <text x="741" y="96" fill="#f4f4f5">0x78</text>
+              <text x="741" y="113" fill="#a1a1aa" font-size="9.5">0x1003 (LSB)</text>
+            </g>
+
+            <text x="410" y="156" text-anchor="middle" fill="#a1a1aa" font-size="10.5">Note: ASCII strings like "ABCD" (0x41 0x42 0x43 0x44) are arrays of 1-byte chars—their order is ALWAYS 'A','B','C','D'!</text>
+          </svg>
+          <div class="diagram-caption">Figure 2: Little-Endian reverses multi-byte integers in RAM, while 1-byte char arrays keep sequential order.</div>
+        </div>
+      </section>
+
+      <!-- SECTION 6 -->
+      <section class="section-card" id="sec-encoding">
+        <div class="sec-eyebrow">Section 0.1.6 • LangSec &amp; Parser Differentials</div>
+        <h2>6. ASCII, UTF-8, Null-Byte (<code>0x00</code>) Truncation &amp; Encoding Pitfalls</h2>
+        <p>
+          A huge percentage of real vulnerabilities happen when <strong>two layers disagree on where a string ends or what characters it contains</strong>:
+        </p>
+
+        <div class="diagram-box">
+          <svg viewBox="0 0 820 170" width="100%" height="auto" role="img" aria-label="Null-Byte Truncation Parser Differential">
+            <rect x="6" y="6" width="808" height="158" rx="8" fill="#09090b" stroke="#26262e" />
+
+            <!-- Input Bytes -->
+            <rect x="26" y="24" width="768" height="42" rx="6" fill="#141418" stroke="#383844" />
+            <text x="410" y="49" text-anchor="middle" fill="#f4f4f5" font-size="12" font-family="monospace">
+              Untrusted Input (15 bytes):  s e c r e t . k e y  <tspan fill="#fb7185" font-weight="700">\x00</tspan>  . t x t
+            </text>
+
+            <!-- Layer 1 -->
+            <rect x="26" y="84" width="370" height="62" rx="6" fill="#132a2c" stroke="#10b981" />
+            <text x="211" y="106" text-anchor="middle" fill="#34d399" font-size="11.5" font-weight="700">Layer 1: Length-Aware Validator (memcmp / Python / ASN.1)</text>
+            <text x="211" y="128" text-anchor="middle" fill="#d1fae5" font-size="11">Checks last 4 bytes of 15-byte buffer → sees ".txt" → ALLOW!</text>
+
+            <!-- Arrow -->
+            <line x1="396" y1="115" x2="424" y2="115" stroke="#f59e0b" stroke-width="2" />
+            <polygon points="422,110 430,115 422,120" fill="#f59e0b" />
+
+            <!-- Layer 2 -->
+            <rect x="430" y="84" width="364" height="62" rx="6" fill="#2a1219" stroke="#f43f5e" />
+            <text x="612" y="106" text-anchor="middle" fill="#fb7185" font-size="11.5" font-weight="700">Layer 2: C String Sink (fopen / strcmp / OS syscall)</text>
+            <text x="612" y="128" text-anchor="middle" fill="#fda4af" font-size="11">Stops reading at 0x00 → opens "secret.key" → BYPASSED!</text>
+          </svg>
+          <div class="diagram-caption">Figure 3: Classic Null-Byte Parser Differential—used in historic file-upload, PHP, and X.509 SSL certificate attacks.</div>
+        </div>
+
+        <div class="dual-grid">
+          <div class="lens attacker">
+            <div class="lens-title">Attacker Lens</div>
+            <p>Probes input boundaries with negative numbers (<code>-1</code>, <code>INT_MIN</code>), boundary integers (<code>0xFFFFFFFF</code>, <code>0x7FFFFFFF</code>), embedded <code>\x00</code> bytes, and non-canonical UTF-8 / Unicode homoglyphs (e.g., overlong <code>%c0%af</code> for <code>/</code>) to split what the validator sees from what the backend executes.</p>
+          </div>
+          <div class="lens defender">
+            <div class="lens-title">Defender Lens</div>
+            <p>Enforces invariants at the trust boundary: use unsigned/fixed-width types (<code>uint32_t</code>, <code>size_t</code>) with checked arithmetic (<code>__builtin_mul_overflow</code>), explicitly reject negative values <em>before</em> casting, reject embedded NUL bytes (<code>memchr(buf, '\0', len)</code>), and canonicalize strings <em>before</em> validating.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 7 -->
+      <section class="section-card" id="sec-quiz">
+        <div class="sec-eyebrow">Section 0.1.7 • Concept Verification</div>
+        <h2>7. Self-Check Quiz (Pass Before Starting Lab 0A)</h2>
+        <div class="score-bar">
+          <span>Score: <span id="quizScore" style="color:var(--accent);">0</span> / 6</span>
+          <button class="top-btn" onclick="resetQuiz()">Reset Quiz</button>
+        </div>
+
+        <div class="quiz-item" data-answer="1" data-explain="Correct! 0xFFFFFFFC + 8 = 0x100000004, which truncates mod 2^32 to 0x00000004 (4 bytes). malloc(4) succeeds with a tiny buffer while a subsequent copy of user_len bytes overflows the heap!">
+          <div class="quiz-q">Q1. In C, <code>uint32_t user_len = 0xFFFFFFFC;</code>. What value does <code>uint32_t alloc_size = user_len + 8;</code> evaluate to?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) It throws a runtime OverflowException</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) <code>4</code> (unsigned 32-bit wrap-around modulo 2^32)</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) <code>0xFFFFFFFF</code> (saturating arithmetic)</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="2" data-explain="Correct! -10 > 256 is FALSE (so the check passes!), and then passing int32_t -10 to memcpy's size_t (unsigned 64-bit) parameter converts it via Two's Complement into 18,446,744,073,709,551,606 bytes!">
+          <div class="quiz-q">Q2. Consider <code>int32_t len = -10; if (len &gt; 256) return; memcpy(dst, src, len);</code>. What happens?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) <code>memcpy</code> safely copies 0 bytes for negative lengths</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) The <code>if (len &gt; 256)</code> check catches <code>-10</code></button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) The upper-bound check passes, and <code>len</code> converts to a massive unsigned <code>size_t</code></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="0" data-explain="Correct! In C, signed integer overflow is Undefined Behavior (UB). Optimizing compilers like gcc -O2 assume UB never occurs, so 'a + b < a' for positive signed ints is assumed impossible and can be deleted completely!">
+          <div class="quiz-q">Q3. Why is <code>if (a + b &lt; a)</code> dangerous when <code>a</code> and <code>b</code> are positive <strong>signed</strong> <code>int</code> values compiled with <code>gcc -O2</code>?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) Signed overflow is Undefined Behavior in C, allowing the compiler to optimize away the entire check</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) The CPU refuses to add two signed ints</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) Signed ints always clamp to <code>INT_MAX</code></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="1" data-explain="Correct! x86_64 is Little-Endian: the Least Significant Byte (0xEF) goes to the lowest memory address first -> EF CD AB 90.">
+          <div class="quiz-q">Q4. On a Little-Endian x86_64 Linux machine, you inspect <code>uint32_t magic = 0x90ABCDEF;</code> in <code>gdb</code> with <code>x/4xb &amp;magic</code>. Which byte order do you see?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) <code>0x90 0xab 0xcd 0xef</code></button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) <code>0xef 0xcd 0xab 0x90</code></button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) <code>0xfe 0xdc 0xba 0x09</code></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="0" data-explain="Correct! 8-bit signed 0xFF (11111111) is -1 in Two's Complement (~0xFF + 1 = 0x00 + 1 = 1 -> -1), whereas unsigned 0xFF is 255.">
+          <div class="quiz-q">Q5. What values does the raw byte <code>0xFF</code> represent when interpreted as <code>int8_t</code> vs. <code>uint8_t</code>?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) <code>-1</code> (signed) vs. <code>255</code> (unsigned)</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) <code>-128</code> (signed) vs. <code>256</code> (unsigned)</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) <code>-127</code> (signed) vs. <code>255</code> (unsigned)</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="2" data-explain="Correct! The length-aware layer validates the trailing '.txt' across all 15 bytes, while the C string layer stops reading at 0x00 and opens 'secret.key' instead—a classic parser differential.">
+          <div class="quiz-q">Q6. Why does a length-aware suffix validator accepting <code>"secret.key\x00.txt"</code> become vulnerable when passed to C's <code>fopen()</code>?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) <code>fopen()</code> converts <code>.txt</code> to <code>.key</code></button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) <code>0x00</code> triggers Little-Endian byte swapping</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) C strings terminate at <code>0x00</code>, truncating the string to <code>"secret.key"</code></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+      </section>
+
+      <!-- SECTION 8 -->
+      <section class="section-card" id="sec-lab">
+        <div class="sec-eyebrow">Section 0.1.8 • Step 3 &amp; Step 4: Native C + GDB Lab</div>
+        <h2>8. Next Step: Launch Lab 0A (Byte Inspector + Integer &amp; NUL-Byte Break &amp; Fix)</h2>
+        <p>
+          Now switch from theory to hands-on native C &amp; <code>gdb</code> practice in <code>Stage_0_CS_Systems_Bedrock/labs/lab0a_bits_integer_overflow/</code>.
+        </p>
+        <ul>
+          <li><strong>Part 1 (Inspect Reality):</strong> Compile &amp; run <code>part1_byte_inspector.c</code>, then verify the exact Little-Endian RAM bytes in <code>gdb</code> using <code>x/4xb</code>.</li>
+          <li><strong>Part 2 (Break Manually):</strong> Read <code>part2_vuln_vault.c</code> and exploit all <strong>3 realistic bugs</strong> manually (Unsigned Wrap-Around Store Checkout, Signed-to-Unsigned Promotion Bypass, and NUL-Byte Parser Differential) to capture all 3 flags!</li>
+          <li><strong>Part 3 (Fix &amp; Verify):</strong> Copy to <code>part2_patched_vault.c</code>, patch all 3 root causes cleanly, and pass <code>./verify_lab0a.sh</code> under <code>-Wall -Wextra -Werror -fsanitize=address,undefined</code>!</li>
+        </ul>
+<pre><span class="cm"># Build and launch Lab 0A natively on your Linux host (zero VM/Docker overhead)</span>
+<span class="fn">cd</span> Stage_0_CS_Systems_Bedrock/labs/lab0a_bits_integer_overflow
+<span class="fn">make</span>
+./part1_byte_inspector
+./part2_vuln_vault</pre>
+        <p style="font-size:0.85rem; color:var(--text-dim);">
+          Read full mission brief &amp; collapsible hints in <a href="../labs/lab0a_bits_integer_overflow/README.md"><code>Stage_0_CS_Systems_Bedrock/labs/lab0a_bits_integer_overflow/README.md</code></a> (or <a href="https://github.com/marajulcsecu/cybersecurity-5-year-journey/tree/main/Stage_0_CS_Systems_Bedrock/labs/lab0a_bits_integer_overflow" target="_blank" rel="noopener">view Lab 0A on GitHub</a>).
+        </p>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    const THEME_KEY = "marajul_cyber_theme";
+    function applyTheme(t) {
+      document.documentElement.setAttribute("data-theme", t);
+      document.getElementById("themeBtn").textContent = t === "dark" ? "Light" : "Dark";
+    }
+    function toggleTheme() {
+      const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      try { localStorage.setItem(THEME_KEY, next); } catch {}
+      applyTheme(next);
+    }
+    applyTheme((() => { try { return localStorage.getItem(THEME_KEY) || "dark"; } catch { return "dark"; } })());
+
+    function loadPreset(type, a, b, op) {
+      document.getElementById("simType").value = `${type}_${op}`;
+      document.getElementById("simA").value = a;
+      document.getElementById("simB").value = b;
+      runSim();
+    }
+
+    function toBin(bigVal, bits) {
+      const s = bigVal.toString(2).padStart(bits, "0");
+      return s.match(/.{1,4}/g).join(" ");
+    }
+
+    function runSim() {
+      const mode = document.getElementById("simType").value;
+      const [ty, op] = mode.split("_");
+      const bits = ty.endsWith("8") ? 8 : 32;
+      const signed = ty.startsWith("i");
+      const mod = 1n << BigInt(bits);
+      const mask = mod - 1n;
+      const half = 1n << BigInt(bits - 1);
+
+      let aIn, bIn;
+      try {
+        aIn = BigInt(Math.trunc(Number(document.getElementById("simA").value || 0)));
+        bIn = BigInt(Math.trunc(Number(document.getElementById("simB").value || 0)));
+      } catch {
+        aIn = 0n; bIn = 0n;
+      }
+
+      let mathRes = op === "add" ? aIn + bIn : op === "sub" ? aIn - bIn : aIn * bIn;
+      const rawBits = ((mathRes % mod) + mod) % mod;
+      const unsignedVal = rawBits;
+      const signedVal = rawBits >= half ? rawBits - mod : rawBits;
+      const actualVal = signed ? signedVal : unsignedVal;
+
+      const minVal = signed ? -half : 0n;
+      const maxVal = signed ? half - 1n : mod - 1n;
+      const overflowed = (mathRes < minVal || mathRes > maxVal);
+
+      const hexStr = "0x" + rawBits.toString(16).toUpperCase().padStart(bits / 4, "0");
+      const opSym = op === "add" ? "+" : op === "sub" ? "-" : "×";
+
+      document.getElementById("simOutput").innerHTML =
+        `<div>True Mathematical Result : <strong>${aIn} ${opSym} ${bIn} = ${mathRes}</strong></div>` +
+        `<div>Stored ${bits}-bit Hex        : <strong style="color:var(--link)">${hexStr}</strong></div>` +
+        `<div>Stored ${bits}-bit Binary     : <span style="color:var(--text-muted)">${toBin(rawBits, bits)}</span></div>` +
+        `<div>As Unsigned (uint${bits}_t)  : <strong>${unsignedVal}</strong></div>` +
+        `<div>As Signed   (int${bits}_t)   : <strong>${signedVal}</strong></div>`;
+
+      const alertEl = document.getElementById("simAlert");
+      if (overflowed) {
+        alertEl.className = "sim-alert alert-bad";
+        alertEl.textContent = signed
+          ? `OVERFLOW / UB! True math (${mathRes}) does not fit in int${bits}_t [${minVal}..${maxVal}] → wraps to ${actualVal} (and is Undefined Behavior in C!).`
+          : `WRAP-AROUND! True math (${mathRes}) overflows uint${bits}_t [0..${maxVal}] → silently wraps mod 2^${bits} to ${actualVal}!`;
+      } else if (signed && actualVal < 0n) {
+        alertEl.className = "sim-alert alert-bad";
+        alertEl.textContent = `SIGNEDNESS TRAP: Value is negative (${signedVal}), so 'val > MAX' is FALSE—if implicitly cast to unsigned uint${bits}_t, it becomes ${unsignedVal}!`;
+      } else {
+        alertEl.className = "sim-alert alert-ok";
+        alertEl.textContent = `SAFE: Result ${actualVal} fits cleanly inside ${signed ? "int" : "uint"}${bits}_t [${minVal}..${maxVal}] with no wrap-around.`;
+      }
+    }
+
+    let quizAnswered = {};
+    function answerQuiz(btn, chosenIdx) {
+      const card = btn.closest(".quiz-item");
+      const items = Array.from(document.querySelectorAll(".quiz-item"));
+      const qIdx = items.indexOf(card);
+      const correctIdx = parseInt(card.dataset.answer, 10);
+      const btns = card.querySelectorAll(".quiz-btn");
+      const fb = card.querySelector(".quiz-feedback");
+
+      btns.forEach(b => b.classList.remove("correct", "wrong"));
+      if (chosenIdx === correctIdx) {
+        btn.classList.add("correct");
+        fb.style.color = "var(--accent)";
+        fb.textContent = "✓ " + card.dataset.explain;
+        quizAnswered[qIdx] = true;
+      } else {
+        btn.classList.add("wrong");
+        fb.style.color = "var(--rose)";
+        fb.textContent = "✗ Not quite — re-check the exact bit width / C type conversion rule and try again.";
+        quizAnswered[qIdx] = false;
+      }
+      fb.style.display = "block";
+      document.getElementById("quizScore").textContent = Object.values(quizAnswered).filter(Boolean).length;
+    }
+
+    function resetQuiz() {
+      quizAnswered = {};
+      document.getElementById("quizScore").textContent = "0";
+      document.querySelectorAll(".quiz-item").forEach(card => {
+        card.querySelectorAll(".quiz-btn").forEach(b => b.classList.remove("correct", "wrong"));
+        const fb = card.querySelector(".quiz-feedback");
+        fb.style.display = "none";
+        fb.textContent = "";
+      });
+    }
+
+    runSim();
+  </script>
+</body>
+</html>
