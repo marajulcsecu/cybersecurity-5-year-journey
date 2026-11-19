@@ -1,386 +1,469 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>First-Principles Cybersecurity Master Roadmap (Beginner → Master)</title>
+  <title>First-Principles Cybersecurity Master Roadmap (Stages 0–7)</title>
   <style>
     :root {
-      --bg-primary: #0b0f19;
-      --bg-secondary: #111827;
-      --bg-card: #161f33;
-      --bg-card-hover: #1c2740;
-      --bg-code: #080c15;
-      --border: #26334d;
-      --text-primary: #f1f5f9;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      --accent-cyan: #06b6d4;
-      --accent-blue: #3b82f6;
-      --accent-purple: #8b5cf6;
-      --accent-emerald: #10b981;
-      --accent-amber: #f59e0b;
-      --accent-rose: #f43f5e;
-      --radius: 12px;
-      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45);
+      --bg: #09090b;
+      --bg-elevated: #111114;
+      --bg-card: #141418;
+      --bg-subtle: #1c1c22;
+      --bg-code: #0d0d11;
+      --border: #26262e;
+      --border-strong: #383844;
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --text-dim: #71717a;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --accent-ink: #03261d;
+      --accent-soft: rgba(16, 185, 129, 0.12);
+      --accent-border: rgba(16, 185, 129, 0.35);
+      --link: #38bdf8;
+      --sky-soft: rgba(56, 189, 248, 0.12);
+      --amber: #f59e0b;
+      --purple: #a78bfa;
+      --rose: #f43f5e;
+      --radius: 10px;
+    }
+
+    [data-theme="light"] {
+      --bg: #fafafa;
+      --bg-elevated: #ffffff;
+      --bg-card: #ffffff;
+      --bg-subtle: #f4f4f5;
+      --bg-code: #f4f4f5;
+      --border: #e4e4e7;
+      --border-strong: #d4d4d8;
+      --text: #18181b;
+      --text-muted: #52525b;
+      --text-dim: #71717a;
+      --accent: #059669;
+      --accent-hover: #047857;
+      --accent-ink: #ffffff;
+      --accent-soft: rgba(5, 150, 105, 0.1);
+      --accent-border: rgba(5, 150, 105, 0.35);
+      --link: #0284c7;
+      --sky-soft: rgba(2, 132, 199, 0.1);
+      --amber: #d97706;
+      --purple: #7c3aed;
+      --rose: #e11d48;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
-      line-height: 1.6;
-      padding-bottom: 64px;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.62;
+      padding-bottom: 72px;
+      -webkit-font-smoothing: antialiased;
     }
 
     code {
-      font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
-      font-size: 0.86em;
-      background: rgba(6, 182, 212, 0.1);
-      color: #67e8f9;
+      font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.85em;
+      background: var(--bg-subtle);
+      color: var(--link);
       padding: 1px 5px;
       border-radius: 4px;
+      border: 1px solid var(--border);
     }
 
-    header {
-      background: radial-gradient(circle at top right, rgba(6, 182, 212, 0.16), transparent 45%),
-                  radial-gradient(circle at top left, rgba(16, 185, 129, 0.14), transparent 45%),
-                  var(--bg-secondary);
-      border-bottom: 1px solid var(--border);
-      padding: 26px 24px 20px;
+    /* Slim Sticky Topbar (ONLY 52px tall!) */
+    .topbar {
       position: sticky;
       top: 0;
       z-index: 100;
-      backdrop-filter: blur(12px);
+      height: 52px;
+      background: color-mix(in srgb, var(--bg-elevated) 92%, transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
     }
 
-    .container { max-width: 1260px; margin: 0 auto; }
+    .topbar-inner {
+      width: 100%;
+      max-width: 1220px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
 
-    .hero-top {
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--text); }
+    .breadcrumb .sep { color: var(--text-dim); }
+    .breadcrumb .curr { color: var(--text); }
+
+    .mini-progress {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      max-width: 340px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 720px) { .mini-progress { display: none; } }
+
+    .mini-track {
+      flex: 1;
+      height: 6px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .mini-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width 0.25s ease;
+    }
+
+    .top-actions { display: flex; align-items: center; gap: 8px; }
+
+    .top-btn {
+      background: var(--bg-subtle);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .top-btn:hover { border-color: var(--border-strong); }
+
+    /* Normal-Flow Scrolling Hero */
+    .hero {
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      padding: 32px 24px 28px;
+    }
+
+    .container { max-width: 1220px; margin: 0 auto; }
+
+    .hero-row {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: flex-start;
       gap: 18px;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
 
-    .badge-era {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(16, 185, 129, 0.14);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      padding: 4px 12px;
-      border-radius: 999px;
-      font-size: 0.75rem;
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.73rem;
       font-weight: 700;
-      letter-spacing: 0.04em;
       text-transform: uppercase;
-      margin-bottom: 8px;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
     }
 
     h1 {
       font-size: 1.85rem;
       font-weight: 800;
-      letter-spacing: -0.02em;
-      color: #ffffff;
-      margin-bottom: 4px;
+      letter-spacing: -0.025em;
+      color: var(--text);
+      margin-bottom: 6px;
     }
 
     .subtitle {
-      color: var(--text-secondary);
-      font-size: 0.92rem;
-      max-width: 800px;
+      color: var(--text-muted);
+      font-size: 0.93rem;
+      max-width: 760px;
     }
 
-    .action-buttons {
+    .action-bar {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
+      align-items: center;
     }
 
-    button, a.btn-link {
+    button.btn, a.btn {
       background: var(--bg-card);
-      color: var(--text-primary);
+      color: var(--text);
       border: 1px solid var(--border);
       padding: 8px 13px;
-      border-radius: 8px;
+      border-radius: 7px;
       font-size: 0.81rem;
       font-weight: 600;
       cursor: pointer;
       text-decoration: none;
-      transition: all 0.15s ease;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      transition: background 0.15s ease, border-color 0.15s ease;
     }
 
-    button:hover, a.btn-link:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--accent-cyan);
-    }
+    button.btn:hover, a.btn:hover { background: var(--bg-subtle); border-color: var(--border-strong); }
 
     .btn-primary {
-      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-      color: #06101e !important;
-      border: none;
+      background: var(--accent) !important;
+      color: var(--accent-ink) !important;
+      border-color: var(--accent) !important;
+      font-weight: 700 !important;
     }
 
-    .btn-emerald {
-      background: rgba(16, 185, 129, 0.16);
-      color: #34d399 !important;
-      border: 1px solid rgba(16, 185, 129, 0.4);
-    }
+    .btn-primary:hover { background: var(--accent-hover) !important; border-color: var(--accent-hover) !important; }
 
-    .btn-danger {
-      color: #fda4af;
-      border-color: rgba(244, 63, 94, 0.32);
-    }
+    .btn-danger { color: var(--rose) !important; }
 
-    .btn-danger:hover {
-      background: rgba(244, 63, 94, 0.15);
-      border-color: var(--accent-rose);
-    }
-
-    .progress-dashboard {
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 18px;
+    /* Progress Summary Bar inside Hero (scrolls away cleanly) */
+    .progress-grid {
       display: grid;
       grid-template-columns: 1.3fr 2fr;
-      gap: 20px;
+      gap: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
       align-items: center;
     }
 
-    @media (max-width: 860px) {
-      .progress-dashboard { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 820px) { .progress-grid { grid-template-columns: 1fr; } }
 
-    .progress-label-row {
+    .prog-label {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       font-weight: 600;
       margin-bottom: 6px;
     }
 
-    .progress-pct {
-      font-size: 1.28rem;
-      font-weight: 800;
-      color: var(--accent-emerald);
-    }
+    .prog-pct { font-size: 1.2rem; font-weight: 800; color: var(--accent); }
+    .prog-track { height: 8px; background: var(--bg-subtle); border-radius: 999px; overflow: hidden; }
+    .prog-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.25s ease; }
 
-    .progress-track {
-      width: 100%;
-      height: 10px;
-      background: #1e293b;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--accent-emerald), var(--accent-cyan));
-      transition: width 0.25s ease;
-    }
-
-    .tier-mini-bars {
+    .tier-bars {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
     }
 
-    @media (max-width: 600px) {
-      .tier-mini-bars { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 600px) { .tier-bars { grid-template-columns: 1fr; } }
 
-    .tier-mini-card {
-      background: var(--bg-card);
+    .tier-mini {
+      background: var(--bg-subtle);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 7px;
       padding: 7px 10px;
       font-size: 0.75rem;
     }
 
-    .tier-mini-header {
+    .tier-mini-top {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 4px;
+      color: var(--text-muted);
       font-weight: 600;
-      color: var(--text-secondary);
+      margin-bottom: 4px;
     }
 
-    .tier-mini-track {
-      height: 5px;
-      background: #0f172a;
-      border-radius: 99px;
-      overflow: hidden;
-    }
+    .tier-mini-track { height: 4px; background: var(--bg); border-radius: 99px; overflow: hidden; }
+    .tier-mini-fill { height: 100%; width: 0%; background: var(--link); transition: width 0.25s ease; }
 
-    .tier-mini-fill {
-      height: 100%;
-      width: 0%;
-      background: var(--accent-cyan);
-      transition: width 0.25s ease;
-    }
-
+    /* Main Content */
     .main-content {
-      max-width: 1260px;
+      max-width: 1220px;
       margin: 26px auto 0;
       padding: 0 24px;
     }
 
-    .principles-grid {
+    /* Workflow Playbook Banner */
+    .workflow-details {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+    }
+
+    .workflow-details summary {
+      cursor: pointer;
+      padding: 13px 18px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .workflow-details summary::-webkit-details-marker { display: none; }
+    .workflow-hint { font-size: 0.78rem; font-weight: 500; color: var(--text-muted); }
+
+    .workflow-body {
+      padding: 0 18px 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .wf-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 22px;
+      grid-template-columns: 1.2fr 1.6fr 1fr;
+      gap: 14px;
+      margin-top: 14px;
     }
 
-    @media (max-width: 960px) {
-      .principles-grid { grid-template-columns: 1fr; }
+    @media (max-width: 920px) { .wf-grid { grid-template-columns: 1fr; } }
+
+    .wf-box {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
     }
 
-    .principle-card {
-      background: var(--bg-secondary);
+    .wf-box h4 {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      margin-bottom: 7px;
+    }
+
+    .wf-box ol, .wf-box ul { padding-left: 17px; font-size: 0.81rem; color: var(--text-muted); }
+    .wf-box li { margin-bottom: 4px; }
+    .wf-box strong { color: var(--text); }
+
+    /* Dependency Diagram */
+    .diagram-card {
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 16px 18px;
-    }
-
-    .principle-card h3 {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--accent-cyan);
-      margin-bottom: 8px;
-    }
-
-    .principle-card li {
-      font-size: 0.83rem;
-      color: var(--text-secondary);
-      margin-bottom: 5px;
-    }
-
-    .principle-card ul { padding-left: 17px; }
-
-    .diagram-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 18px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       overflow-x: auto;
     }
 
     .diagram-card h3 {
-      font-size: 0.9rem;
-      color: #ffffff;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       margin-bottom: 10px;
     }
 
+    .svg-bg { fill: var(--bg-code); stroke: var(--border); }
+    .svg-band-1 { fill: var(--accent-soft); stroke: var(--accent-border); }
+    .svg-band-2 { fill: var(--sky-soft); stroke: var(--link); }
+    .svg-band-3 { fill: rgba(167, 139, 250, 0.1); stroke: var(--purple); }
+    .svg-node { fill: var(--bg-elevated); stroke: var(--border-strong); }
+    .svg-node-active { fill: var(--accent-soft); stroke: var(--accent); }
+    .svg-title { fill: var(--text); font-weight: 700; }
+    .svg-sub { fill: var(--text-muted); }
+
+    /* Filter Bar */
     .filter-bar {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
       align-items: center;
       justify-content: space-between;
-      background: var(--bg-secondary);
+      background: var(--bg-card);
       border: 1px solid var(--border);
-      padding: 12px 16px;
+      padding: 10px 14px;
       border-radius: var(--radius);
-      margin-bottom: 26px;
+      margin-bottom: 24px;
     }
 
-    .filter-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-    }
+    .filter-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 
     .filter-btn {
-      padding: 6px 12px;
-      font-size: 0.79rem;
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      padding: 6px 11px;
       border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
     }
 
+    .filter-btn:hover { background: var(--bg-subtle); color: var(--text); }
     .filter-btn.active {
-      background: var(--accent-cyan);
-      color: #06101e;
-      border-color: var(--accent-cyan);
-      font-weight: 700;
+      background: var(--bg-subtle);
+      color: var(--text);
+      border-color: var(--border-strong);
     }
 
     .search-input {
-      background: var(--bg-primary);
+      background: var(--bg);
       border: 1px solid var(--border);
-      color: var(--text-primary);
-      padding: 7px 14px;
-      border-radius: 8px;
-      font-size: 0.84rem;
-      min-width: 260px;
+      color: var(--text);
+      padding: 7px 12px;
+      border-radius: 7px;
+      font-size: 0.83rem;
+      min-width: 240px;
     }
 
-    .tier-section { margin-bottom: 36px; }
+    .search-input:focus { outline: none; border-color: var(--accent); }
+
+    /* Tier Sections */
+    .tier-section { margin-bottom: 34px; }
 
     .tier-header {
-      background: linear-gradient(90deg, rgba(16, 185, 129, 0.14), rgba(17, 24, 39, 0.92));
-      border: 1px solid var(--border);
-      border-left: 4px solid var(--accent-emerald);
-      border-radius: var(--radius);
-      padding: 16px 20px;
-      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 14px;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .tier-header.t2 {
-      background: linear-gradient(90deg, rgba(6, 182, 212, 0.14), rgba(17, 24, 39, 0.92));
-      border-left-color: var(--accent-cyan);
-    }
-
-    .tier-header.t3 {
-      background: linear-gradient(90deg, rgba(139, 92, 246, 0.16), rgba(17, 24, 39, 0.92));
-      border-left-color: var(--accent-purple);
+      align-items: baseline;
+      gap: 10px;
     }
 
     .tier-header h2 {
-      font-size: 1.24rem;
+      font-size: 1.2rem;
       font-weight: 800;
-      color: #ffffff;
+      letter-spacing: -0.015em;
+      color: var(--text);
     }
 
-    .tier-header p {
-      font-size: 0.86rem;
-      color: var(--text-secondary);
-      margin-top: 2px;
-    }
+    .tier-header p { font-size: 0.85rem; color: var(--text-muted); margin-top: 3px; }
 
     .tier-badge {
-      background: var(--bg-primary);
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: var(--bg-subtle);
       border: 1px solid var(--border);
-      padding: 5px 12px;
+      padding: 4px 10px;
       border-radius: 999px;
-      font-size: 0.77rem;
-      font-weight: 600;
-      color: var(--text-primary);
     }
 
-    .stages-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+    .stages-grid { display: flex; flex-direction: column; gap: 14px; }
 
     .stage-card {
       background: var(--bg-card);
@@ -389,10 +472,7 @@
       padding: 20px;
     }
 
-    .stage-card.active-stage {
-      border-color: var(--accent-emerald);
-      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35), var(--shadow);
-    }
+    .stage-card.active-stage { border-left: 3px solid var(--accent); }
 
     .stage-top {
       display: flex;
@@ -400,89 +480,53 @@
       justify-content: space-between;
       align-items: flex-start;
       gap: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       padding-bottom: 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      border-bottom: 1px solid var(--border);
     }
 
-    .pill-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
-    }
+    .pill-row { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
 
-    .stage-pill {
-      background: rgba(59, 130, 246, 0.16);
-      color: #60a5fa;
-      border: 1px solid rgba(59, 130, 246, 0.32);
-      font-size: 0.74rem;
+    .pill {
+      font-size: 0.72rem;
       font-weight: 700;
-      padding: 3px 9px;
-      border-radius: 6px;
-      text-transform: uppercase;
+      padding: 2px 9px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--text-muted);
     }
 
-    .prereq-pill {
-      background: rgba(139, 92, 246, 0.14);
-      color: #c4b5fd;
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      font-size: 0.74rem;
-      font-weight: 600;
-      padding: 3px 9px;
-      border-radius: 6px;
-    }
+    .pill-stage { color: var(--text); border-color: var(--border-strong); text-transform: uppercase; }
+    .pill-active { color: var(--accent); background: var(--accent-soft); border-color: var(--accent-border); }
 
-    .active-pill {
-      background: rgba(16, 185, 129, 0.16);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.38);
-      font-size: 0.73rem;
-      font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 999px;
-    }
-
-    .stage-card h3 {
-      font-size: 1.12rem;
-      font-weight: 700;
-      color: #ffffff;
-      margin-top: 6px;
-    }
-
-    .stage-desc {
-      font-size: 0.86rem;
-      color: var(--text-secondary);
-      margin-top: 3px;
-    }
+    .stage-card h3 { font-size: 1.08rem; font-weight: 700; color: var(--text); margin-top: 7px; }
+    .stage-desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 3px; }
 
     .stage-cols {
       display: grid;
       grid-template-columns: 1.25fr 1fr;
-      gap: 16px;
-      margin-top: 12px;
+      gap: 14px;
     }
 
-    @media (max-width: 820px) {
-      .stage-cols { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 820px) { .stage-cols { grid-template-columns: 1fr; } }
 
     .checklist-box {
-      background: rgba(11, 15, 25, 0.58);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 10px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
       padding: 13px 15px;
     }
 
     .checklist-box h4 {
-      font-size: 0.78rem;
+      font-size: 0.74rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--accent-cyan);
+      color: var(--text-muted);
       margin-bottom: 8px;
     }
 
-    .checklist-box.build-col h4 { color: var(--accent-amber); }
+    .checklist-box.build-col h4 { color: var(--amber); }
 
     .check-item {
       display: flex;
@@ -490,29 +534,27 @@
       gap: 10px;
       padding: 5px 0;
       cursor: pointer;
-      font-size: 0.85rem;
-      color: var(--text-primary);
+      font-size: 0.84rem;
+      color: var(--text);
     }
-
-    .check-item:hover { color: var(--accent-cyan); }
 
     .check-item input[type="checkbox"] {
       appearance: none;
       -webkit-appearance: none;
-      width: 17px;
-      height: 17px;
-      min-width: 17px;
-      border: 2px solid var(--text-muted);
-      border-radius: 5px;
-      background: var(--bg-primary);
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      border: 1.5px solid var(--border-strong);
+      border-radius: 4px;
+      background: var(--bg);
       cursor: pointer;
       margin-top: 3px;
       position: relative;
     }
 
     .check-item input[type="checkbox"]:checked {
-      background: var(--accent-emerald);
-      border-color: var(--accent-emerald);
+      background: var(--accent);
+      border-color: var(--accent);
     }
 
     .check-item input[type="checkbox"]:checked::after {
@@ -522,221 +564,259 @@
       top: 1px;
       width: 4px;
       height: 8px;
-      border: solid #05130d;
+      border: solid var(--accent-ink);
       border-width: 0 2px 2px 0;
       transform: rotate(45deg);
     }
 
-    .check-item.completed span {
-      text-decoration: line-through;
-      color: var(--text-muted);
-    }
+    .check-item.completed span { text-decoration: line-through; color: var(--text-dim); }
 
     .mastery-gate {
       margin-top: 14px;
-      background: rgba(16, 185, 129, 0.08);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-left: 4px solid var(--accent-emerald);
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
       border-radius: 8px;
       padding: 11px 14px;
       font-size: 0.84rem;
-      color: #d1fae5;
     }
 
-    .mastery-gate strong { color: #34d399; }
+    .mastery-gate strong { color: var(--accent); }
 
     .notes-area {
       margin-top: 12px;
       width: 100%;
-      background: var(--bg-primary);
+      background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text-primary);
+      border-radius: 7px;
+      color: var(--text);
       padding: 8px 12px;
       font-family: inherit;
-      font-size: 0.82rem;
+      font-size: 0.81rem;
       resize: vertical;
-      min-height: 48px;
+      min-height: 44px;
     }
 
+    .notes-area:focus { outline: none; border-color: var(--border-strong); }
+
     @media print {
-      header { position: static; background: #fff !important; color: #000 !important; border-bottom: 2px solid #000; }
-      body { background: #fff !important; color: #000 !important; }
-      .action-buttons, .filter-bar { display: none !important; }
-      .principle-card, .diagram-card, .stage-card, .tier-header, .checklist-box, .progress-dashboard, .tier-mini-card, .mastery-gate {
-        background: #fff !important; color: #000 !important; border: 1px solid #ccc !important; box-shadow: none !important; page-break-inside: avoid;
+      .topbar, .action-bar, .filter-bar { display: none !important; }
+      body { background: #fff !important; color: #111 !important; }
+      .hero, .stage-card, .checklist-box, .diagram-card, .progress-grid, .mastery-gate, .workflow-details {
+        background: #fff !important; color: #111 !important; border: 1px solid #ccc !important; page-break-inside: avoid;
       }
-      h1, h2, h3, h4, .check-item, .subtitle, .stage-desc, .principle-card li, .mastery-gate { color: #111 !important; }
+      h1, h2, h3, h4, .check-item, .subtitle, .stage-desc { color: #111 !important; }
     }
   </style>
 </head>
 <body>
 
-  <header>
+  <nav class="topbar" aria-label="Breadcrumb & Progress">
+    <div class="topbar-inner">
+      <div class="breadcrumb">
+        <a href="./index.html">Hub</a>
+        <span class="sep">/</span>
+        <span class="curr">Master Roadmap</span>
+      </div>
+      <div class="mini-progress" aria-label="Overall progress">
+        <span id="navPctText">0%</span>
+        <div class="mini-track"><div class="mini-fill" id="navFill"></div></div>
+        <span id="navCountText">0/0</span>
+      </div>
+      <div class="top-actions">
+        <a class="top-btn" href="./Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html">Stage 0</a>
+        <button class="top-btn" id="themeBtn" onclick="toggleTheme()">Light</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
     <div class="container">
-      <div class="hero-top">
+      <div class="hero-row">
         <div>
-          <div class="badge-era">v3.0 Timeless First-Principles Curriculum • Mastery-Gated (Zero Artificial Deadlines)</div>
+          <span class="eyebrow">v3.1 Timeless Curriculum • Self-Paced Mastery Gates</span>
           <h1>First-Principles Cybersecurity Master Roadmap</h1>
           <p class="subtitle">
-            From CS &amp; Systems Bedrock to True Security Mastery: Build Systems → Inspect Internals → Break Manually → Engineer Fixes. No script-kiddie shortcuts, no rushed job-sprint cramming, no premature AI-wrapper distractions.
+            Strict bottom-up progression from CS &amp; Systems Bedrock (Stage 0–3) → Core Offense &amp; Defense Craft (Stage 4–6) → Deep Master Pillars (Stage 7). Zero artificial calendar rush.
           </p>
         </div>
-        <div class="action-buttons">
-          <a class="btn-link" href="./index.html">← Learning Hub</a>
-          <a class="btn-link btn-emerald" href="./Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html">Start Stage 0 →</a>
-          <button class="btn-primary" onclick="window.print()">Print / Save PDF</button>
-          <button onclick="exportProgress()">Export JSON</button>
-          <button onclick="document.getElementById('importFile').click()">Import JSON</button>
+        <div class="action-bar">
+          <a class="btn btn-primary" href="./Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html">Start Stage 0 →</a>
+          <button class="btn" onclick="window.print()">Print / PDF</button>
+          <button class="btn" onclick="exportProgress()">Export</button>
+          <button class="btn" onclick="document.getElementById('importFile').click()">Import</button>
           <input type="file" id="importFile" style="display:none" accept=".json" onchange="importProgress(event)" />
-          <button class="btn-danger" onclick="resetProgress()">Reset</button>
+          <button class="btn btn-danger" onclick="resetProgress()">Reset</button>
         </div>
       </div>
 
-      <div class="progress-dashboard">
+      <div class="progress-grid">
         <div>
-          <div class="progress-label-row">
-            <span>Overall Mastery Progress (<span id="doneCount">0</span> / <span id="totalCount">0</span> Checkpoints)</span>
-            <span class="progress-pct" id="overallPct">0%</span>
+          <div class="prog-label">
+            <span>Overall Mastery (<span id="doneCount">0</span> / <span id="totalCount">0</span> Checkpoints)</span>
+            <span class="prog-pct" id="overallPct">0%</span>
           </div>
-          <div class="progress-track">
-            <div class="progress-fill" id="overallFill"></div>
-          </div>
+          <div class="prog-track"><div class="prog-fill" id="overallFill"></div></div>
         </div>
-        <div class="tier-mini-bars" id="tierMiniBars"></div>
+        <div class="tier-bars" id="tierMiniBars"></div>
       </div>
     </div>
   </header>
 
   <main class="main-content">
-    <section class="principles-grid">
-      <div class="principle-card">
-        <h3>1. Mastery-Gated, Not Calendar-Rushed</h3>
-        <ul>
-          <li><strong>No fake deadlines:</strong> Take 5 years or 15 years—advance ONLY after passing each Stage's Mastery Gate.</li>
-          <li><strong>Strict dependency order:</strong> Never exploit or analyze a system whose underlying memory, OS, or protocol you haven't built or dissected first.</li>
-        </ul>
+
+    <details class="workflow-details" open>
+      <summary>
+        <span>Workflow &amp; Return-After-A-Break Playbook (How We Progress Step-by-Step)</span>
+        <span class="workflow-hint">Click to collapse / expand</span>
+      </summary>
+      <div class="workflow-body">
+        <div class="wf-grid">
+          <div class="wf-box">
+            <h4>1. Macro Rule (Tier → Stage → Module)</h4>
+            <ul>
+              <li>Move strictly <strong>1 Stage at a time</strong>: <code>0 → 1 → 2 → 3 → 4 → 5 → 6 → 7</code>.</li>
+              <li>Inside a Stage, complete <strong>1 Module at a time</strong> (e.g. <code>0.1 → 0.2 → 0.3 → 0.4 → 0.5</code>).</li>
+              <li>Never unlock Stage <code>N+1</code> until you pass Stage <code>N</code>'s <strong>Mastery Gate</strong>.</li>
+              <li><strong>Pure Fundamentals First:</strong> No LLM-wrapper projects in Stages 0–6 (AI Security is Stage 7 Pillar E).</li>
+            </ul>
+          </div>
+          <div class="wf-box">
+            <h4>2. Micro Loop (5 Steps Inside Every Module)</h4>
+            <ol>
+              <li><strong>Visual HTML Lecture:</strong> Read diagrams &amp; pass the mini-quiz.</li>
+              <li><strong>Bangla Q&amp;A:</strong> Ask doubts in chat until zero black-box magic remains.</li>
+              <li><strong>Build &amp; Break Lab:</strong> Run targets locally (<code>gcc</code>/<code>gdb</code>/<code>strace</code>/Docker) &amp; break manually.</li>
+              <li><strong>Fix &amp; Pure Tool:</strong> Patch the root cause &amp; build clean C/Python/Bash tools.</li>
+              <li><strong>Feynman &amp; Sync:</strong> Explain in 4–5 lines, save proof in <code>writeups/</code>, update <code>AGENT.md</code> &amp; push.</li>
+            </ol>
+          </div>
+          <div class="wf-box">
+            <h4>3. Returning After a 2–3 Day Break?</h4>
+            <ol>
+              <li>Find the green <strong>Active Stage</strong> card below (currently <strong>Stage 0</strong>).</li>
+              <li>Open its Detailed Plan → resume the first unchecked box.</li>
+              <li>Tell Antigravity: <code>AGENT.md pore nao, active module continue kori</code>.</li>
+            </ol>
+          </div>
+        </div>
       </div>
-      <div class="principle-card">
-        <h3>2. Builder-to-Breaker Advantage</h3>
-        <ul>
-          <li><strong>Dev Superpower:</strong> Your Web, Mobile &amp; Game dev background lets you write vulnerable &amp; secure systems from scratch.</li>
-          <li><strong>Direct Observation:</strong> Master primary truth tools (<code>gdb</code>, <code>strace</code>, <code>readelf</code>, <code>tshark</code>, <code>curl</code>) before any automated scanner.</li>
-        </ul>
-      </div>
-      <div class="principle-card">
-        <h3>3. Pure Fundamentals First, AI Later</h3>
-        <ul>
-          <li><strong>AI as Mentor Only (Stages 0–6):</strong> Zero distracting LLM-wrapper projects early—build razor-sharp human intuition and pure C/Python/Go code tools.</li>
-          <li><strong>AI Security Deep Dive (Stage 7):</strong> Study LLM/Agent security from first principles once you are already a solid systems engineer.</li>
-        </ul>
-      </div>
-    </section>
+    </details>
 
     <section class="diagram-card">
-      <h3>Bottom-Up Dependency Architecture (Why Every Stage Unlocks the Next)</h3>
-      <svg viewBox="0 0 1160 155" width="100%" height="auto" role="img" aria-label="Bottom-up dependency graph from Stage 0 to Stage 7">
-        <rect x="4" y="4" width="1152" height="147" rx="10" fill="#080c15" stroke="#26334d" />
+      <h3>Bottom-Up Dependency Architecture</h3>
+      <svg viewBox="0 0 1160 150" width="100%" height="auto" role="img" aria-label="Bottom-up dependency graph from Stage 0 to Stage 7">
+        <rect x="2" y="2" width="1156" height="146" rx="8" class="svg-bg" />
 
-        <!-- Tier I Band -->
-        <rect x="18" y="16" width="560" height="122" rx="8" fill="#0c1b1d" stroke="#10b981" stroke-dasharray="4 3" />
-        <text x="30" y="34" fill="#34d399" font-size="11" font-weight="700">TIER I: UNIVERSAL CS &amp; SYSTEMS BEDROCK (SECURITY LENS)</text>
+        <rect x="16" y="14" width="562" height="122" rx="7" class="svg-band-1" stroke-dasharray="4 3" />
+        <text x="28" y="32" fill="var(--accent)" font-size="11" font-weight="700">TIER I: UNIVERSAL CS &amp; SYSTEMS BEDROCK (SECURITY LENS)</text>
 
-        <rect x="28" y="48" width="124" height="76" rx="6" fill="#132a2c" stroke="#10b981" />
-        <text x="90" y="68" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Stage 0 ★</text>
-        <text x="90" y="85" text-anchor="middle" fill="#a7f3d0" font-size="9.5">Bits, C, Memory,</text>
-        <text x="90" y="99" text-anchor="middle" fill="#a7f3d0" font-size="9.5">ELF, ASM &amp; VM</text>
+        <rect x="28" y="46" width="124" height="76" rx="6" class="svg-node-active" />
+        <text x="90" y="66" text-anchor="middle" class="svg-title" font-size="11">Stage 0 ★</text>
+        <text x="90" y="83" text-anchor="middle" class="svg-sub" font-size="9.5">Bits, C, Memory,</text>
+        <text x="90" y="97" text-anchor="middle" class="svg-sub" font-size="9.5">ELF, ASM &amp; VM</text>
 
-        <line x1="152" y1="86" x2="168" y2="86" stroke="#10b981" stroke-width="2" />
-        <polygon points="166,81 174,86 166,91" fill="#10b981" />
+        <line x1="152" y1="84" x2="168" y2="84" stroke="var(--accent)" stroke-width="2" />
+        <polygon points="166,79 174,84 166,89" fill="var(--accent)" />
 
-        <rect x="174" y="48" width="122" height="76" rx="6" fill="#162238" stroke="#06b6d4" />
-        <text x="235" y="68" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Stage 1</text>
-        <text x="235" y="85" text-anchor="middle" fill="#cbd5e1" font-size="9.5">Linux &amp; Windows</text>
-        <text x="235" y="99" text-anchor="middle" fill="#cbd5e1" font-size="9.5">OS + Containers</text>
+        <rect x="174" y="46" width="122" height="76" rx="6" class="svg-node" />
+        <text x="235" y="66" text-anchor="middle" class="svg-title" font-size="11">Stage 1</text>
+        <text x="235" y="83" text-anchor="middle" class="svg-sub" font-size="9.5">Linux &amp; Windows</text>
+        <text x="235" y="97" text-anchor="middle" class="svg-sub" font-size="9.5">OS + Containers</text>
 
-        <line x1="296" y1="86" x2="312" y2="86" stroke="#06b6d4" stroke-width="2" />
-        <polygon points="310,81 318,86 310,91" fill="#06b6d4" />
+        <line x1="296" y1="84" x2="312" y2="84" stroke="var(--border-strong)" stroke-width="2" />
+        <polygon points="310,79 318,84 310,89" fill="var(--border-strong)" />
 
-        <rect x="318" y="48" width="122" height="76" rx="6" fill="#162238" stroke="#06b6d4" />
-        <text x="379" y="68" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Stage 2</text>
-        <text x="379" y="85" text-anchor="middle" fill="#cbd5e1" font-size="9.5">Networking L1–L7,</text>
-        <text x="379" y="99" text-anchor="middle" fill="#cbd5e1" font-size="9.5">Sockets &amp; Firewalls</text>
+        <rect x="318" y="46" width="122" height="76" rx="6" class="svg-node" />
+        <text x="379" y="66" text-anchor="middle" class="svg-title" font-size="11">Stage 2</text>
+        <text x="379" y="83" text-anchor="middle" class="svg-sub" font-size="9.5">Networking L1–L7,</text>
+        <text x="379" y="97" text-anchor="middle" class="svg-sub" font-size="9.5">Sockets &amp; Firewalls</text>
 
-        <line x1="440" y1="86" x2="456" y2="86" stroke="#06b6d4" stroke-width="2" />
-        <polygon points="454,81 462,86 454,91" fill="#06b6d4" />
+        <line x1="440" y1="84" x2="456" y2="84" stroke="var(--border-strong)" stroke-width="2" />
+        <polygon points="454,79 462,84 454,89" fill="var(--border-strong)" />
 
-        <rect x="462" y="48" width="106" height="76" rx="6" fill="#162238" stroke="#06b6d4" />
-        <text x="515" y="68" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Stage 3</text>
-        <text x="515" y="85" text-anchor="middle" fill="#cbd5e1" font-size="9.5">Crypto Math,</text>
-        <text x="515" y="99" text-anchor="middle" fill="#cbd5e1" font-size="9.5">TLS 1.3 &amp; PKI</text>
+        <rect x="462" y="46" width="106" height="76" rx="6" class="svg-node" />
+        <text x="515" y="66" text-anchor="middle" class="svg-title" font-size="11">Stage 3</text>
+        <text x="515" y="83" text-anchor="middle" class="svg-sub" font-size="9.5">Crypto Math,</text>
+        <text x="515" y="97" text-anchor="middle" class="svg-sub" font-size="9.5">TLS 1.3 &amp; PKI</text>
 
-        <!-- Bridge Tier I -> II -->
-        <line x1="578" y1="86" x2="598" y2="86" stroke="#3b82f6" stroke-width="2.5" />
-        <polygon points="595,81 604,86 595,91" fill="#3b82f6" />
+        <line x1="578" y1="84" x2="598" y2="84" stroke="var(--link)" stroke-width="2" />
+        <polygon points="595,79 604,84 595,89" fill="var(--link)" />
 
-        <!-- Tier II Band -->
-        <rect x="604" y="16" width="386" height="122" rx="8" fill="#0e1729" stroke="#3b82f6" stroke-dasharray="4 3" />
-        <text x="616" y="34" fill="#60a5fa" font-size="11" font-weight="700">TIER II: CORE SECURITY CRAFT (OFFENSE + DEFENSE)</text>
+        <rect x="604" y="14" width="386" height="122" rx="7" class="svg-band-2" stroke-dasharray="4 3" />
+        <text x="616" y="32" fill="var(--link)" font-size="11" font-weight="700">TIER II: CORE SECURITY CRAFT (OFFENSE + DEFENSE)</text>
 
-        <rect x="614" y="48" width="114" height="76" rx="6" fill="#162238" stroke="#3b82f6" />
-        <text x="671" y="68" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Stage 4</text>
-        <text x="671" y="85" text-anchor="middle" fill="#cbd5e1" font-size="9.5">Web, API, DB,</text>
-        <text x="671" y="99" text-anchor="middle" fill="#cbd5e1" font-size="9.5">LangSec &amp; Auth</text>
+        <rect x="614" y="46" width="114" height="76" rx="6" class="svg-node" />
+        <text x="671" y="66" text-anchor="middle" class="svg-title" font-size="11">Stage 4</text>
+        <text x="671" y="83" text-anchor="middle" class="svg-sub" font-size="9.5">Web, API, DB,</text>
+        <text x="671" y="97" text-anchor="middle" class="svg-sub" font-size="9.5">LangSec &amp; Auth</text>
 
-        <line x1="728" y1="86" x2="740" y2="86" stroke="#3b82f6" stroke-width="2" />
-        <polygon points="738,81 746,86 738,91" fill="#3b82f6" />
+        <line x1="728" y1="84" x2="740" y2="84" stroke="var(--border-strong)" stroke-width="2" />
+        <polygon points="738,79 746,84 738,89" fill="var(--border-strong)" />
 
-        <rect x="746" y="48" width="112" height="76" rx="6" fill="#162238" stroke="#3b82f6" />
-        <text x="802" y="68" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Stage 5</text>
-        <text x="802" y="85" text-anchor="middle" fill="#cbd5e1" font-size="9.5">Binary RE, Pwn</text>
-        <text x="802" y="99" text-anchor="middle" fill="#cbd5e1" font-size="9.5">&amp; Fuzzing</text>
+        <rect x="746" y="46" width="112" height="76" rx="6" class="svg-node" />
+        <text x="802" y="66" text-anchor="middle" class="svg-title" font-size="11">Stage 5</text>
+        <text x="802" y="83" text-anchor="middle" class="svg-sub" font-size="9.5">Binary RE, Pwn</text>
+        <text x="802" y="97" text-anchor="middle" class="svg-sub" font-size="9.5">&amp; Fuzzing</text>
 
-        <line x1="858" y1="86" x2="870" y2="86" stroke="#3b82f6" stroke-width="2" />
-        <polygon points="868,81 876,86 868,91" fill="#3b82f6" />
+        <line x1="858" y1="84" x2="870" y2="84" stroke="var(--border-strong)" stroke-width="2" />
+        <polygon points="868,79 876,84 868,89" fill="var(--border-strong)" />
 
-        <rect x="876" y="48" width="104" height="76" rx="6" fill="#162238" stroke="#3b82f6" />
-        <text x="928" y="68" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Stage 6</text>
-        <text x="928" y="85" text-anchor="middle" fill="#cbd5e1" font-size="9.5">DFIR, Detection,</text>
-        <text x="928" y="99" text-anchor="middle" fill="#cbd5e1" font-size="9.5">AD &amp; Cloud</text>
+        <rect x="876" y="46" width="104" height="76" rx="6" class="svg-node" />
+        <text x="928" y="66" text-anchor="middle" class="svg-title" font-size="11">Stage 6</text>
+        <text x="928" y="83" text-anchor="middle" class="svg-sub" font-size="9.5">DFIR, Detection,</text>
+        <text x="928" y="97" text-anchor="middle" class="svg-sub" font-size="9.5">AD &amp; Cloud</text>
 
-        <!-- Bridge Tier II -> III -->
-        <line x1="990" y1="86" x2="1008" y2="86" stroke="#8b5cf6" stroke-width="2.5" />
-        <polygon points="1006,81 1015,86 1006,91" fill="#8b5cf6" />
+        <line x1="990" y1="84" x2="1008" y2="84" stroke="var(--purple)" stroke-width="2" />
+        <polygon points="1006,79 1015,84 1006,89" fill="var(--purple)" />
 
-        <!-- Tier III Band -->
-        <rect x="1015" y="16" width="128" height="122" rx="8" fill="#1b142d" stroke="#8b5cf6" />
-        <text x="1079" y="34" text-anchor="middle" fill="#c4b5fd" font-size="10.5" font-weight="700">TIER III</text>
-        <text x="1079" y="56" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Stage 7</text>
-        <text x="1079" y="75" text-anchor="middle" fill="#ddd6fe" font-size="9">Deep Master</text>
-        <text x="1079" y="89" text-anchor="middle" fill="#ddd6fe" font-size="9">Pillars (A–E):</text>
-        <text x="1079" y="104" text-anchor="middle" fill="#c4b5fd" font-size="8.5">0-Day • Mobile/Game</text>
-        <text x="1079" y="118" text-anchor="middle" fill="#c4b5fd" font-size="8.5">Red • Cloud • AI Sec</text>
+        <rect x="1015" y="14" width="128" height="122" rx="7" class="svg-band-3" />
+        <text x="1079" y="32" text-anchor="middle" fill="var(--purple)" font-size="10.5" font-weight="700">TIER III</text>
+        <text x="1079" y="54" text-anchor="middle" class="svg-title" font-size="11">Stage 7</text>
+        <text x="1079" y="73" text-anchor="middle" class="svg-sub" font-size="9">Deep Master</text>
+        <text x="1079" y="87" text-anchor="middle" class="svg-sub" font-size="9">Pillars (A–E):</text>
+        <text x="1079" y="102" text-anchor="middle" fill="var(--purple)" font-size="8.5">0-Day • Mobile/Game</text>
+        <text x="1079" y="116" text-anchor="middle" fill="var(--purple)" font-size="8.5">Red • Cloud • AI Sec</text>
       </svg>
     </section>
 
     <section class="filter-bar">
       <div class="filter-group">
-        <span style="font-size:0.82rem;color:var(--text-secondary);font-weight:600;">Filter Tier:</span>
         <button class="filter-btn active" onclick="filterTier('all', this)">All Stages (0–7)</button>
-        <button class="filter-btn" onclick="filterTier('1', this)">Tier I: CS Bedrock (0–3)</button>
+        <button class="filter-btn" onclick="filterTier('1', this)">Tier I: Bedrock (0–3)</button>
         <button class="filter-btn" onclick="filterTier('2', this)">Tier II: Core Craft (4–6)</button>
-        <button class="filter-btn" onclick="filterTier('3', this)">Tier III: Master Pillars (7)</button>
+        <button class="filter-btn" onclick="filterTier('3', this)">Tier III: Pillars (7)</button>
       </div>
-      <div class="filter-group">
-        <input type="text" id="searchBox" class="search-input" placeholder="Search topic, tool, concept, or gate..." oninput="renderRoadmap()" />
-      </div>
+      <input type="text" id="searchBox" class="search-input" placeholder="Search topic, tool, or gate..." oninput="renderRoadmap()" />
     </section>
 
     <div id="roadmapContainer"></div>
   </main>
 
   <script>
+    const THEME_KEY = "marajul_cyber_theme";
+    function applyTheme(t) {
+      document.documentElement.setAttribute("data-theme", t);
+      document.getElementById("themeBtn").textContent = t === "dark" ? "Light" : "Dark";
+    }
+    function toggleTheme() {
+      const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      try { localStorage.setItem(THEME_KEY, next); } catch {}
+      applyTheme(next);
+    }
+    applyTheme((() => { try { return localStorage.getItem(THEME_KEY) || "dark"; } catch { return "dark"; } })());
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
     const ROADMAP_DATA = [
       {
         tier: 1,
-        cssClass: "t1",
-        title: "TIER I: Universal CS & Systems Bedrock (Security Lens)",
+        title: "Tier I: Universal CS & Systems Bedrock (Security Lens)",
         subtitle: "Rebuild core Computer Science foundations specifically to see how machines execute bytes, isolate processes, move packets, and prove cryptographic trust.",
         badge: "Stages 0 → 3 • Non-Negotiable Foundation",
         stages: [
@@ -746,11 +826,11 @@
             prereq: "Prerequisite: Basic Programming (CSE Background)",
             active: true,
             detailLink: "./Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html",
-            detailLabel: "Open Stage 0 Detailed Syllabus →",
+            detailLabel: "Open Stage 0 Syllabus →",
             title: "Computing & Systems Foundation: Bits, C Memory, Build Toolchain, ELF & CPU Architecture",
-            desc: "Every OS, browser, database, game engine, and exploit reduces to machine instructions operating on bytes in virtual memory. Remove all low-level 'magic' first.",
+            desc: "Every OS, browser, database, game engine, and exploit reduces to machine instructions operating on bytes in virtual memory. Remove all low-level magic first.",
             concepts: [
-              "Data Representation & Bitwise Reality: Binary/Hex, Two's Complement, Integer Overflow & Signedness Bugs, Endianness, UTF-8/Unicode encoding pitfalls",
+              "Data Representation & Trust Invariants: Binary/Hex, Two's Complement, Integer Overflow & Signedness Bugs, Endianness, UTF-8/Null-byte encoding pitfalls",
               "C Programming & Memory Internals: Pointers, pointer arithmetic, arrays vs pointers, structs/alignment, stack frames, heap allocation (malloc/free), Undefined Behavior",
               "Build Toolchain & ELF Internals: gcc stages (preprocess → compile → assemble → link), ELF sections (.text, .rodata, .data, .bss), static vs dynamic linking (GOT/PLT, readelf, objdump, nm)",
               "CPU Architecture & Assembly Reading (x86_64 + ARM64 basics): Registers, RIP/RSP/RBP, System V AMD64 calling convention, reading disassembly of your own C programs in gdb",
@@ -760,7 +840,7 @@
               "Build a C memory-layout & hex-dump inspector that prints addresses of code, globals, heap, stack, and env vars",
               "Compile small C targets with & without flags (-O0/-O2, -fno-stack-protector) and trace stack frames step-by-step in gdb",
               "Intentionally trigger, diagnose in gdb, and patch an Integer Overflow, Stack Buffer Overflow, and Use-After-Free in your own C code",
-              "Trace real Linux binaries with strace/ltrace to observe exact syscalls & shared library calls"
+              "Trace real Linux binaries with strace to observe exact syscalls & runtime behavior"
             ],
             gate: "Without notes, draw a Linux process virtual memory map, trace a C function's stack frame & return address in gdb, explain Ring 3 → Ring 0 syscalls, and fix 3 real C memory bugs."
           },
@@ -772,21 +852,21 @@
             detailLink: "./Stage_1_OS_Internals/lessons/stage1_lesson1_linux_internals.html",
             detailLabel: "Preview Stage 1 Lesson 1 →",
             title: "Operating Systems Internals & Host Security (Linux Deep-Dive → Windows Internals)",
-            desc: "Understand how kernels manage processes, enforce identity & access control, isolate containers without hypervisors, and record security telemetry.",
+            desc: "Understand how kernels manage processes, threads, locks, access control, container isolation, and host security telemetry.",
             concepts: [
-              "Linux Process Lifecycle & Virtual FS: Boot/init (PID 1/systemd), fork()/execve(), signals, file descriptors, pipes, /proc, /sys, /dev, and CLI triage fluency (find, grep, awk, sed, xargs)",
+              "Linux Process Lifecycle, Concurrency & Virtual FS: Boot/init (PID 1/systemd), fork()/execve(), threads/locks & TOCTOU races, signals, FDs, /proc, /sys, /dev, and CLI triage (find, grep, awk, sed, xargs)",
               "Linux Access Control & Privilege Mechanics: DAC (rwx, umask, directory delete trap), SUID/SGID/Sticky Bit (RUID vs EUID, dash -p), POSIX Capabilities (getcap/setcap), PAM, /etc/shadow, sudoers",
               "Container & Kernel Isolation Internals: Linux Namespaces (PID, NET, MNT, USER, IPC, UTS), cgroups, pivot_root, seccomp filters, and MAC (AppArmor/SELinux) concepts",
               "Linux Hardening & Host Auditing: SSH key mechanics & sshd_config hardening, journalctl/auth.log forensics, and auditd syscall rules",
               "Windows OS Internals Foundation: Processes/Threads, Access Tokens & SIDs, Integrity Levels, ACLs/DACLs, Registry, Services, Win32/NT API boundary, PowerShell & Event Logs"
             ],
             deliverables: [
-              "Complete Lab 1A (Docker SUID & POSIX Capabilities PrivEsc + Hardening verification — already pre-staged in Stage_1_OS_Internals/)",
+              "Complete Lab 1A (Docker SUID & POSIX Capabilities PrivEsc + Hardening verification — pre-staged in Stage_1_OS_Internals/)",
               "Solve OverTheWire Bandit Levels 0 → 25 purely manually for fluent Linux CLI mastery",
               "Build a minimal container-like sandbox manually using Linux unshare (namespaces) & inspect /proc/<pid>/ns",
               "Write a clean deterministic Python auditor (suid_cap_scanner.py & host hardening checker) with zero LLM fluff"
             ],
-            gate: "Explain RUID/EUID, capabilities, Linux namespaces, and Windows Access Tokens from scratch; manually break & harden a misconfigured Linux host; audit an auth.log breach timeline."
+            gate: "Explain RUID/EUID, capabilities, Linux namespaces, TOCTOU races, and Windows Access Tokens from scratch; manually break & harden a misconfigured Linux host; audit an auth.log breach timeline."
           },
           {
             id: "s2",
@@ -835,8 +915,7 @@
       },
       {
         tier: 2,
-        cssClass: "t2",
-        title: "TIER II: Core Security Craft (Universal Offense + Defense)",
+        title: "Tier II: Core Security Craft (Universal Offense + Defense)",
         subtitle: "Apply your Tier I bedrock across applications, binaries, telemetry, and enterprise/cloud systems—always understanding root causes from both attacker and defender sides.",
         badge: "Stages 4 → 6 • Full-Stack Security Engineering",
         stages: [
@@ -846,9 +925,9 @@
             prereq: "Requires: Tier I Complete (Gates 0–3)",
             active: false,
             title: "Web, API, Database & Browser Internals + Whitebox Application Security",
-            desc: "Leverage your developer background to master LangSec, parser differentials, browser isolation, auth protocols, and source-to-sink whitebox code auditing.",
+            desc: "Leverage your developer background to master LangSec, parser differentials, browser isolation, DB transactions, auth protocols, and source-to-sink whitebox code auditing.",
             concepts: [
-              "Web, Browser & Database Internals: HTTP/1.1–3 parsing & Request Smuggling, Browser security model (SOP, CORS, Cookies/SameSite/HttpOnly, DOM, CSP), SQL/NoSQL query parsers, Concurrency & DB locks",
+              "Web, Browser & Database Internals: HTTP/1.1–3 parsing & Request Smuggling, Browser security model (SOP, CORS, Cookies/SameSite/HttpOnly, DOM, CSP), SQL/NoSQL query parsers, DB ACID isolation & locks",
               "LangSec & Server-Side Vulnerability Classes: Source-to-sink analysis of SQLi/NoSQLi, Command Injection, Path Traversal/Zip Slip, SSRF, SSTI, XXE, Insecure Deserialization, Race Conditions",
               "Client-Side & Modern Identity/Auth: XSS (Reflected/Stored/DOM), CSRF, Session design, JWT internals & attacks, OAuth 2.0 / OIDC flows & subtle flaws, IDOR/BOLA, GraphQL",
               "Threat Modeling & Secure Code Review: STRIDE Threat Modeling, Data Flow Diagrams & Trust Boundaries, OWASP ASVS, CWE/CVSS v4.0, reading unfamiliar codebases & writing targeted Semgrep rules"
@@ -863,7 +942,7 @@
           {
             id: "s5",
             label: "Stage 5",
-            prereq: "Requires: Mastery Gate 0 + Stage 1",
+            prereq: "Requires: Tier I Bedrock (Directly builds on Stage 0 + 1)",
             active: false,
             title: "Binary Reverse Engineering, Memory Exploitation & Fuzzing Fundamentals",
             desc: "Go beneath high-level languages—read stripped compiled binaries cleanly, understand memory corruption & modern mitigations, and discover real bugs with fuzzers.",
@@ -904,8 +983,7 @@
       },
       {
         tier: 3,
-        cssClass: "t3",
-        title: "TIER III: Deep Master Specialization Pillars (Lifetime Mastery)",
+        title: "Tier III: Deep Master Specialization Pillars (Lifetime Mastery)",
         subtitle: "After completing Stages 0–6, you possess genuine full-stack first-principles depth. Pick ONE pillar at a time and go world-class deep—stacking new pillars organically over the years.",
         badge: "Stage 7 • Choose Your Frontier Pillars",
         stages: [
@@ -935,22 +1013,13 @@
     ];
 
     const STORAGE_KEY = "marajul_cyber_first_principles_v3";
-
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : { checked: {}, notes: {} };
-      } catch (e) {
-        return { checked: {}, notes: {} };
-      }
-    }
-
-    function saveState(st) {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(st)); } catch (e) {}
-    }
-
-    let appState = loadState();
+    let appState = (() => {
+      try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : { checked: {}, notes: {} }; }
+      catch { return { checked: {}, notes: {} }; }
+    })();
     let currentTierFilter = "all";
+
+    function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); } catch {} }
 
     function renderRoadmap() {
       const container = document.getElementById("roadmapContainer");
@@ -970,12 +1039,12 @@
         const sec = document.createElement("section");
         sec.className = "tier-section";
         sec.innerHTML = `
-          <div class="tier-header ${tierObj.cssClass}">
+          <div class="tier-header">
             <div>
-              <h2>${tierObj.title}</h2>
-              <p>${tierObj.subtitle}</p>
+              <h2>${escapeHtml(tierObj.title)}</h2>
+              <p>${escapeHtml(tierObj.subtitle)}</p>
             </div>
-            <div class="tier-badge">${tierObj.badge}</div>
+            <span class="tier-badge">${escapeHtml(tierObj.badge)}</span>
           </div>
           <div class="stages-grid" id="tier-stages-${tierObj.tier}"></div>
         `;
@@ -992,7 +1061,7 @@
             return `
               <label class="check-item ${checked ? "completed" : ""}" id="lbl_${id}">
                 <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleCheck('${id}', this)" />
-                <span>${txt}</span>
+                <span>${escapeHtml(txt)}</span>
               </label>
             `;
           }).join("");
@@ -1001,19 +1070,19 @@
           const gateDone = !!appState.checked[gateId];
           const noteVal = appState.notes[stage.id] || "";
           const detailBtn = stage.detailLink
-            ? `<a class="btn-link btn-emerald" href="${stage.detailLink}">${stage.detailLabel || "Open Detailed Plan →"}</a>`
+            ? `<a class="btn ${stage.active ? "btn-primary" : ""}" href="${escapeHtml(stage.detailLink)}">${escapeHtml(stage.detailLabel || "Open Plan →")}</a>`
             : "";
 
           card.innerHTML = `
             <div class="stage-top">
               <div style="flex:1;">
                 <div class="pill-row">
-                  <span class="stage-pill">${stage.label}</span>
-                  <span class="prereq-pill">${stage.prereq}</span>
-                  ${stage.active ? '<span class="active-pill">★ Active Stage</span>' : ''}
+                  <span class="pill pill-stage">${escapeHtml(stage.label)}</span>
+                  <span class="pill">${escapeHtml(stage.prereq)}</span>
+                  ${stage.active ? '<span class="pill pill-active">★ Active Stage</span>' : ''}
                 </div>
-                <h3>${stage.title}</h3>
-                <p class="stage-desc">${stage.desc}</p>
+                <h3>${escapeHtml(stage.title)}</h3>
+                <p class="stage-desc">${escapeHtml(stage.desc)}</p>
               </div>
               <div>${detailBtn}</div>
             </div>
@@ -1030,10 +1099,10 @@
             <div class="mastery-gate">
               <label class="check-item ${gateDone ? "completed" : ""}" id="lbl_${gateId}" style="padding:0;">
                 <input type="checkbox" ${gateDone ? "checked" : ""} onchange="toggleCheck('${gateId}', this)" />
-                <span><strong>Mastery Gate (${stage.label}):</strong> ${stage.gate}</span>
+                <span><strong>Mastery Gate (${escapeHtml(stage.label)}):</strong> ${escapeHtml(stage.gate)}</span>
               </label>
             </div>
-            <textarea class="notes-area" placeholder="Notes, lab writeup links, or key insights for ${stage.label}..." oninput="saveNote('${stage.id}', this.value)">${noteVal}</textarea>
+            <textarea class="notes-area" placeholder="Notes, lab writeup links, or key insights for ${escapeHtml(stage.label)}..." oninput="saveNote('${stage.id}', this.value)">${escapeHtml(noteVal)}</textarea>
           `;
           grid.appendChild(card);
         });
@@ -1044,16 +1113,13 @@
 
     function toggleCheck(id, el) {
       appState.checked[id] = el.checked;
-      saveState(appState);
+      saveState();
       const lbl = document.getElementById("lbl_" + id);
       if (lbl) lbl.classList.toggle("completed", el.checked);
       updateProgressStats();
     }
 
-    function saveNote(stageId, val) {
-      appState.notes[stageId] = val;
-      saveState(appState);
-    }
+    function saveNote(stageId, val) { appState.notes[stageId] = val; saveState(); }
 
     function updateProgressStats() {
       let total = 0, done = 0;
@@ -1076,12 +1142,15 @@
       document.getElementById("totalCount").textContent = total;
       document.getElementById("overallPct").textContent = `${pct}%`;
       document.getElementById("overallFill").style.width = `${pct}%`;
+      document.getElementById("navPctText").textContent = `${pct}%`;
+      document.getElementById("navCountText").textContent = `${done}/${total}`;
+      document.getElementById("navFill").style.width = `${pct}%`;
 
       document.getElementById("tierMiniBars").innerHTML = [1, 2, 3].map(k => {
         const st = tierStats[k];
         return `
-          <div class="tier-mini-card">
-            <div class="tier-mini-header">
+          <div class="tier-mini">
+            <div class="tier-mini-top">
               <span>${tierNames[k]}</span>
               <span>${st.pct}% (${st.done}/${st.total})</span>
             </div>
@@ -1119,7 +1188,7 @@
           const parsed = JSON.parse(e.target.result);
           if (parsed && typeof parsed === "object") {
             appState = { checked: parsed.checked || {}, notes: parsed.notes || {} };
-            saveState(appState);
+            saveState();
             renderRoadmap();
             alert("Progress imported successfully!");
           }
@@ -1133,7 +1202,7 @@
     function resetProgress() {
       if (confirm("Reset all roadmap checkboxes and notes?")) {
         appState = { checked: {}, notes: {} };
-        saveState(appState);
+        saveState();
         renderRoadmap();
       }
     }

@@ -1,27 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Stage 1 Lesson 1: Linux OS Internals, DAC Permissions, SUID &amp; Capabilities</title>
   <style>
     :root {
-      --bg-primary: #0b0f19;
-      --bg-secondary: #111827;
-      --bg-card: #161f33;
-      --bg-card-hover: #1c2740;
-      --bg-code: #080c15;
-      --border: #26334d;
-      --text-primary: #f1f5f9;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      --accent-cyan: #06b6d4;
+      --bg-primary: #09090b;
+      --bg-secondary: #111114;
+      --bg-card: #141418;
+      --bg-card-hover: #1c1c22;
+      --bg-code: #0d0d11;
+      --border: #26262e;
+      --text-primary: #f4f4f5;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --accent-cyan: #38bdf8;
       --accent-blue: #3b82f6;
-      --accent-purple: #8b5cf6;
+      --accent-purple: #a78bfa;
       --accent-emerald: #10b981;
       --accent-amber: #f59e0b;
       --accent-rose: #f43f5e;
-      --radius: 12px;
+      --radius: 10px;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #fafafa;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f4f4f5;
+      --bg-code: #111114;
+      --border: #e4e4e7;
+      --text-primary: #18181b;
+      --text-secondary: #52525b;
+      --text-muted: #71717a;
+      --accent-cyan: #0284c7;
+      --accent-emerald: #059669;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,6 +46,7 @@
       color: var(--text-primary);
       line-height: 1.65;
       padding-bottom: 72px;
+      -webkit-font-smoothing: antialiased;
     }
 
     a { color: var(--accent-cyan); text-decoration: none; }
@@ -39,16 +54,16 @@
 
     code {
       font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 0.88em;
-      background: rgba(6, 182, 212, 0.1);
-      color: #67e8f9;
+      font-size: 0.86em;
+      background: var(--bg-card-hover);
+      color: var(--accent-cyan);
       padding: 2px 6px;
       border-radius: 5px;
-      border: 1px solid rgba(6, 182, 212, 0.2);
+      border: 1px solid var(--border);
     }
 
     pre {
-      background: var(--bg-code);
+      background: #0d0d11;
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 14px 16px;
@@ -56,19 +71,63 @@
       font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
       font-size: 0.84rem;
       line-height: 1.55;
-      color: #e2e8f0;
+      color: #e4e4e7;
       margin: 12px 0;
     }
 
     pre .cmd { color: #34d399; }
-    pre .cmt { color: #64748b; }
+    pre .cmt { color: #71717a; }
     pre .warn { color: #fbbf24; }
     pre .danger { color: #fb7185; }
 
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 52px;
+      background: color-mix(in srgb, var(--bg-secondary) 92%, transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+    }
+
+    .topbar-inner {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .breadcrumb a { color: var(--text-secondary); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--text-primary); }
+    .breadcrumb .sep { color: var(--text-muted); }
+
+    .top-btn {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
     header {
-      background: radial-gradient(circle at top right, rgba(6, 182, 212, 0.16), transparent 45%),
-                  radial-gradient(circle at top left, rgba(16, 185, 129, 0.14), transparent 45%),
-                  var(--bg-secondary);
+      background: var(--bg-secondary);
       border-bottom: 1px solid var(--border);
       padding: 28px 24px 24px;
     }
@@ -146,7 +205,7 @@
     h1 {
       font-size: 1.95rem;
       font-weight: 800;
-      color: #ffffff;
+      color: var(--text-primary);
       letter-spacing: -0.02em;
       margin-bottom: 8px;
     }
@@ -174,7 +233,7 @@
 
     .toc {
       position: sticky;
-      top: 20px;
+      top: 68px;
       background: var(--bg-secondary);
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -199,8 +258,8 @@
       border-radius: 6px;
     }
     .toc a:hover {
-      background: var(--bg-card);
-      color: #ffffff;
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
       text-decoration: none;
     }
 
@@ -226,14 +285,14 @@
     .section-card h2 {
       font-size: 1.38rem;
       font-weight: 800;
-      color: #ffffff;
+      color: var(--text-primary);
       margin-bottom: 12px;
     }
 
     .section-card h3 {
       font-size: 1.05rem;
       font-weight: 700;
-      color: #e2e8f0;
+      color: var(--text-primary);
       margin: 18px 0 8px;
     }
 
@@ -304,19 +363,19 @@
       padding: 12px 15px;
       margin: 14px 0;
       font-size: 0.88rem;
-      color: #fde68a;
+      color: var(--text-secondary);
     }
 
-    .callout strong { color: #fbbf24; }
+    .callout strong { color: var(--accent-amber); }
 
     .callout-info {
-      background: rgba(6, 182, 212, 0.08);
-      border: 1px solid rgba(6, 182, 212, 0.3);
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.3);
       border-left: 4px solid var(--accent-cyan);
-      color: #bae6fd;
+      color: var(--text-secondary);
     }
 
-    .callout-info strong { color: #22d3ee; }
+    .callout-info strong { color: var(--accent-cyan); }
 
     table {
       width: 100%;
@@ -334,7 +393,7 @@
 
     th {
       background: var(--bg-secondary);
-      color: #ffffff;
+      color: var(--text-primary);
       font-weight: 700;
       font-size: 0.8rem;
       text-transform: uppercase;
@@ -364,7 +423,7 @@
     }
 
     .calc-col {
-      background: var(--bg-code);
+      background: var(--bg-primary);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 10px 12px;
@@ -393,7 +452,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      background: var(--bg-code);
+      background: var(--bg-primary);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 12px 16px;
@@ -403,7 +462,7 @@
       font-family: 'JetBrains Mono', monospace;
       font-size: 1.15rem;
       font-weight: 700;
-      color: #34d399;
+      color: var(--accent-emerald);
     }
 
     .calc-risk {
@@ -413,9 +472,9 @@
       font-weight: 700;
     }
 
-    .risk-safe { background: rgba(16, 185, 129, 0.16); color: #34d399; }
-    .risk-warn { background: rgba(245, 158, 11, 0.16); color: #fbbf24; }
-    .risk-crit { background: rgba(244, 63, 94, 0.18); color: #fb7185; }
+    .risk-safe { background: rgba(16, 185, 129, 0.16); color: var(--accent-emerald); }
+    .risk-warn { background: rgba(245, 158, 11, 0.16); color: var(--accent-amber); }
+    .risk-crit { background: rgba(244, 63, 94, 0.18); color: var(--accent-rose); }
 
     /* Quiz Styling */
     .quiz-item {
@@ -428,7 +487,7 @@
 
     .quiz-q {
       font-weight: 700;
-      color: #ffffff;
+      color: var(--text-primary);
       font-size: 0.94rem;
       margin-bottom: 10px;
     }
@@ -441,7 +500,7 @@
 
     .quiz-btn {
       text-align: left;
-      background: var(--bg-code);
+      background: var(--bg-primary);
       color: var(--text-primary);
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -453,8 +512,8 @@
     }
 
     .quiz-btn:hover { border-color: var(--accent-cyan); background: var(--bg-card-hover); }
-    .quiz-btn.correct { border-color: var(--accent-emerald); background: rgba(16, 185, 129, 0.15); color: #6ee7b7; }
-    .quiz-btn.wrong { border-color: var(--accent-rose); background: rgba(244, 63, 94, 0.15); color: #fda4af; }
+    .quiz-btn.correct { border-color: var(--accent-emerald); background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
+    .quiz-btn.wrong { border-color: var(--accent-rose); background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); }
 
     .quiz-feedback {
       margin-top: 9px;
@@ -462,7 +521,7 @@
       display: none;
       padding: 8px 11px;
       border-radius: 6px;
-      background: rgba(15, 23, 42, 0.85);
+      background: var(--bg-primary);
       border: 1px solid var(--border);
     }
 
@@ -495,17 +554,24 @@
 </head>
 <body>
 
+  <nav class="topbar" aria-label="Breadcrumb">
+    <div class="topbar-inner">
+      <div class="breadcrumb">
+        <a href="../../index.html">Hub</a>
+        <span class="sep">/</span>
+        <a href="../../master_roadmap.html">Master Roadmap</a>
+        <span class="sep">/</span>
+        <span>Stage 1 Lesson 1</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <a class="top-btn" href="../../Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html" style="text-decoration:none;">Stage 0</a>
+        <button class="top-btn" id="themeBtn" onclick="toggleTheme()">Light</button>
+      </div>
+    </div>
+  </nav>
+
   <header>
     <div class="container">
-      <div class="nav-bar">
-        <div class="nav-links">
-          <a class="btn-nav" href="../../index.html">← Learning Hub</a>
-          <a class="btn-nav" href="../../master_roadmap.html">Master Roadmap</a>
-          <a class="btn-nav" href="../../Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html">Stage 0 (Prerequisite)</a>
-        </div>
-        <span style="color: var(--text-muted); font-weight: 600;">5-Step Loop • Step 1: Visual HTML Lecture</span>
-      </div>
-
       <div class="badge-row">
         <span class="badge badge-emerald">Tier I • Stage 1 • Module 1.1–1.2</span>
         <span class="badge badge-cyan">Linux OS Internals</span>
@@ -665,7 +731,7 @@
 
         <div class="calc-wrap">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-            <strong style="color:#ffffff; font-size:0.95rem;">Interactive Linux Permission &amp; Risk Simulator</strong>
+            <strong style="color:var(--text-primary); font-size:0.95rem;">Interactive Linux Permission &amp; Risk Simulator</strong>
             <span style="font-size:0.8rem; color:var(--text-muted);">Toggle bits to inspect octal, symbolic mode, and security risk</span>
           </div>
           <div class="calc-grid">
@@ -1050,6 +1116,19 @@
         fb.textContent = "";
       });
     }
+
+    const THEME_KEY = "marajul_cyber_theme";
+    function applyTheme(t) {
+      document.documentElement.setAttribute("data-theme", t);
+      const b = document.getElementById("themeBtn");
+      if (b) b.textContent = t === "dark" ? "Light" : "Dark";
+    }
+    function toggleTheme() {
+      const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      try { localStorage.setItem(THEME_KEY, next); } catch {}
+      applyTheme(next);
+    }
+    applyTheme((() => { try { return localStorage.getItem(THEME_KEY) || "dark"; } catch { return "dark"; } })());
 
     updatePermCalc();
   </script>

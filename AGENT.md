@@ -70,7 +70,11 @@ Job_role-3_Cybersecurity/
     ├── writeups/
     └── tools/
 ```
-- **HTML Design Consistency:** Dark cyber dashboard aesthetic (`#0b0f19` bg, `#161f33` cards, `#06b6d4` cyan / `#10b981` emerald / `#8b5cf6` purple accents), 100% offline-safe (inline SVG, zero CDN requirements), relative links.
+- **HTML Design Consistency (v3.1 Editorial Precision Standard):**
+  - Clean Obsidian Carbon dark mode (`#09090b` bg, `#111114` elevated, `#141418` cards, `#26262e` hairline borders, `#10b981` crisp emerald primary CTA, `#38bdf8` sky links) + persisted **Light / Dark theme toggle** (`marajul_cyber_theme` in `localStorage`).
+  - **NEVER make large hero headers `position: sticky`!** Use only a **52px single-row slim sticky topbar** (breadcrumbs + compact inline progress + theme toggle) so ≥92% of the viewport stays open for reading.
+  - Always sanitize dynamic JS strings with `escapeHtml()` before inserting into `innerHTML` (so `/proc/<PID>/maps`, `<pid>`, etc. render literally).
+  - 100% offline-safe (inline SVG, zero CDN requirements), relative links, Print-to-PDF ready.
 
 ---
 
@@ -98,3 +102,4 @@ Job_role-3_Cybersecurity/
 ## 7. Decision Log
 - **2026-11-17:** Initialized GitHub repo (`marajulcsecu/cybersecurity-5-year-journey`) and enabled GitHub Pages.
 - **2026-11-19 (Major Fresh Reset to v3.0):** Critically audited and retired the old rushed "5-Year Job-Sprint / 8-Week Cram" roadmap. Adopted the **Timeless, Mastery-Gated First-Principles Curriculum (Stages 0 → 7)**: zero job urgency (student already working in Web/Mobile/Game dev), pure CS & Systems Security-Lens Bedrock first (Stage 0 → 3), zero distracting AI-wrapper projects early (AI Security moved to Stage 7 Pillar E), pre-built Linux SUID lesson/lab cleanly archived into `Stage_1_OS_Internals/` until Mastery Gate 0 is passed.
+- **2026-11-19 (v3.1 UI/UX Overhaul & Audit Fixes):** Replaced giant sticky headers with a 52px slim sticky topbar across all HTML pages, upgraded from generic dark navy to Editorial Obsidian Carbon + Light/Dark theme toggle, added prominent **Workflow & Return-After-A-Break Playbook** to `index.html` and `master_roadmap.html`, fixed unescaped `<pid>`/`<PID>` HTML injection bugs (`/proc/<pid>/ns`, `/proc/<PID>/maps`) via `escapeHtml()`, added Export/Import/Reset parity to Stage 0, and added OS Concurrency/TOCTOU to Stage 1.
