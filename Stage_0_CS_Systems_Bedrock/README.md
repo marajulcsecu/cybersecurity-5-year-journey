@@ -5,7 +5,8 @@
 
 ## Modules (Self-Paced, Mastery-Gated)
 1. **Module 0.1 ★ (Active):** Data Representation, Two's Complement, Integer Overflows & Encoding Pitfalls
-   - Visual HTML Lecture: [`lessons/module0_1_bits_integers_encoding.html`](./lessons/module0_1_bits_integers_encoding.html)
+   - Visual HTML Lecture (English Deep-Dive): [`lessons/module0_1_bits_integers_encoding.html`](./lessons/module0_1_bits_integers_encoding.html)
+   - Visual HTML Lecture (Pure বাংলা সংস্করণ): [`lessons/module0_1_bits_integers_encoding_bn.html`](./lessons/module0_1_bits_integers_encoding_bn.html)
    - Native C + `gdb` Lab 0A: [`labs/lab0a_bits_integer_overflow/README.md`](./labs/lab0a_bits_integer_overflow/README.md)
 2. **Module 0.2:** C Programming & Memory Internals (Pointers, Stack, Heap & Undefined Behavior)
 3. **Module 0.3:** Build Toolchain, Compilers, Linkers & ELF Binary Anatomy (`readelf`, `objdump`, `ldd`, `nm`)

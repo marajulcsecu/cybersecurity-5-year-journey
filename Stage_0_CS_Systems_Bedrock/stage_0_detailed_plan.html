@@ -412,7 +412,8 @@
           </p>
         </div>
         <div class="action-bar">
-          <a class="btn" style="background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700;" href="./lessons/module0_1_bits_integers_encoding.html">Open Module 0.1 Lecture →</a>
+          <a class="btn" style="background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700;" href="./lessons/module0_1_bits_integers_encoding.html">Module 0.1 (English) →</a>
+          <a class="btn" style="border-color:var(--accent-border);color:var(--accent);font-weight:700;" href="./lessons/module0_1_bits_integers_encoding_bn.html">Module 0.1 (বাংলা) →</a>
           <button class="btn" onclick="window.print()">Print / PDF</button>
           <button class="btn" onclick="exportS0()">Export</button>
           <button class="btn" onclick="document.getElementById('importS0File').click()">Import</button>
@@ -487,7 +488,9 @@
         tag: "Bits, Integers & Trust Invariants",
         active: true,
         lessonLink: "./lessons/module0_1_bits_integers_encoding.html",
-        lessonLabel: "Open Module 0.1 Lecture & Lab 0A →",
+        lessonLabel: "Lecture (English) →",
+        lessonBnLink: "./lessons/module0_1_bits_integers_encoding_bn.html",
+        lessonBnLabel: "লেকচার (বাংলা) →",
         title: "Data Representation, Two's Complement, Integer Overflows & Encoding Pitfalls",
         goal: "See data the way the CPU and parsers actually see it—raw bytes, sign bits, byte order, and why broken invariants break real C & web software.",
         theory: [
@@ -649,7 +652,10 @@
 
         const note = s0State.notes[m.id] || "";
         const lessonBtn = m.lessonLink
-          ? `<a class="btn" style="background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700;" href="${escapeHtml(m.lessonLink)}">${escapeHtml(m.lessonLabel || "Open Lecture →")}</a>`
+          ? `<div style="display:flex;flex-wrap:wrap;gap:8px;">
+              <a class="btn" style="background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700;" href="${escapeHtml(m.lessonLink)}">${escapeHtml(m.lessonLabel || "Open Lecture →")}</a>
+              ${m.lessonBnLink ? `<a class="btn" style="border-color:var(--accent-border);color:var(--accent);font-weight:700;" href="${escapeHtml(m.lessonBnLink)}">${escapeHtml(m.lessonBnLabel || "বাংলা →")}</a>` : ""}
+            </div>`
           : "";
         card.innerHTML = `
           <div class="mod-header" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:12px;">

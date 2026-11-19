@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="bn" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Module 0.1 (বাংলা সংস্করণ): Data Representation, Two's Complement, Integer Overflows ও Encoding Pitfalls</title>
+  <style>
+    :root {
+      --bg: #09090b;
+      --bg-elevated: #111114;
+      --bg-card: #141418;
+      --bg-subtle: #1c1c22;
+      --bg-code: #0d0d11;
+      --border: #26262e;
+      --border-strong: #383844;
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --text-dim: #71717a;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --accent-ink: #03261d;
+      --accent-soft: rgba(16, 185, 129, 0.12);
+      --accent-border: rgba(16, 185, 129, 0.35);
+      --link: #38bdf8;
+      --sky-soft: rgba(56, 189, 248, 0.12);
+      --amber: #f59e0b;
+      --amber-soft: rgba(245, 158, 11, 0.12);
+      --purple: #a78bfa;
+      --rose: #f43f5e;
+      --rose-soft: rgba(244, 63, 94, 0.14);
+      --radius: 10px;
+    }
+
+    [data-theme="light"] {
+      --bg: #fafafa;
+      --bg-elevated: #ffffff;
+      --bg-card: #ffffff;
+      --bg-subtle: #f4f4f5;
+      --bg-code: #111114;
+      --border: #e4e4e7;
+      --border-strong: #d4d4d8;
+      --text: #18181b;
+      --text-muted: #52525b;
+      --text-dim: #71717a;
+      --accent: #059669;
+      --accent-hover: #047857;
+      --accent-ink: #ffffff;
+      --accent-soft: rgba(5, 150, 105, 0.1);
+      --accent-border: rgba(5, 150, 105, 0.35);
+      --link: #0284c7;
+      --sky-soft: rgba(2, 132, 199, 0.1);
+      --amber: #d97706;
+      --amber-soft: rgba(217, 119, 6, 0.1);
+      --purple: #7c3aed;
+      --rose: #e11d48;
+      --rose-soft: rgba(225, 29, 72, 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans Bengali', 'Hind Siliguri', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.78;
+      padding-bottom: 72px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.85em;
+      background: var(--bg-subtle);
+      color: var(--link);
+      padding: 2px 6px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+    }
+
+    pre {
+      background: #0d0d11;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.83rem;
+      line-height: 1.58;
+      color: #e4e4e7;
+      margin: 12px 0;
+    }
+
+    pre .kw { color: #c084fc; }
+    pre .ty { color: #38bdf8; }
+    pre .fn { color: #34d399; }
+    pre .cm { color: #9ca3af; }
+    pre .nu { color: #fbbf24; }
+    pre .bad { color: #fb7185; font-weight: 700; }
+
+    /* Slim 52px Sticky Topbar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 52px;
+      background: color-mix(in srgb, var(--bg-elevated) 92%, transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+    }
+
+    .topbar-inner {
+      width: 100%;
+      max-width: 1140px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .breadcrumb a { color: var(--text-muted); }
+    .breadcrumb a:hover { color: var(--text); text-decoration: none; }
+    .breadcrumb .sep { color: var(--text-dim); }
+
+    .top-actions { display: flex; align-items: center; gap: 8px; }
+
+    .top-btn {
+      background: var(--bg-subtle);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 5px 11px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .top-btn:hover { border-color: var(--border-strong); text-decoration: none; }
+
+    .lang-btn {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent-border);
+      font-weight: 700;
+    }
+
+    /* Normal-Flow Scrolling Hero */
+    .hero {
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      padding: 32px 24px 26px;
+    }
+
+    .container { max-width: 1140px; margin: 0 auto; }
+
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; align-items: center; }
+
+    .pill {
+      font-size: 0.73rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+    }
+
+    .pill-accent { color: var(--accent); background: var(--accent-soft); border-color: var(--accent-border); }
+
+    h1 {
+      font-size: 1.82rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.32;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.96rem;
+      max-width: 860px;
+    }
+
+    .layout {
+      max-width: 1140px;
+      margin: 28px auto 0;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .toc { position: static !important; }
+    }
+
+    .toc {
+      position: sticky;
+      top: 68px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 15px;
+    }
+
+    .toc h2 {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+
+    .toc ul { list-style: none; }
+    .toc li { margin-bottom: 6px; }
+    .toc a {
+      display: block;
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    .toc a:hover { background: var(--bg-subtle); color: var(--text); text-decoration: none; }
+
+    .content { min-width: 0; }
+
+    .section-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      margin-bottom: 24px;
+    }
+
+    .sec-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .section-card h2 {
+      font-size: 1.34rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .section-card h3 {
+      font-size: 1.06rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 22px 0 10px;
+    }
+
+    .section-card p, .section-card li {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .section-card strong { color: var(--text); }
+    .section-card ul, .section-card ol { padding-left: 22px; margin-bottom: 12px; }
+
+    .analogy-box {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--link);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 14px 0;
+    }
+
+    .analogy-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--link);
+      margin-bottom: 6px;
+    }
+
+    .step-trace {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 14px 0;
+    }
+
+    .step-trace h4 {
+      font-size: 0.88rem;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .diagram-box {
+      background: #0d0d11;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      overflow-x: auto;
+    }
+
+    .diagram-caption {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .dual-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 14px 0;
+    }
+
+    @media (max-width: 700px) { .dual-grid { grid-template-columns: 1fr; } }
+
+    .lens {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .lens.attacker { border-top: 3px solid var(--rose); }
+    .lens.defender { border-top: 3px solid var(--accent); }
+
+    .lens-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    .lens.attacker .lens-title { color: var(--rose); }
+    .lens.defender .lens-title { color: var(--accent); }
+
+    .callout {
+      background: var(--amber-soft);
+      border: 1px solid color-mix(in srgb, var(--amber) 35%, transparent);
+      border-left: 3px solid var(--amber);
+      border-radius: 8px;
+      padding: 13px 16px;
+      margin: 14px 0;
+      font-size: 0.91rem;
+      color: var(--text-muted);
+    }
+
+    .callout strong { color: var(--amber); }
+
+    .callout-danger {
+      background: var(--rose-soft);
+      border: 1px solid color-mix(in srgb, var(--rose) 35%, transparent);
+      border-left: 3px solid var(--rose);
+    }
+
+    .callout-danger strong { color: var(--rose); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.87rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 9px 11px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--bg-subtle);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.78rem;
+    }
+
+    td { color: var(--text-muted); }
+
+    /* Interactive Overflow Simulator */
+    .sim-wrap {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 18px;
+      margin: 16px 0;
+    }
+
+    .sim-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 10px 0 14px;
+    }
+
+    .preset-btn {
+      background: var(--bg-subtle);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .preset-btn:hover { border-color: var(--accent); }
+
+    .sim-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 680px) { .sim-controls { grid-template-columns: 1fr; } }
+
+    .sim-field label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+
+    .sim-field select, .sim-field input {
+      width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.86rem;
+    }
+
+    .sim-out {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 13px 15px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.83rem;
+      line-height: 1.7;
+    }
+
+    .sim-alert {
+      margin-top: 10px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    .alert-ok { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-border); }
+    .alert-bad { background: var(--rose-soft); color: var(--rose); border: 1px solid color-mix(in srgb, var(--rose) 40%, transparent); }
+
+    /* Quiz Styling */
+    .score-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 15px;
+      margin-bottom: 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .quiz-item {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 12px;
+    }
+
+    .quiz-q {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.94rem;
+      margin-bottom: 10px;
+    }
+
+    .quiz-options { display: flex; flex-direction: column; gap: 7px; }
+
+    .quiz-btn {
+      text-align: left;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 9px 12px;
+      font-size: 0.88rem;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .quiz-btn:hover { border-color: var(--border-strong); background: var(--bg-subtle); }
+    .quiz-btn.correct { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+    .quiz-btn.wrong { border-color: var(--rose); background: var(--rose-soft); color: var(--rose); }
+
+    .quiz-feedback {
+      margin-top: 9px;
+      font-size: 0.86rem;
+      display: none;
+      padding: 8px 11px;
+      border-radius: 6px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="topbar" aria-label="Breadcrumb">
+    <div class="topbar-inner">
+      <div class="breadcrumb">
+        <a href="../../index.html">Hub</a>
+        <span class="sep">/</span>
+        <a href="../../master_roadmap.html">Roadmap</a>
+        <span class="sep">/</span>
+        <a href="../stage_0_detailed_plan.html">Stage 0</a>
+        <span class="sep">/</span>
+        <span>Module 0.1 (বাংলা)</span>
+      </div>
+      <div class="top-actions">
+        <a class="top-btn lang-btn" href="./module0_1_bits_integers_encoding.html">English Version →</a>
+        <a class="top-btn" href="../stage_0_detailed_plan.html">Stage 0 Plan</a>
+        <button class="top-btn" id="themeBtn" onclick="toggleTheme()">Light</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="container">
+      <div class="badge-row">
+        <span class="pill pill-accent">Tier I • Stage 0 • Module 0.1</span>
+        <span class="pill">বাংলা বিস্তারিত সংস্করণ</span>
+        <a class="pill" href="./module0_1_bits_integers_encoding.html" style="color:var(--link);border-color:var(--border-strong);">Switch to English Edition →</a>
+      </div>
+      <h1>Data Representation, Two's Complement, Integer Overflows ও Encoding Pitfalls</h1>
+      <p class="subtitle">
+        একদম গোড়া থেকে ধাপে ধাপে ব্যাখ্যা: কম্পিউটারের CPU কীভাবে বিট ও বাইট হিসেবে সংখ্যা সংরক্ষণ করে, কেন নির্দিষ্ট বিটের রেজিস্টার গাড়ির ওডোমিটারের মতো সীমা ছাড়িয়ে শূন্যে ফিরে আসে, কেন C ভাষায় ঋণাত্মক সংখ্যা হঠাৎ কোটি কোটি পজিটিভ বাইটে রূপান্তরিত হয়, এবং কেন NUL-byte (<code>0x00</code>) পার্সারকে বোকা বানায়।
+      </p>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="toc" aria-label="পাঠের সূচিপত্র">
+      <h2>সূচিপত্র (Module 0.1)</h2>
+      <ul>
+        <li><a href="#sec-invariants">১. Invariants ও Trust Boundaries</a></li>
+        <li><a href="#sec-bits">২. Bit, Hex ও Bitwise অপারেশন</a></li>
+        <li><a href="#sec-twos">৩. Two's Complement (সহজ ব্যাখ্যা)</a></li>
+        <li><a href="#sec-cves">৪. ৩টি মারাত্মক Integer বাগ ও CVE</a></li>
+        <li><a href="#sec-sim">৫. Interactive Overflow সিমুলেটর</a></li>
+        <li><a href="#sec-endian">৬. Endianness (RAM বনাম নেটওয়ার্ক)</a></li>
+        <li><a href="#sec-encoding">৭. NUL-Byte ও UTF-8 ট্র্যাপ</a></li>
+        <li><a href="#sec-quiz">৮. নিজে যাচাই করো (৬টি কুইজ)</a></li>
+        <li><a href="#sec-lab">৯. Lab 0A শুরু করো (C + GDB)</a></li>
+      </ul>
+    </aside>
+
+    <main class="content">
+
+      <!-- SECTION 1 -->
+      <section class="section-card" id="sec-invariants">
+        <div class="sec-eyebrow">Section 0.1.1 • সাইবার সিকিউরিটির প্রথম মানসিকতা</div>
+        <h2>১. সফটওয়্যার কেন ভাঙে: Trust Boundaries এবং Broken Invariants</h2>
+        <p>
+          বিট বা বাইটে যাওয়ার আগে সাইবার সিকিউরিটির সবচেয়ে গুরুত্বপূর্ণ সত্যটি মাথায় গেঁথে নাও:
+          <strong>হ্যাকিং কোনো জাদু নয়। প্রোগ্রামার তার মাথায় যে ধারণা (Assumption) ধরে কোড লিখেছে এবং কম্পিউটারের হার্ডওয়্যার বাস্তবে যা ঘটায়—এই দুইয়ের মধ্যকার ফাঁকটাই হলো Vulnerability বা বাগ!</strong>
+        </p>
+
+        <div class="analogy-box">
+          <div class="analogy-title">বাস্তব জীবনের উদাহরণ: পার্কিং গ্যারেজের ৪-ডিজিটের মিটার</div>
+          <p style="margin-bottom:6px;">
+            ধরো একটি পার্কিং গ্যারেজে প্রতিদিন ভাড়া <strong>১,০০০ টাকা</strong> এবং ভাড়ার মিটারটি মাত্র ৪ ডিজিটের (<code>0000</code> থেকে <code>9999</code> পর্যন্ত দেখাতে পারে)। গ্যারেজ মালিক কোড লিখলো: <em>"যদি মিটারে ভাড়া ৫০০ টাকা বা তার কম দেখায়, তবে গেটটি ফ্রি খুলে দাও।"</em>
+          </p>
+          <p style="margin-bottom:0;">
+            সাধারণ একজন ড্রাইভার ১ দিন গাড়ি রাখলো → মিটারে উঠলো <code>1000</code> → গেট খুললো না।
+            কিন্তু একজন হ্যাকার গাড়ি রাখলো <strong>১০ দিন</strong> (<code>10 × 1000 = 10,000</code> টাকা)! ৪-ডিজিটের মিটারটি <code>9999</code> পার হয়ে আবার ঘুরে <strong><code>0000</code></strong>-তে চলে এলো! সিস্টেম দেখলো <code>0000 &lt;= 500</code> সত্য—তাই ফ্রি গেট খুলে দিলো!
+          </p>
+        </div>
+
+        <p>সিকিউরিটি ইঞ্জিনিয়ারিংয়ে দুটি শব্দ প্রতিদিন কাজে লাগবে:</p>
+        <ul>
+          <li>
+            <strong>Trust Boundary (বিশ্বাসের সীমানা):</strong> সিস্টেমের যে সীমানা দিয়ে বাইরের অবিশ্বস্ত ডেটা (যেমন: ইউজারের পাঠানো HTTP রিকোয়েস্ট, গেম ক্লায়েন্টের নেটওয়ার্ক প্যাকেট, আপলোড করা ফাইল, বা কমান্ড লাইন ইনপুট) তোমার সার্ভার বা কার্নেলের ভেতরে প্রবেশ করে।
+          </li>
+          <li>
+            <strong>Invariant (অপরিবর্তনীয় শর্ত):</strong> প্রোগ্রামার যে গাণিতিক বা লজিক্যাল নিয়মটিকে "সবসময় সত্য থাকবে" বলে বিশ্বাস করে। যেমন:
+            <ul>
+              <li><em>প্রোগ্রামারের ধারণা (Invariant):</em> "আমি যদি ইউজারের পাঠানো ডেটার সাইজ <code>user_len</code>-এর সাথে <code>16</code> বাইট হেডার যোগ করি, তবে যোগফল <code>user_len + 16</code> সবসময়ই <code>user_len</code>-এর চেয়ে বড় হবে।"</li>
+              <li><em>হার্ডওয়্যারের বাস্তবতা:</em> একটি 32-bit রেজিস্টারে যদি ইউজার <code>user_len = 4,294,967,288</code> (হেক্সাডেসিমেলে <code>0xFFFFFFF8</code>) পাঠায়, তবে তার সাথে <code>16</code> যোগ করলে রেজিস্টারটি সীমা ছাড়িয়ে ঘুরে মাত্র <strong><code>8</code></strong> হয়ে যায়! প্রোগ্রামারের বিশ্বাস ভেঙে চুরমার হয়ে গেলো।</li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+
+      <!-- SECTION 2 -->
+      <section class="section-card" id="sec-bits">
+        <div class="sec-eyebrow">Section 0.1.2 • মেশিনের নিজস্ব ভাষা</div>
+        <h2>২. Bit, Nibble, Byte, Hexadecimal এবং Bitwise অপারেশন</h2>
+        <p>
+          কম্পিউটারের RAM বা CPU রেজিস্টারের ভেতর কেবল বিদ্যুতের উপস্থিতি বা অনুপস্থিতি থাকে: <strong><code>0</code></strong> অথবা <strong><code>1</code></strong> (যাকে বলে একটি <strong>Bit</strong>)।
+        </p>
+        <ul>
+          <li><strong>1 Bit:</strong> <code>0</code> বা <code>1</code></li>
+          <li><strong>1 Nibble (4 Bits):</strong> <code>0000</code> থেকে <code>1111</code> (মোট ১৬টি অবস্থা: <code>0</code> থেকে <code>15</code>) — <strong>যা হুবহু ১টি Hexadecimal ডিজিট (<code>0</code>–<code>F</code>) দিয়ে প্রকাশ করা যায়!</strong></li>
+          <li><strong>1 Byte (8 Bits = 2 Nibbles):</strong> <code>0000 0000</code> থেকে <code>1111 1111</code> (মোট ২৫৬টি অবস্থা: <code>0</code> থেকে <code>255</code>) — <strong>যা হুবহু ২টি Hexadecimal ডিজিট (<code>0x00</code>–<code>0xFF</code>) দিয়ে প্রকাশ করা যায়!</strong></li>
+        </ul>
+
+        <h3>কেন সিকিউরিটি ইঞ্জিনিয়াররা মেমোরি দেখতে Decimal ব্যবহার করে না?</h3>
+        <p>
+          দশমিক সংখ্যায় <code>1,000,000</code> দেখে বোঝার কোনো উপায় নেই মেমোরিতে কোন কোন বাইট বসে আছে। কিন্তু সেটিকে হেক্সাডেসিমেলে লিখলে হয় <code>0x000F4240</code>—যার দিকে তাকালেই তুমি স্পষ্ট ৪টি আলাদা বাইট দেখতে পাচ্ছো: <code>00</code>, <code>0F</code>, <code>42</code>, এবং <code>40</code>!
+        </p>
+        <p>
+          <strong>মাথায় রেখে ২ সেকেন্ডে Binary ↔ Hex করার সহজ কৌশল (8-4-2-1 নিয়ম):</strong><br/>
+          যেকোনো ৪-বিটের Nibble-এ বাম থেকে ডানে বিটগুলোর মান হলো <strong><code>8, 4, 2, 1</code></strong>। যে যে ঘরে <code>1</code> আছে শুধু সেই সংখ্যাগুলো যোগ করো:
+        </p>
+        <ul>
+          <li><code>1010</code> = <code>8 + 0 + 2 + 0</code> = <code>10</code> = <strong><code>0xA</code></strong></li>
+          <li><code>1100</code> = <code>8 + 4 + 0 + 0</code> = <code>12</code> = <strong><code>0xC</code></strong></li>
+          <li><code>1111</code> = <code>8 + 4 + 2 + 1</code> = <code>15</code> = <strong><code>0xF</code></strong></li>
+          <li>সুতরাং <code>1010 1111</code> বাইটটি চোখ বন্ধ করেই <strong><code>0xAF</code></strong>! ক্যালকুলেটরের কোনো দরকার নেই।</li>
+        </ul>
+
+        <h3>৫টি Bitwise অপারেটরের গভীর ব্যাখ্যা ও সিকিউরিটি ব্যবহার</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>অপারেটর</th>
+              <th>কীভাবে কাজ করে (উদাহরণসহ)</th>
+              <th>সাইবার সিকিউরিটি ও সিস্টেমে বাস্তব ব্যবহার</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>&amp;</code> (Bitwise AND)</td>
+              <td>
+                দুটি বিটই <code>1</code> হলে ফলাফল <code>1</code>, নইলে <code>0</code>।<br/>
+                <code>1101 &amp; 0101 = 0101</code>
+              </td>
+              <td>
+                <strong>Bitmasking (নির্দিষ্ট বিট চেক করা):</strong> কোনো নেটওয়ার্ক প্যাকেটের <code>flags</code> ভ্যারিয়েবলে ২য় বিট (TCP SYN flag = <code>0x02</code>) চালু আছে কি না দেখতে: <code>if (flags &amp; 0x02)</code>। বাকি সব বিট <code>0</code> হয়ে যায়!
+              </td>
+            </tr>
+            <tr>
+              <td><code>|</code> (Bitwise OR)</td>
+              <td>
+                যেকোনো একটি বিট <code>1</code> হলেই ফলাফল <code>1</code>।<br/>
+                <code>1100 | 0011 = 1111</code>
+              </td>
+              <td>
+                <strong>একাধিক Flag একত্র করা:</strong> Linux-এ ফাইল খোলার সময় <code>open("file", O_CREAT | O_WRONLY)</code> লিখে একাধিক অপশন এক সংখ্যায় পাঠানো হয়।
+              </td>
+            </tr>
+            <tr>
+              <td><code>^</code> (Bitwise XOR)</td>
+              <td>
+                বিট দুটি <strong>ভিন্ন</strong> হলে <code>1</code>, একই হলে <code>0</code>।<br/>
+                <strong>জাদুকরী ধর্ম:</strong> <code>(A ^ K) ^ K == A</code>!
+              </td>
+              <td>
+                <strong>Cryptography ও Reverse Engineering:</strong> একই Key (<code>K</code>) দিয়ে একবার XOR করলে ডেটা এনক্রিপ্ট হয়, আবার XOR করলে আসল ডেটা ফিরে আসে! এছাড়া অ্যাসেম্বলিতে রেজিস্টার শূন্য করতে <code>xor eax, eax</code> ব্যবহৃত হয়।
+              </td>
+            </tr>
+            <tr>
+              <td><code>~</code> (Bitwise NOT)</td>
+              <td>
+                সবগুলো বিট উল্টে দেয় (<code>0→1</code>, <code>1→0</code>)।<br/>
+                ৮ বিটে: <code>~00001111 = 11110000</code>
+              </td>
+              <td>
+                Two's Complement-এ ঋণাত্মক সংখ্যা বানাতে (<code>-x = ~x + 1</code>) এবং নির্দিষ্ট ফ্ল্যাগ মুছে ফেলতে (<code>flags &amp;= ~0x02</code>) ব্যবহৃত হয়।
+              </td>
+            </tr>
+            <tr>
+              <td><code>&lt;&lt;</code> ও <code>&gt;&gt;</code> (Bit Shift)</td>
+              <td>
+                <code>x &lt;&lt; n</code> বিটগুলোকে বামে সরায় ($2^n$ দিয়ে গুণ)।<br/>
+                <code>x &gt;&gt; n</code> বিটগুলোকে ডানে সরায় ($2^n$ দিয়ে ভাগ)।
+              </td>
+              <td>
+                <strong>সাবধান (Signed Right-Shift Trap):</strong> <em>Unsigned</em> সংখ্যায় ডানে শিফট করলে বামের খালি ঘরে <code>0</code> বসে। কিন্তু <em>ঋণাত্মক Signed</em> সংখ্যায় ডানে শিফট করলে বামের খালি ঘরে সাইন বিট <strong><code>1</code></strong> বসতে থাকে (Sign Extension)! তাই <code>((int8_t)-1) &gt;&gt; 4</code> করলে ফলাফল <code>0</code> না হয়ে <code>-1</code> (<code>0xFF</code>)-ই থেকে যায়!
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- SECTION 3 -->
+      <section class="section-card" id="sec-twos">
+        <div class="sec-eyebrow">Section 0.1.3 • হার্ডওয়্যারে ঋণাত্মক সংখ্যা রাখার রহস্য</div>
+        <h2>৩. Two's Complement: একদম সহজ ও পরিষ্কার ব্যাখ্যা</h2>
+        <p>
+          কম্পিউটারের মেমোরিতে তো <code>-</code> (মাইনাস) চিহ্ন রাখার কোনো জায়গা নেই—আছে কেবল <code>0</code> আর <code>1</code>। তাহলে CPU কীভাবে <code>-5</code> সংরক্ষণ করে?
+          আধুনিক সব প্রসেসর এজন্য <strong>Two's Complement</strong> পদ্ধতি ব্যবহার করে, যাতে যোগ করার একই সার্কিট দিয়ে বিয়োগের কাজও হয়ে যায়! এটি বোঝার দুটি দারুণ উপায় নিচে দেওয়া হলো:
+        </p>
+
+        <div class="step-trace">
+          <h4>পদ্ধতি ১ — বাম পাশের শেষ বিটের (MSB) ঋণাত্মক ওজন (সবচেয়ে সহজ নিয়ম!)</h4>
+          <p>
+            একটি <strong>Unsigned</strong> ৮-বিট সংখ্যায় (<code>uint8_t</code>) ৮টি বিটের মান সব পজিটিভ:<br/>
+            <code>+128, +64, +32, +16, +8, +4, +2, +1</code>।
+          </p>
+          <p style="margin-bottom:0;">
+            কিন্তু একটি <strong>Signed</strong> ৮-বিট সংখ্যায় (<code>int8_t</code>) শুধুমাত্র <strong>সবার বামের বিটটির (MSB) ওজন হলো ঋণাত্মক <code>-128</code></strong>, আর বাকি ৭টি বিটের ওজন পজিটিভ থাকে:<br/>
+            <code><strong style="color:var(--rose)">-128</strong>, +64, +32, +16, +8, +4, +2, +1</code>!<br/>
+            চলো <code>1111 1011</code> (<code>0xFB</code>) বাইটটি দুইভাবে হিসাব করে দেখি:<br/>
+            • <code>uint8_t</code> হিসেবে: <code>128 + 64 + 32 + 16 + 8 + 0 + 2 + 1 = <strong>251</strong></code>।<br/>
+            • <code>int8_t</code> হিসেবে: <code><strong>-128</strong> + 64 + 32 + 16 + 8 + 0 + 2 + 1 = -128 + 123 = <strong>-5</strong></code>!<br/>
+            অর্থাৎ মেমোরিতে থাকা একই <code>0xFB</code> বাইটকে <code>uint8_t</code> বললে কম্পিউটার দেখে <code>251</code>, আর <code>int8_t</code> বললে দেখে <code>-5</code>!
+          </p>
+        </div>
+
+        <div class="step-trace">
+          <h4>পদ্ধতি ২ — যেকোনো সংখ্যাকে ঋণাত্মক বানানোর নিয়ম (<code>~x + 1</code>)</h4>
+          <p style="margin-bottom:0;">
+            <code>+5</code> থেকে <code>-5</code>-এর বাইনারি বের করতে চাও?<br/>
+            ১. প্রথমে ৮-বিটে <code>+5</code> লেখো: <code>0000 0101</code> (<code>0x05</code>)<br/>
+            ২. সবগুলো বিট উল্টে দাও (<code>~5</code>): <code>1111 1010</code> (<code>0xFA</code>)<br/>
+            ৩. এর সাথে <code>1</code> যোগ করো: <code>1111 1011</code> (<code>0xFB</code> = <code>-5</code>)<br/>
+            এখন <code>+5</code> আর <code>-5</code> যোগ করে দেখো: <code>0000 0101 + 1111 1011 = 1 0000 0000</code>। ৮-বিট রেজিস্টারের বাইরে ৯ম বিটটি ঝরে পড়ে যায়, আর ফলাফল থাকে <strong><code>0000 0000</code> (<code>0</code>)</strong>!
+          </p>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>8-Bit Binary</th>
+              <th>Hex</th>
+              <th><code>uint8_t</code> (Unsigned মান)</th>
+              <th><code>int8_t</code> (Signed Two's Complement মান)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>0000 0000</code></td>
+              <td><code>0x00</code></td>
+              <td><code>0</code></td>
+              <td><code>0</code></td>
+            </tr>
+            <tr>
+              <td><code>0111 1111</code></td>
+              <td><code>0x7F</code></td>
+              <td><code>127</code></td>
+              <td><code>+127</code> (<code>INT8_MAX</code> — সর্বোচ্চ পজিটিভ সংখ্যা)</td>
+            </tr>
+            <tr>
+              <td><code>1000 0000</code></td>
+              <td><code>0x80</code></td>
+              <td><code>128</code></td>
+              <td><strong><code>-128</code></strong> (<code>INT8_MIN</code> — খেয়াল করো <code>+127 + 1</code> করলেই <code>-128</code> হয়ে যায়!)</td>
+            </tr>
+            <tr>
+              <td><code>1111 1011</code></td>
+              <td><code>0xFB</code></td>
+              <td><code>251</code></td>
+              <td><strong><code>-5</code></strong> (<code>-128 + 123 = -5</code>)</td>
+            </tr>
+            <tr>
+              <td><code>1111 1111</code></td>
+              <td><code>0xFF</code></td>
+              <td><code>255</code> (<code>UINT8_MAX</code>)</td>
+              <td><strong><code>-1</code></strong> (সবগুলো বিট <code>1</code> মানে যেকোনো বিট-সাইজেই সবসময় <code>-1</code>!)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="diagram-box">
+          <svg viewBox="0 0 820 230" width="100%" height="auto" role="img" aria-label="8-bit Unsigned vs Signed Two's Complement Wrap-Around">
+            <rect x="6" y="6" width="808" height="218" rx="8" fill="#09090b" stroke="#26262e" />
+
+            <!-- Unsigned Box -->
+            <rect x="24" y="24" width="372" height="182" rx="8" fill="#141418" stroke="#38bdf8" />
+            <text x="210" y="48" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="700">UNSIGNED 8-BIT (uint8_t: 0 .. 255)</text>
+            <rect x="44" y="66" width="142" height="44" rx="6" fill="#1c1c22" stroke="#383844" />
+            <text x="115" y="85" text-anchor="middle" fill="#f4f4f5" font-size="11" font-family="monospace">0xFF = 255</text>
+            <text x="115" y="101" text-anchor="middle" fill="#a1a1aa" font-size="10">1111 1111</text>
+
+            <line x1="186" y1="88" x2="226" y2="88" stroke="#f59e0b" stroke-width="2" />
+            <polygon points="224,83 233,88 224,93" fill="#f59e0b" />
+            <text x="208" y="78" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="700">+ 1</text>
+
+            <rect x="234" y="66" width="142" height="44" rx="6" fill="#2a1219" stroke="#f43f5e" />
+            <text x="305" y="85" text-anchor="middle" fill="#fb7185" font-size="11" font-family="monospace" font-weight="700">0x00 = 0 !</text>
+            <text x="305" y="101" text-anchor="middle" fill="#fda4af" font-size="10">0000 0000 (wrap!)</text>
+
+            <text x="210" y="138" text-anchor="middle" fill="#a1a1aa" font-size="10.5">Modulo 2^N নিয়মে শূন্য থেকে আবার শুরু হয়।</text>
+            <text x="210" y="158" text-anchor="middle" fill="#fb7185" font-size="10.5">বাগ: uint32_t sz = len + 16 ঘুরে ছোট malloc() করে!</text>
+            <text x="210" y="178" text-anchor="middle" fill="#fbbf24" font-size="10.5">বাগ: count * price ঘুরে balance-এর নিচে চলে আসে!</text>
+
+            <!-- Signed Box -->
+            <rect x="424" y="24" width="372" height="182" rx="8" fill="#141418" stroke="#10b981" />
+            <text x="610" y="48" text-anchor="middle" fill="#10b981" font-size="12" font-weight="700">SIGNED 8-BIT (int8_t: -128 .. +127)</text>
+            <rect x="444" y="66" width="142" height="44" rx="6" fill="#1c1c22" stroke="#383844" />
+            <text x="515" y="85" text-anchor="middle" fill="#f4f4f5" font-size="11" font-family="monospace">0x7F = +127</text>
+            <text x="515" y="101" text-anchor="middle" fill="#a1a1aa" font-size="10">0111 1111 (MSB=0)</text>
+
+            <line x1="586" y1="88" x2="626" y2="88" stroke="#f59e0b" stroke-width="2" />
+            <polygon points="624,83 633,88 624,93" fill="#f59e0b" />
+            <text x="608" y="78" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="700">+ 1</text>
+
+            <rect x="634" y="66" width="142" height="44" rx="6" fill="#2a1219" stroke="#f43f5e" />
+            <text x="705" y="85" text-anchor="middle" fill="#fb7185" font-size="11" font-family="monospace" font-weight="700">0x80 = -128 !</text>
+            <text x="705" y="101" text-anchor="middle" fill="#fda4af" font-size="10">1000 0000 (MSB=1)</text>
+
+            <text x="610" y="138" text-anchor="middle" fill="#fb7185" font-size="10.5">C ভাষায় Signed Overflow হলো Undefined Behavior (UB)!</text>
+            <text x="610" y="158" text-anchor="middle" fill="#a1a1aa" font-size="10.5">gcc -O2 অপটিমাইজেশনে 'if (a + b &lt; a)' চেক মুছে ফেলে!</text>
+            <text x="610" y="178" text-anchor="middle" fill="#34d399" font-size="10.5">সমাধান: যোগের আগেই চেক করো / __builtin_add_overflow()</text>
+          </svg>
+          <div class="diagram-caption">চিত্র ১: নির্দিষ্ট বিটের যোগফল কীভাবে সীমা ছাড়িয়ে ছোট সংখ্যায় বা ঋণাত্মক সংখ্যায় ঘুরে যায়।</div>
+        </div>
+      </section>
+
+      <!-- SECTION 4 -->
+      <section class="section-card" id="sec-cves">
+        <div class="sec-eyebrow">Section 0.1.4 • বাস্তব সফটওয়্যারে যেভাবে হ্যাক হয়</div>
+        <h2>৪. ৩টি মারাত্মক Integer Vulnerability ক্লাস (লাইন-বাই-লাইন বিশ্লেষণ)</h2>
+
+        <h3>বাগ ক্লাস ১: Unsigned Wrap-Around (যোগ বা গুণের ওভারফ্লো)</h3>
+        <p>
+          <strong>বাস্তব প্রেক্ষাপট:</strong> ইমেজ পার্সার, ভিডিও প্লেয়ার (যেমন Android-এর বিখ্যাত <em>Stagefright</em> বাগ), নেটওয়ার্ক প্রোটোকল বা গেম সার্ভারে প্রায়ই <code>count * item_size</code> অথবা <code>user_len + header_size</code> হিসাব করে মেমোরি বরাদ্দ (<code>malloc</code>) বা কয়েন ব্যালেন্স চেক করা হয়।
+        </p>
+<pre><span class="cm">/* দুর্বল (Vulnerable) C কোড */</span>
+<span class="ty">void</span> <span class="fn">parse_items</span>(<span class="ty">uint32_t</span> count, <span class="ty">char</span> *input_data) {
+    <span class="cm">// প্রতিটি আইটেম ১০০০ বাইট। ৩২-বিট আনসাইন্ডের সর্বোচ্চ সীমা ২^৩২ = ৪,২৯৪,৯৬৭,২৯৬।</span>
+    <span class="cm">// হ্যাকার যদি count = 8,589,935 পাঠায়:</span>
+    <span class="cm">// আসল গুণফল: 8,589,935 * 1000 = 8,589,935,000</span>
+    <span class="cm">// কিন্তু ৩২-বিটে ২ বার ঘুরে অবশিষ্ট থাকে (8589935000 mod 2^32) = মাত্র 408 বাইট!</span>
+    <span class="ty">uint32_t</span> total_bytes = count * <span class="nu">1000</span>;        <span class="bad">// ঘুরে মাত্র 408 হয়ে গেলো!</span>
+
+    <span class="ty">char</span> *buf = <span class="fn">malloc</span>(total_bytes);            <span class="cm">// মাত্র ৪০৮ বাইটের ছোট একটি বাফার তৈরি হলো!</span>
+    <span class="kw">for</span> (<span class="ty">uint32_t</span> i = <span class="nu">0</span>; i &lt; count; i++) {
+        <span class="fn">memcpy</span>(buf + (i * <span class="nu">1000</span>), input_data, <span class="nu">1000</span>); <span class="bad">// ৪০৮ বাইটের বাফারে ৮.৫ জিবি ডেটা ঢুকে Heap Overflow!</span>
+    }
+}</pre>
+
+        <h3>বাগ ক্লাস ২: Signed-to-Unsigned Implicit Promotion (ঋণাত্মক সংখ্যার ফাঁদ)</h3>
+        <p>
+          <strong>কেন এটি ঘটে:</strong> অনেক প্রোগ্রামার অভ্যাসবশত সাইজ বা লেন্থ রাখার জন্য <code>int</code> (যা <strong>Signed</strong>, অর্থাৎ ঋণাত্মক হতে পারে!) ব্যবহার করে। অথচ C-এর মেমোরি ফাংশন যেমন <code>memcpy(dst, src, size_t n)</code> বা <code>read(fd, buf, size_t count)</code> তৃতীয় প্যারামিটার হিসেবে নেয় <strong><code>size_t</code> (যা ৬৪-বিট লিনাক্সে একটি Unsigned 64-bit সংখ্যা!)</strong>।
+        </p>
+<pre><span class="ty">int</span> <span class="fn">copy_packet</span>(<span class="ty">int</span> len, <span class="ty">char</span> *src) {
+    <span class="ty">char</span> buf[<span class="nu">64</span>];
+
+    <span class="cm">// প্রোগ্রামার শুধু দেখলো len ৬৪-এর বেশি কি না, কিন্তু len ঋণাত্মক হতে পারে তা ভুলে গেছে!</span>
+    <span class="kw">if</span> (len &gt; <span class="nu">64</span>) {
+        <span class="kw">return</span> -<span class="nu">1</span>; <span class="cm">// হ্যাকার len = -5 পাঠালে (-5 &gt; 64) শর্তটি মিথ্যা হয়! তাই চেক পার হয়ে যায়!</span>
+    }
+
+    <span class="cm">// এখন signed -5 যখন memcpy-এর unsigned size_t প্যারামিটারে যায়:</span>
+    <span class="cm">// Two's Complement নিয়মে (size_t)(-5) হয়ে যায় 18,446,744,073,709,551,611 বাইট!</span>
+    <span class="fn">memcpy</span>(buf, src, len); <span class="bad">// ৬৪ বাইটের বাফারে বিশাল কপি → Stack Overflow!</span>
+    <span class="kw">return</span> <span class="nu">0</span>;
+}</pre>
+
+        <div class="callout callout-danger">
+          <strong>C ভাষার আরেকটি গোপন ফাঁদ — Signed ও Unsigned সরাসরি তুলনা করা:</strong><br/>
+          <code>if (-5 &gt; sizeof(buf))</code> লিখলে C কী করবে জানো? যেহেতু <code>sizeof(buf)</code> একটি <strong>Unsigned <code>size_t</code></strong>, তাই তুলনা করার আগেই C নীরবে <code>-5</code>-কেও বিশাল Unsigned সংখ্যায় রূপান্তর করে ফেলবে! ফলে <code>-5 &gt; 64U</code> কম্পিউটারের কাছে <strong>সত্য (TRUE)</strong> হয়ে যাবে! তাই সবসময় <code>if (len &lt; 0 || len &gt; 64)</code> আলাদাভাবে চেক করতে হয়।
+        </div>
+
+        <h3>বাগ ক্লাস ৩: Signed Overflow ও কম্পাইলারের বিশ্বাসঘাতকতা (Undefined Behavior)</h3>
+        <p>
+          C স্ট্যান্ডার্ড অনুযায়ী <strong>Unsigned</strong> ওভারফ্লো হলে তা সবসময় $2^N$ নিয়মে ঘুরবে। কিন্তু <strong>Signed <code>int</code> ওভারফ্লো হওয়া C ভাষায় Undefined Behavior (UB)</strong>! এর মানে হলো তুমি যখন <code>gcc -O2</code> দিয়ে কোড কম্পাইল করবে, কম্পাইলার ধরে নেবে <em>"ভ্যালিড প্রোগ্রামে কখনো Signed ওভারফ্লো হতেই পারে না"</em>:
+        </p>
+<pre><span class="cm">/* ভুল পদ্ধতি: Signed int-এ যোগের পর ওভারফ্লো চেক করা */</span>
+<span class="ty">int</span> a = <span class="fn">get_positive_input</span>();
+<span class="kw">if</span> (a + <span class="nu">100</span> &lt; a) {    <span class="bad">// gcc -O2 ভাববে: "সাধারণ গণিতে a+100 কখনোই a-এর ছোট হতে পারে না!"</span>
+    <span class="kw">return</span> -<span class="nu">1</span>;         <span class="bad">// কম্পাইলার তোমার এই পুরো সিকিউরিটি চেকটি বাইনারি থেকে মুছে (Delete করে) দেবে!</span>
+}
+
+<span class="cm">/* সঠিক ও নিরাপদ পদ্ধতি (Defender Best Practice): */</span>
+<span class="ty">uint32_t</span> total = <span class="nu">0</span>;
+<span class="kw">if</span> (__builtin_add_overflow(u_len, <span class="nu">100</span>, &amp;total)) { <span class="kw">return</span> -<span class="nu">1</span>; } <span class="cm">// পদ্ধতি ১: কম্পাইলার ইন্ট্রিনসিক (সবচেয়ে নিরাপদ!)</span>
+<span class="kw">if</span> (u_len &gt; UINT32_MAX - <span class="nu">100</span>) { <span class="kw">return</span> -<span class="nu">1</span>; }                  <span class="cm">// পদ্ধতি ২: যোগ করার আগেই বিয়োগ করে চেক করা</span></pre>
+      </section>
+
+      <!-- SECTION 5 -->
+      <section class="section-card" id="sec-sim">
+        <div class="sec-eyebrow">Section 0.1.5 • হাতে-কলমে পরীক্ষা করার স্যান্ডবক্স</div>
+        <h2>৫. Interactive Integer Overflow ও Signedness সিমুলেটর</h2>
+        <p>নিচের বাটনগুলোতে ক্লিক করো অথবা নিজের মতো সংখ্যা বসিয়ে দেখো কীভাবে বিট, হেক্স এবং Signed বনাম Unsigned মান পরিবর্তিত হয়:</p>
+
+        <div class="sim-wrap">
+          <div style="font-size:0.86rem; font-weight:700; color:var(--text);">বাস্তব CVE উদাহরণের বাটন:</div>
+          <div class="sim-presets">
+            <button class="preset-btn" onclick="loadPreset('u32', 4294967288, 16, 'add')">malloc(0xFFFFFFF8 + 16)</button>
+            <button class="preset-btn" onclick="loadPreset('u32', 8589935, 1000, 'mul')">Game Store: 8589935 × 1000</button>
+            <button class="preset-btn" onclick="loadPreset('i8', 127, 1, 'add')">int8_t: 127 + 1</button>
+            <button class="preset-btn" onclick="loadPreset('u8', 0, 1, 'sub')">uint8_t Underflow: 0 - 1</button>
+            <button class="preset-btn" onclick="loadPreset('i32', -5, 0, 'add')">int32_t -5 as uint32_t</button>
+          </div>
+
+          <div class="sim-controls">
+            <div class="sim-field">
+              <label for="simType">ডেটা টাইপ ও অপারেশন</label>
+              <select id="simType" onchange="runSim()">
+                <option value="u32_add">uint32_t (A + B)</option>
+                <option value="u32_mul">uint32_t (A * B)</option>
+                <option value="u8_add">uint8_t (A + B)</option>
+                <option value="u8_sub">uint8_t (A - B)</option>
+                <option value="i8_add">int8_t (A + B)</option>
+                <option value="i32_add">int32_t (A + B)</option>
+              </select>
+            </div>
+            <div class="sim-field">
+              <label for="simA">প্রথম সংখ্যা A (Decimal)</label>
+              <input type="number" id="simA" value="4294967288" oninput="runSim()" />
+            </div>
+            <div class="sim-field">
+              <label for="simB">দ্বিতীয় সংখ্যা B (Decimal)</label>
+              <input type="number" id="simB" value="16" oninput="runSim()" />
+            </div>
+          </div>
+
+          <div class="sim-out" id="simOutput"></div>
+          <div class="sim-alert alert-ok" id="simAlert"></div>
+        </div>
+      </section>
+
+      <!-- SECTION 6 -->
+      <section class="section-card" id="sec-endian">
+        <div class="sec-eyebrow">Section 0.1.6 • GDB-তে মেমোরি কেন উল্টো দেখায়?</div>
+        <h2>৬. Endianness: Little-Endian (x86_64/ARM64) বনাম Big-Endian (নেটওয়ার্ক)</h2>
+        <p>
+          ধরো তুমি C-তে লিখলে <code>uint32_t magic = 0x12345678;</code>। এই ৩২-বিট সংখ্যাটিতে মোট <strong>৪টি বাইট</strong> আছে:
+          <code>0x12</code> (সবার বাঁয়ের সবচেয়ে বড় বাইট বা <strong>MSB</strong>), <code>0x34</code>, <code>0x56</code>, এবং <code>0x78</code> (সবার ডানের সবচেয়ে ছোট বাইট বা <strong>LSB</strong>)।
+          RAM-এর পরপর ৪টি ঠিকানায় (<code>0x1000</code> থেকে <code>0x1003</code>) এই ৪টি বাইট কোন ক্রমে বসবে?
+        </p>
+
+        <ul>
+          <li>
+            <strong>Little-Endian (তোমার ল্যাপটপের Intel/AMD x86_64 ও ARM64 প্রসেসর):</strong>
+            <em>"ছোট প্রান্ত আগে!"</em> অর্থাৎ সবচেয়ে ছোট বাইটটি (LSB = <code>0x78</code>) বসে সবচেয়ে নিচের মেমোরি অ্যাড্রেসে (<code>0x1000</code>), আর সবচেয়ে বড় বাইটটি (MSB = <code>0x12</code>) বসে সবার শেষের অ্যাড্রেসে (<code>0x1003</code>)। এজন্যই <code>gdb</code>-তে মেমোরি ডাম্প করলে বাইটগুলো উল্টো ক্রমে (<code>78 56 34 12</code>) দেখা যায়!
+          </li>
+          <li>
+            <strong>Big-Endian (TCP/IP নেটওয়ার্ক প্যাকেট বা Network Byte Order):</strong>
+            <em>"বড় প্রান্ত আগে!"</em> মানুষের লেখার মতোই সবচেয়ে বড় বাইটটি (<code>0x12</code>) প্রথমে (<code>0x1000</code>) বসে। এজন্য নেটওয়ার্ক প্রোগ্রামিংয়ে পোর্ট বা আইপি পাঠানোর সময় <code>htons()</code> ও <code>htonl()</code> ফাংশন দিয়ে বাইট ঘুরিয়ে নিতে হয়।
+          </li>
+        </ul>
+
+        <div class="diagram-box">
+          <svg viewBox="0 0 820 190" width="100%" height="auto" role="img" aria-label="Little-Endian vs Big-Endian memory byte order for 0x12345678">
+            <rect x="6" y="6" width="808" height="178" rx="8" fill="#09090b" stroke="#26262e" />
+            <text x="410" y="30" text-anchor="middle" fill="#f4f4f5" font-size="12" font-weight="700">uint32_t val = 0x12345678 মেমোরি অ্যাড্রেস 0x1000 .. 0x1003-এ যেভাবে থাকে</text>
+
+            <!-- Little Endian -->
+            <text x="40" y="64" fill="#10b981" font-size="11.5" font-weight="700">Little-Endian (তোমার Linux x86_64 RAM ও GDB)</text>
+            <g font-family="monospace" font-size="12" text-anchor="middle">
+              <rect x="40" y="76" width="82" height="44" rx="5" fill="#132a2c" stroke="#10b981" />
+              <text x="81" y="96" fill="#34d399" font-weight="700">0x78</text>
+              <text x="81" y="113" fill="#a1a1aa" font-size="9.5">0x1000 (LSB)</text>
+
+              <rect x="130" y="76" width="82" height="44" rx="5" fill="#141418" stroke="#383844" />
+              <text x="171" y="96" fill="#f4f4f5">0x56</text>
+              <text x="171" y="113" fill="#a1a1aa" font-size="9.5">0x1001</text>
+
+              <rect x="220" y="76" width="82" height="44" rx="5" fill="#141418" stroke="#383844" />
+              <text x="261" y="96" fill="#f4f4f5">0x34</text>
+              <text x="261" y="113" fill="#a1a1aa" font-size="9.5">0x1002</text>
+
+              <rect x="310" y="76" width="82" height="44" rx="5" fill="#141418" stroke="#383844" />
+              <text x="351" y="96" fill="#f4f4f5">0x12</text>
+              <text x="351" y="113" fill="#a1a1aa" font-size="9.5">0x1003 (MSB)</text>
+            </g>
+
+            <!-- Big Endian -->
+            <text x="430" y="64" fill="#38bdf8" font-size="11.5" font-weight="700">Big-Endian (TCP/IP Network Wire Order)</text>
+            <g font-family="monospace" font-size="12" text-anchor="middle">
+              <rect x="430" y="76" width="82" height="44" rx="5" fill="#0f2233" stroke="#38bdf8" />
+              <text x="471" y="96" fill="#38bdf8" font-weight="700">0x12</text>
+              <text x="471" y="113" fill="#a1a1aa" font-size="9.5">0x1000 (MSB)</text>
+
+              <rect x="520" y="76" width="82" height="44" rx="5" fill="#141418" stroke="#383844" />
+              <text x="561" y="96" fill="#f4f4f5">0x34</text>
+              <text x="561" y="113" fill="#a1a1aa" font-size="9.5">0x1001</text>
+
+              <rect x="610" y="76" width="82" height="44" rx="5" fill="#141418" stroke="#383844" />
+              <text x="651" y="96" fill="#f4f4f5">0x56</text>
+              <text x="651" y="113" fill="#a1a1aa" font-size="9.5">0x1002</text>
+
+              <rect x="700" y="76" width="82" height="44" rx="5" fill="#141418" stroke="#383844" />
+              <text x="741" y="96" fill="#f4f4f5">0x78</text>
+              <text x="741" y="113" fill="#a1a1aa" font-size="9.5">0x1003 (LSB)</text>
+            </g>
+
+            <text x="410" y="156" text-anchor="middle" fill="#a1a1aa" font-size="10.5">মনে রাখবে: "ABCD" স্ট্রিং হলো ১-বাইটের চারটি আলাদা char-এর অ্যারে—তাই স্ট্রিং সবসময় 'A','B','C','D' ক্রমেই থাকে!</text>
+          </svg>
+          <div class="diagram-caption">চিত্র ২: Little-Endian মাল্টি-বাইট সংখ্যাকে বাইট হিসেবে উল্টো রাখে, কিন্তু সাধারণ স্ট্রিংয়ের ক্রম কখনো উল্টায় না।</div>
+        </div>
+
+        <div class="callout">
+          <strong>নতুনদের ২টি খুব সাধারণ ভুল ধারণা (এখনই পরিষ্কার করে নাও!):</strong>
+          <ol style="margin-top:6px; margin-bottom:0;">
+            <li><strong>"<code>0x12345678</code> উল্টে <code>78 56 34 12</code> হলো, কিন্তু <code>87 65 43 21</code> হলো না কেন?"</strong> — কারণ মেমোরির ক্ষুদ্রতম একক হলো ১ বাইট (২টি হেক্স ডিজিট)। একটি বাইটের ভেতরের দুই হেক্স ডিজিট (<code>7</code> আর <code>8</code>) কখনো নিজেদের মধ্যে জায়গা বদল করে না!</li>
+            <li><strong>"তাহলে কি <code>"HELLO"</code> স্ট্রিংও মেমোরিতে উল্টে <code>"OLLEH"</code> হয়ে থাকে?"</strong> — একদমই না! কারণ স্ট্রিং হলো ১-বাইট <code>char</code>-এর একটি অ্যারে (<code>s[0]='H'</code>, <code>s[1]='E'</code>...)। Endianness শুধুমাত্র তখনই কাজ করে যখন <em>একটি একক সংখ্যা</em> একাধিক বাইট জুড়ে থাকে (যেমন <code>uint16_t</code>, <code>uint32_t</code>, <code>uint64_t</code> বা ৬৪-বিট মেমোরি পয়েন্টার)।</li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- SECTION 7 -->
+      <section class="section-card" id="sec-encoding">
+        <div class="sec-eyebrow">Section 0.1.7 • LangSec ও পার্সারের ভুল বোঝাবুঝি</div>
+        <h2>৭. Character Encoding, Null-Byte (<code>0x00</code>) Truncation ও UTF-8 ট্র্যাপ</h2>
+        <p>
+          একটি স্ট্রিং বা টেক্সট ঠিক কোথায় শেষ হয়েছে, তা বোঝার জন্য সফটওয়্যার জগতে দুটি ভিন্ন পদ্ধতি প্রচলিত:
+        </p>
+        <ol>
+          <li><strong>Length-Prefixed বা নির্দিষ্ট দৈর্ঘ্যের বাফার (Python, Go, Rust, HTTP পেলোড, X.509 SSL সার্টিফিকেট):</strong> এখানে বাইটগুলোর সাথে আলাদাভাবে দৈর্ঘ্য (যেমন <code>len = 15</code>) লেখা থাকে। মাঝখানে <code>0x00</code> বাইট থাকলে সেটিকেও সাধারণ একটি ক্যারেক্টার হিসেবে গণ্য করা হয়।</li>
+          <li><strong>NUL-Terminated C স্ট্রিং (C ভাষার <code>char *</code>, <code>strcmp()</code>, <code>fopen()</code> ও Linux কার্নেল সিসকল):</strong> এখানে আলাদা কোনো দৈর্ঘ্য থাকে না! প্রোগ্রাম প্রথম বাইট থেকে পড়া শুরু করে এবং <strong>যেই মুহূর্তে প্রথম <code>0x00</code> (<code>'\0'</code>) বাইট পায়, সেখানেই স্ট্রিং শেষ বলে ধরে নেয়!</strong></li>
+        </ol>
+
+        <div class="diagram-box">
+          <svg viewBox="0 0 820 170" width="100%" height="auto" role="img" aria-label="Null-Byte Truncation Parser Differential">
+            <rect x="6" y="6" width="808" height="158" rx="8" fill="#09090b" stroke="#26262e" />
+
+            <rect x="26" y="24" width="768" height="42" rx="6" fill="#141418" stroke="#383844" />
+            <text x="410" y="49" text-anchor="middle" fill="#f4f4f5" font-size="12" font-family="monospace">
+              হ্যাকারের পাঠানো ১৫ বাইট:  s e c r e t . k e y  <tspan fill="#fb7185" font-weight="700">\x00</tspan>  . t x t
+            </text>
+
+            <rect x="26" y="84" width="370" height="62" rx="6" fill="#132a2c" stroke="#10b981" />
+            <text x="211" y="106" text-anchor="middle" fill="#34d399" font-size="11.5" font-weight="700">স্তর ১: Length-Aware Validator (memcmp / Python / ASN.1)</text>
+            <text x="211" y="128" text-anchor="middle" fill="#d1fae5" font-size="11">১৫ বাইটের শেষ ৪ বাইট চেক করে দেখে ".txt" → অনুমোদন দেয়!</text>
+
+            <line x1="396" y1="115" x2="424" y2="115" stroke="#f59e0b" stroke-width="2" />
+            <polygon points="422,110 430,115 422,120" fill="#f59e0b" />
+
+            <rect x="430" y="84" width="364" height="62" rx="6" fill="#2a1219" stroke="#f43f5e" />
+            <text x="612" y="106" text-anchor="middle" fill="#fb7185" font-size="11.5" font-weight="700">স্তর ২: C String ফাংশন (fopen / strcmp / OS syscall)</text>
+            <text x="612" y="128" text-anchor="middle" fill="#fda4af" font-size="11">0x00 দেখামাত্র থেমে যায় → খোলে "secret.key" → হ্যাকড!</text>
+          </svg>
+          <div class="diagram-caption">চিত্র ৩: প্রথম স্তর পুরো ১৫ বাইট দেখে ".txt" ভাবে, কিন্তু দ্বিতীয় স্তর 0x00-তে থেমে গিয়ে "secret.key" ওপেন করে!</div>
+        </div>
+
+        <h3>ইতিহাসের ২টি বিখ্যাত বাস্তব হ্যাকিংয়ের ঘটনা (Case Studies)</h3>
+        <ul>
+          <li>
+            <strong>ঘটনা ১ — SSL/TLS সার্টিফিকেটের Null-Byte হ্যাক (Moxie Marlinspike, Black Hat 2009):</strong>
+            HTTPS সার্টিফিকেটে ডোমেইনের নাম রাখা হয় ASN.1 length-prefixed ফরম্যাটে। গবেষকরা নিজেদের ডোমেইনের জন্য <code>www.paypal.com\x00.thoughtcrime.org</code> নামের সার্টিফিকেট আবেদন করেন। সার্টিফিকেট কোম্পানির চেকার পুরো স্ট্রিংয়ের শেষ অংশ দেখে ভাবলো এটি <code>thoughtcrime.org</code>-এর একটি সাবডোমেইন, তাই বৈধ সার্টিফিকেট ইস্যু করে দিলো! কিন্তু যখনই ব্রাউজার (যা C/C++ দিয়ে তৈরি) সেই সার্টিফিকেট চেক করলো, ব্রাউজারের C স্ট্রিং ফাংশন <code>\x00</code> দেখামাত্র থেমে গিয়ে দেখলো ডোমেইনটি হলো <strong><code>www.paypal.com</code></strong>!
+          </li>
+          <li>
+            <strong>ঘটনা ২ — UTF-8 Overlong Encoding দিয়ে ফায়ারওয়াল বাইপাস (<code>%c0%af</code> IIS সার্ভার হ্যাক):</strong>
+            সাধারণ ASCII-তে স্ল্যাশ (<code>/</code>) হলো ১ বাইট: <code>0x2F</code>। কিন্তু UTF-8 এনকোডিংয়ে ১ থেকে ৪ বাইটে অক্ষর লেখা যায়। হ্যাকাররা <code>/</code> অক্ষরটিকে নিয়ম ভেঙে ২ বাইটে লিখলো: <strong><code>0xC0 0xAF</code></strong>। সিকিউরিটি ফিল্টার <code>../</code> আটকানোর জন্য <code>0x2F</code> খুঁজলো, পেলো না, তাই ভেতরে ঢুকতে দিলো। এরপর সার্ভারের UTF-8 ডিকোডার <code>0xC0 0xAF</code>-কে আবার আসল <code>/</code>-এ রূপান্তর করে পুরো সার্ভারের গোপন ফাইল হ্যাকারের হাতে তুলে দিলো!
+          </li>
+        </ul>
+
+        <div class="dual-grid">
+          <div class="lens attacker">
+            <div class="lens-title">Attacker Lens (হ্যাকার যেভাবে চিন্তা করে)</div>
+            <p>যেকোনো ইনপুট ফিল্ডে সীমানার সংখ্যা (<code>0</code>, <code>-1</code>, <code>INT32_MIN</code>, <code>UINT32_MAX</code>), গুণ করলে ওভারফ্লো হয় এমন সংখ্যা, স্ট্রিংয়ের মাঝখানে <code>\x00</code> বাইট, এবং ভিন্ন এনকোডিং দিয়ে পরীক্ষা করে দেখে দুই স্তরের পার্সার আলাদা আচরণ করে কি না।</p>
+          </div>
+          <div class="lens defender">
+            <div class="lens-title">Defender Lens (নিরাপদ কোড লেখার ৪টি নিয়ম)</div>
+            <p>১. সব যোগ/গুণে <code>__builtin_add_overflow</code> / <code>__builtin_mul_overflow</code> ব্যবহার করো।<br/>২. <code>size_t</code>-তে কাস্ট করার আগে অবশ্যই <code>len &lt; 0</code> কি না চেক করো।<br/>৩. ইনপুটে কোনো <code>\0</code> বাইট থাকলে (<code>memchr(buf, '\0', len) != NULL</code>) সাথে সাথে রিজেক্ট করো।<br/>৪. যেকোনো সিকিউরিটি চেক করার <em>আগেই</em> এনকোডিং ডিকোড ও স্ট্যান্ডার্ড (Canonicalize) করে নাও।</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 8 -->
+      <section class="section-card" id="sec-quiz">
+        <div class="sec-eyebrow">Section 0.1.8 • ধারণা যাচাই</div>
+        <h2>৮. সেলফ-চেক কুইজ (Lab 0A শুরু করার আগে ৬টিতে ৬ পাও!)</h2>
+        <div class="score-bar">
+          <span>তোমার স্কোর: <span id="quizScore" style="color:var(--accent);">0</span> / 6</span>
+          <button class="top-btn" onclick="resetQuiz()">Reset Quiz</button>
+        </div>
+
+        <div class="quiz-item" data-answer="1" data-explain="সঠিক! 0xFFFFFFFC + 8 = 0x100000004, যা ৩২-বিট রেজিস্টারে mod 2^32 হয়ে 0x00000004 (মাত্র ৪ বাইট) হয়ে যায়। ফলে malloc(4) মাত্র ৪ বাইট বরাদ্দ করে এবং পরের কপিতে হিপ ওভারফ্লো হয়!">
+          <div class="quiz-q">Q1. C ভাষায় <code>uint32_t user_len = 0xFFFFFFFC;</code> হলে <code>uint32_t alloc_size = user_len + 8;</code>-এর মান কত হবে?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) প্রোগ্রামটি সাথে সাথে OverflowException এরর দিয়ে বন্ধ হয়ে যাবে</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) <code>4</code> (৩২-বিট আনসাইন্ড ওভারফ্লো হয়ে ঘুরে ৪ হয়ে যাবে)</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) সর্বোচ্চ সীমা <code>0xFFFFFFFF</code>-এ আটকে থাকবে</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="2" data-explain="সঠিক! -10 > 256 মিথ্যা হওয়ায় ইফ-চেকটি পার হয়ে যাবে, আর তারপর memcpy-এর unsigned size_t প্যারামিটারে গিয়ে -10 পরিণত হবে ১৮ কুইন্টিলিয়ন (18,446,744,073,709,551,606) বাইটে!">
+          <div class="quiz-q">Q2. যদি কোডে থাকে: <code>int32_t len = -10; if (len &gt; 256) return; memcpy(dst, src, len);</code> — তবে কী ঘটবে?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) ঋণাত্মক সংখ্যা দেখে <code>memcpy</code> নিরাপদে ০ বাইট কপি করবে</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) <code>if (len &gt; 256)</code> শর্তটি <code>-10</code>-কে আটকে দেবে</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) চেকটি বাইপাস হবে এবং <code>len</code> বিশাল একটি পজিটিভ <code>size_t</code> সংখ্যায় রূপান্তরিত হয়ে মেমোরি ওভারফ্লো ঘটাবে</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="0" data-explain="সঠিক! C-তে পজিটিভ signed int-এর ওভারফ্লো হলো Undefined Behavior (UB)। তাই gcc -O2 ধরে নেয় 'a + b < a' কখনো সত্য হতেই পারে না এবং পুরো সিকিউরিটি চেকটি ডিলিট করে দেয়!">
+          <div class="quiz-q">Q3. দুটি পজিটিভ <strong>Signed</strong> <code>int</code>-এর ক্ষেত্রে <code>if (a + b &lt; a)</code> দিয়ে ওভারফ্লো চেক করা কেন <code>gcc -O2</code>-তে বিপজ্জনক?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) Signed ওভারফ্লো C-তে Undefined Behavior, তাই কম্পাইলার অপটিমাইজ করার সময় পুরো চেকটি মুছে ফেলতে পারে</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) CPU দুটি signed int যোগ করতে পারে না</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) Signed int কখনো ওভারফ্লো হয় না</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="1" data-explain="সঠিক! x86_64 হলো Little-Endian: সবচেয়ে ছোট বাইটটি (LSB = 0xEF) সবার প্রথম অ্যাড্রেসে বসে → EF CD AB 90।">
+          <div class="quiz-q">Q4. তোমার Little-Endian x86_64 লিনাক্স মেশিনে <code>uint32_t magic = 0x90ABCDEF;</code> ডিক্লেয়ার করে <code>gdb</code>-তে <code>x/4xb &amp;magic</code> চালালে বাইটগুলো কোন ক্রমে দেখবে?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) <code>0x90 0xab 0xcd 0xef</code></button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) <code>0xef 0xcd 0xab 0x90</code></button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) <code>0xfe 0xdc 0xba 0x09</code></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="0" data-explain="সঠিক! ৮-বিট টু'স কমপ্লিমেন্টে 0xFF (1111 1111) হলো -1 (-128 + 127 = -1), আর আনসাইন্ডে 255।">
+          <div class="quiz-q">Q5. মেমোরির একই বাইট <code>0xFF</code>-কে যথাক্রমে <code>int8_t</code> এবং <code>uint8_t</code> হিসেবে পড়লে মান কত পাওয়া যাবে?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) <code>-1</code> (signed) এবং <code>255</code> (unsigned)</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) <code>-128</code> (signed) এবং <code>256</code> (unsigned)</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) <code>-127</code> (signed) এবং <code>255</code> (unsigned)</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="2" data-explain="সঠিক! প্রথম চেকার পুরো ১৫ বাইটের শেষে '.txt' দেখে ফাইলটি বৈধ ভাবে, কিন্তু C-এর fopen() প্রথম 0x00 বাইটেই থেমে গিয়ে 'secret.key' ফাইলটি খুলে ফেলে!">
+          <div class="quiz-q">Q6. একটি ভ্যালিডেটর পুরো বাফারের শেষ ৪ বাইট চেক করে <code>"secret.key\x00.txt"</code>-কে অনুমোদন দিলো, কিন্তু সেটি C-এর <code>fopen()</code>-এ পাঠালে কী বিপদ ঘটবে?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" onclick="answerQuiz(this, 0)">A) <code>fopen()</code> নিজে থেকে <code>.txt</code>-কে <code>.key</code> বানিয়ে ফেলবে</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 1)">B) <code>0x00</code> বাইটটি Little-Endian সোয়াপ ঘটাবে</button>
+            <button class="quiz-btn" onclick="answerQuiz(this, 2)">C) C স্ট্রিং <code>0x00</code> দেখামাত্র থেমে যায়, ফলে <code>fopen()</code> আসলে <code>"secret.key"</code> ফাইলটি খুলে ফেলবে</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+      </section>
+
+      <!-- SECTION 9 -->
+      <section class="section-card" id="sec-lab">
+        <div class="sec-eyebrow">Section 0.1.9 • Step 3 &amp; Step 4: হাতে-কলমে C + GDB ল্যাব</div>
+        <h2>৯. পরবর্তী ধাপ: Lab 0A চালু করো (Byte Inspector + Break &amp; Fix)</h2>
+        <p>
+          থিওরি ও কুইজ শেষ! এখন টার্মিনালে <code>Stage_0_CS_Systems_Bedrock/labs/lab0a_bits_integer_overflow/</code> ফোল্ডারে গিয়ে নিজের হাতে মেমোরি পরীক্ষা করো এবং ৩টি বাগ এক্সপ্লয়েট ও প্যাচ করো:
+        </p>
+        <ul>
+          <li><strong>ধাপ ১ (মেমোরি পর্যবেক্ষণ):</strong> <code>make</code> চালিয়ে <code>./part1_byte_inspector</code> রান করো এবং <code>gdb</code>-তে <code>x/4xb</code> দিয়ে Little-Endian ও Two's Complement বাইটগুলো নিজের চোখে দেখো।</li>
+          <li><strong>ধাপ ২ (নিজের হাতে হ্যাক করো):</strong> <code>part2_vuln_vault.c</code> কোডটি পড়ে ৩টি চ্যালেঞ্জ (<code>buy</code>, <code>copy</code>, <code>open</code>) ম্যানুয়ালি এক্সপ্লয়েট করে ৩টি Flag বের করো!</li>
+          <li><strong>ধাপ ৩ (বাগ ফিক্স ও ভেরিফিকেশন):</strong> <code>cp part2_vuln_vault.c part2_patched_vault.c</code> করে ৩টি বাগ ফিক্স করো এবং <code>./verify_lab0a.sh</code> চালিয়ে <code>9 passed, 0 failed</code> নিশ্চিত করো!</li>
+        </ul>
+<pre><span class="cm"># তোমার লিনাক্স টার্মিনালে Lab 0A চালু করো</span>
+<span class="fn">cd</span> Stage_0_CS_Systems_Bedrock/labs/lab0a_bits_integer_overflow
+<span class="fn">make</span>
+./part1_byte_inspector
+./part2_vuln_vault</pre>
+        <p style="font-size:0.86rem; color:var(--text-dim);">
+          বিস্তারিত নির্দেশনা ও হিন্টস পাবে <a href="../labs/lab0a_bits_integer_overflow/README.md"><code>Stage_0_CS_Systems_Bedrock/labs/lab0a_bits_integer_overflow/README.md</code></a> ফাইলে।
+        </p>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    const THEME_KEY = "marajul_cyber_theme";
+    function applyTheme(t) {
+      document.documentElement.setAttribute("data-theme", t);
+      document.getElementById("themeBtn").textContent = t === "dark" ? "Light" : "Dark";
+    }
+    function toggleTheme() {
+      const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      try { localStorage.setItem(THEME_KEY, next); } catch {}
+      applyTheme(next);
+    }
+    applyTheme((() => { try { return localStorage.getItem(THEME_KEY) || "dark"; } catch { return "dark"; } })());
+
+    function loadPreset(type, a, b, op) {
+      document.getElementById("simType").value = `${type}_${op}`;
+      document.getElementById("simA").value = a;
+      document.getElementById("simB").value = b;
+      runSim();
+    }
+
+    function toBin(bigVal, bits) {
+      const s = bigVal.toString(2).padStart(bits, "0");
+      return s.match(/.{1,4}/g).join(" ");
+    }
+
+    function runSim() {
+      const mode = document.getElementById("simType").value;
+      const [ty, op] = mode.split("_");
+      const bits = ty.endsWith("8") ? 8 : 32;
+      const signed = ty.startsWith("i");
+      const mod = 1n << BigInt(bits);
+      const half = 1n << BigInt(bits - 1);
+
+      let aIn, bIn;
+      try {
+        aIn = BigInt(Math.trunc(Number(document.getElementById("simA").value || 0)));
+        bIn = BigInt(Math.trunc(Number(document.getElementById("simB").value || 0)));
+      } catch {
+        aIn = 0n; bIn = 0n;
+      }
+
+      let mathRes = op === "add" ? aIn + bIn : op === "sub" ? aIn - bIn : aIn * bIn;
+      const rawBits = ((mathRes % mod) + mod) % mod;
+      const unsignedVal = rawBits;
+      const signedVal = rawBits >= half ? rawBits - mod : rawBits;
+      const actualVal = signed ? signedVal : unsignedVal;
+
+      const minVal = signed ? -half : 0n;
+      const maxVal = signed ? half - 1n : mod - 1n;
+      const overflowed = (mathRes < minVal || mathRes > maxVal);
+
+      const hexStr = "0x" + rawBits.toString(16).toUpperCase().padStart(bits / 4, "0");
+      const opSym = op === "add" ? "+" : op === "sub" ? "-" : "×";
+
+      document.getElementById("simOutput").innerHTML =
+        `<div>সাধারণ গণিতের আসল ফলাফল : <strong>${aIn} ${opSym} ${bIn} = ${mathRes}</strong></div>` +
+        `<div>মেমোরিতে থাকা ${bits}-bit Hex   : <strong style="color:var(--link)">${hexStr}</strong></div>` +
+        `<div>মেমোরিতে থাকা ${bits}-bit Binary: <span style="color:var(--text-muted)">${toBin(rawBits, bits)}</span></div>` +
+        `<div>Unsigned (uint${bits}_t) হিসেবে : <strong>${unsignedVal}</strong></div>` +
+        `<div>Signed   (int${bits}_t) হিসেবে  : <strong>${signedVal}</strong></div>`;
+
+      const alertEl = document.getElementById("simAlert");
+      if (overflowed) {
+        alertEl.className = "sim-alert alert-bad";
+        alertEl.textContent = signed
+          ? `OVERFLOW / UB! আসল ফলাফল (${mathRes}) int${bits}_t-এর সীমায় [${minVal}..${maxVal}] আটেনি → ঘুরে ${actualVal} হয়ে গেছে (এবং C-তে এটি Undefined Behavior!)।`
+          : `WRAP-AROUND! আসল ফলাফল (${mathRes}) uint${bits}_t-এর সীমা [0..${maxVal}] ছাড়িয়ে mod 2^${bits} নিয়মে ঘুরে মাত্র ${actualVal} হয়ে গেছে!`;
+      } else if (signed && actualVal < 0n) {
+        alertEl.className = "sim-alert alert-bad";
+        alertEl.textContent = `SIGNEDNESS TRAP: সংখ্যাটি ঋণাত্মক (${signedVal}), তাই 'val > MAX' চেকটি মিথ্যা হবে—কিন্তু এটি unsigned uint${bits}_t-এ গেলে বিশাল পজিটিভ সংখ্যা ${unsignedVal} হয়ে যাবে!`;
+      } else {
+        alertEl.className = "sim-alert alert-ok";
+        alertEl.textContent = `SAFE: ফলাফল ${actualVal} নিরাপদে ${signed ? "int" : "uint"}${bits}_t সীমার [${minVal}..${maxVal}] ভেতরে আছে।`;
+      }
+    }
+
+    let quizAnswered = {};
+    function answerQuiz(btn, chosenIdx) {
+      const card = btn.closest(".quiz-item");
+      const items = Array.from(document.querySelectorAll(".quiz-item"));
+      const qIdx = items.indexOf(card);
+      const correctIdx = parseInt(card.dataset.answer, 10);
+      const btns = card.querySelectorAll(".quiz-btn");
+      const fb = card.querySelector(".quiz-feedback");
+
+      btns.forEach(b => b.classList.remove("correct", "wrong"));
+      if (chosenIdx === correctIdx) {
+        btn.classList.add("correct");
+        fb.style.color = "var(--accent)";
+        fb.textContent = "✓ " + card.dataset.explain;
+        quizAnswered[qIdx] = true;
+      } else {
+        btn.classList.add("wrong");
+        fb.style.color = "var(--rose)";
+        fb.textContent = "✗ হয়নি — বিটের সীমা ও Two's Complement নিয়মটি আরেকবার ভেবে চেষ্টা করো।";
+        quizAnswered[qIdx] = false;
+      }
+      fb.style.display = "block";
+      document.getElementById("quizScore").textContent = Object.values(quizAnswered).filter(Boolean).length;
+    }
+
+    function resetQuiz() {
+      quizAnswered = {};
+      document.getElementById("quizScore").textContent = "0";
+      document.querySelectorAll(".quiz-item").forEach(card => {
+        card.querySelectorAll(".quiz-btn").forEach(b => b.classList.remove("correct", "wrong"));
+        const fb = card.querySelector(".quiz-feedback");
+        fb.style.display = "none";
+        fb.textContent = "";
+      });
+    }
+
+    runSim();
+  </script>
+</body>
+</html>

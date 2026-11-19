@@ -8,7 +8,9 @@
 - **Background & Career Context:** 7th-semester CSE university student who has **already started working in software development (Web, Mobile App, Game Dev)**.
 - **Core Goal (NO Job-Hunt Rush!):** True **Beginner → Master** depth in Cybersecurity from absolute CS & Systems first principles. Timeline is completely open (5, 15, or 30 years—zero calendar pressure). Strictly anti-script-kiddie and anti-buzzword-cramming.
 - **CS Baseline:** Has studied core CSE subjects (C/C++, COA, OS, Networking, Discrete Math, DB/Web) for university semesters, and now explicitly wants to **rebuild/re-study all of them through a deep Security Lens (Attacker + Defender engineering viewpoint)**.
-- **Language Preference:** Respond in natural **Banglish / Bangla** for teaching, Q&A, and guidance, while keeping standard English cybersecurity terms, commands, code, and HTML documentation clean and industry-standard.
+- **Language Preference:**
+  - In chat: Respond in natural **Banglish / Bangla** for teaching, Q&A, and guidance.
+  - **Dual-Language Visual HTML Lectures (Strict Rule):** For every module's Step 1 Visual HTML Lecture, always create **BOTH** a deeply detailed, step-by-step **English Edition (`*.html`)** AND a full, natural **Pure বাংলা (Bengali script, NOT Banglish) Edition (`*_bn.html`)** linked via a 1-click topbar toggle (`বাংলা সংস্করণ →` / `English Version →`), while keeping standard English C/security terms (`uint32_t`, `Two's Complement`, `Little-Endian`, `malloc()`, `gdb`) inside `<code>` tags.
 - **Teaching Persona:** Act as a strict yet supportive **University CS Professor + Principal Security Researcher Mentor**. Never just dump lab answers; enforce Mastery Gates, manual verification, intuition, and Feynman checks.
 
 ---
@@ -83,7 +85,9 @@ Job_role-3_Cybersecurity/
   - [x] Timeless First-Principles Master Roadmap v3.1 (`master_roadmap.html`, Obsidian/Light UI, Workflow Playbook)
   - [x] Stage 0 Detailed Mastery Syllabus (`Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html` & `README.md`)
   - [x] Refreshed Public Learning Hub (`index.html`), `README.md`, and `AGENT.md` (cleanly removed premature `Stage_1_OS_Internals/` to enforce strict 1-stage-at-a-time discipline)
-  - [x] **Stage 0, Module 0.1 Visual HTML Lecture** (`Stage_0_CS_Systems_Bedrock/lessons/module0_1_bits_integers_encoding.html`) — Trust invariants, Hex/Bitwise, Two's Complement SVG, Interactive Integer Overflow/Signedness Simulator, Endianness SVG, Null-Byte Parser Differential SVG, 6-question self-check quiz
+  - [x] **Stage 0, Module 0.1 Dual-Language Visual HTML Lectures (Deep-Dive Expanded)**:
+    - English Edition: `Stage_0_CS_Systems_Bedrock/lessons/module0_1_bits_integers_encoding.html`
+    - Pure বাংলা Edition: `Stage_0_CS_Systems_Bedrock/lessons/module0_1_bits_integers_encoding_bn.html`
   - [x] **Stage 0, Lab 0A** (`Stage_0_CS_Systems_Bedrock/labs/lab0a_bits_integer_overflow/`) — Native C + `gdb` lab (`part1_byte_inspector.c`, `part2_vuln_vault.c` with 3 real flaws, `Makefile`, `verify_lab0a.sh` tested 9/9 pass under `-Wall -Wextra -Werror -fsanitize=address,undefined`, collapsible hints `README.md`)
 - **Known System Facts (Verified 2026-11-19):**
   - `python3` (`3.12.3`), `git` (`2.43.0`, user `MD. MARAJUL HAQUE` / `marajul.cu@gmail.com`), `docker` (`29.1.3`, runs without `sudo`, `overlay2` driver), `gh` (`2.100.0`, logged in as `marajulcsecu`).
