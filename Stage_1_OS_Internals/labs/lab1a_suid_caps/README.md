@@ -9,7 +9,7 @@
 ## 1. Launch the Lab
 
 ```bash
-cd Phase_1_Core_Foundations/labs/week1_lab1_suid_caps
+cd Stage_1_OS_Internals/labs/lab1a_suid_caps
 ./run_lab.sh
 ```
 
@@ -91,7 +91,7 @@ Now run the automated verification script from the host:
 ./verify_hardening.sh
 ```
 
-When you finish, clean up the container (and optionally save your Feynman writeup in `Phase_1_Core_Foundations/writeups/`):
+When you finish, clean up the container (and optionally save your Feynman writeup in `Stage_1_OS_Internals/writeups/`):
 ```bash
 ./run_lab.sh --clean
 ```

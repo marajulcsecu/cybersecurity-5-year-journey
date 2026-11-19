@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cybersecurity & AI-SecOps 5-Year Learning Hub</title>
+  <title>First-Principles Cybersecurity Learning Hub (Beginner → Master)</title>
   <style>
     :root {
       --bg-primary: #0b0f19;
@@ -31,6 +31,15 @@
       min-height: 100vh;
     }
 
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 0.86em;
+      background: rgba(6, 182, 212, 0.1);
+      color: #67e8f9;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
     header {
       background: radial-gradient(circle at top right, rgba(6, 182, 212, 0.16), transparent 45%),
                   radial-gradient(circle at top left, rgba(16, 185, 129, 0.14), transparent 45%),
@@ -39,19 +48,16 @@
       padding: 44px 24px 36px;
     }
 
-    .container {
-      max-width: 1160px;
-      margin: 0 auto;
-    }
+    .container { max-width: 1160px; margin: 0 auto; }
 
     .badge {
       display: inline-block;
-      background: rgba(6, 182, 212, 0.14);
-      color: var(--accent-cyan);
-      border: 1px solid rgba(6, 182, 212, 0.35);
+      background: rgba(16, 185, 129, 0.14);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
       padding: 4px 12px;
       border-radius: 999px;
-      font-size: 0.78rem;
+      font-size: 0.77rem;
       font-weight: 700;
       letter-spacing: 0.04em;
       text-transform: uppercase;
@@ -69,15 +75,11 @@
     .subtitle {
       color: var(--text-secondary);
       font-size: 1rem;
-      max-width: 760px;
+      max-width: 790px;
       margin-bottom: 24px;
     }
 
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 
     .btn {
       display: inline-flex;
@@ -108,88 +110,15 @@
       border: 1px solid var(--border);
     }
 
-    .btn:hover {
-      transform: translateY(-1px);
-      opacity: 0.94;
-    }
+    .btn:hover { transform: translateY(-1px); opacity: 0.94; }
 
-    main {
-      max-width: 1160px;
-      margin: 34px auto 60px;
-      padding: 0 24px;
-    }
+    main { max-width: 1160px; margin: 34px auto 60px; padding: 0 24px; }
 
     .section-title {
       font-size: 1.25rem;
       font-weight: 800;
       margin-bottom: 14px;
       color: #ffffff;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 18px;
-      margin-bottom: 36px;
-    }
-
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: border-color 0.2s ease;
-    }
-
-    .card:hover {
-      border-color: var(--accent-cyan);
-    }
-
-    .card.active {
-      border-color: var(--accent-emerald);
-      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.3);
-    }
-
-    .card-tag {
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--accent-cyan);
-      margin-bottom: 6px;
-    }
-
-    .card.active .card-tag {
-      color: #34d399;
-    }
-
-    .card h3 {
-      font-size: 1.08rem;
-      color: #ffffff;
-      margin-bottom: 8px;
-    }
-
-    .card p {
-      font-size: 0.87rem;
-      color: var(--text-secondary);
-      margin-bottom: 16px;
-    }
-
-    .card a.card-link {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--accent-cyan);
-      text-decoration: none;
-    }
-
-    .card a.card-link:hover {
-      text-decoration: underline;
     }
 
     .steps-grid {
@@ -199,13 +128,8 @@
       margin-bottom: 38px;
     }
 
-    @media (max-width: 960px) {
-      .steps-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 560px) {
-      .steps-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 960px) { .steps-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .steps-grid { grid-template-columns: 1fr; } }
 
     .step-box {
       background: var(--bg-secondary);
@@ -223,69 +147,101 @@
       margin-bottom: 4px;
     }
 
-    .step-box h4 {
-      font-size: 0.92rem;
-      color: #fff;
-      margin-bottom: 5px;
+    .step-box h4 { font-size: 0.92rem; color: #fff; margin-bottom: 5px; }
+    .step-box p { font-size: 0.8rem; color: var(--text-secondary); }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 18px;
+      margin-bottom: 36px;
     }
 
-    .step-box p {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: border-color 0.2s ease;
     }
 
-    .muted-status {
-      display: inline-block;
-      font-size: 0.78rem;
-      color: var(--accent-amber);
-      font-weight: 600;
+    .card:hover { border-color: var(--accent-cyan); }
+
+    .card.active {
+      border-color: var(--accent-emerald);
+      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.3);
     }
+
+    .card-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-cyan);
+      margin-bottom: 6px;
+    }
+
+    .card.active .card-tag { color: #34d399; }
+    .card h3 { font-size: 1.08rem; color: #ffffff; margin-bottom: 8px; }
+    .card p { font-size: 0.87rem; color: var(--text-secondary); margin-bottom: 16px; }
+
+    .card a.card-link {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      text-decoration: none;
+    }
+
+    .card a.card-link:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
 
   <header>
     <div class="container">
-      <div class="badge">Open-Source Learning Hub • 7th Semester → Principal Security Architect (2026–2031)</div>
-      <h1>Cybersecurity &amp; AI-SecOps Journey</h1>
+      <div class="badge">Timeless First-Principles Curriculum • Mastery-Gated (Beginner → Master)</div>
+      <h1>First-Principles Cybersecurity Mastery Hub</h1>
       <p class="subtitle">
-        A living, rolling-wave cybersecurity curriculum built with visual interactive lessons, reproducible Docker labs, hands-on writeups, and Python/AI security automation tools.
+        A rigorous, self-paced engineering journey from CS &amp; Systems Bedrock (C, Memory, ELF, CPU, OS, Networks, Crypto) to Core Security Craft and World-Class Specialization Pillars—zero script-kiddie shortcuts, zero artificial calendar deadlines.
       </p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="./cybersecurity_5_year_roadmap.html">Open 5-Year Master Roadmap →</a>
-        <a class="btn btn-emerald" href="./Phase_1_Core_Foundations/phase_1_detailed_plan.html">Start Phase 1 (8-Week Plan) →</a>
-        <a class="btn btn-outline" href="./cybersecurity_5_year_roadmap.pdf">Master Roadmap (PDF)</a>
+        <a class="btn btn-primary" href="./master_roadmap.html">Open Master Roadmap (Stages 0–7) →</a>
+        <a class="btn btn-emerald" href="./Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html">Start Stage 0 (CS Bedrock) →</a>
+        <a class="btn btn-outline" href="https://github.com/marajulcsecu/cybersecurity-5-year-journey" target="_blank" rel="noopener">GitHub Repository</a>
       </div>
     </div>
   </header>
 
   <main>
-    <h2 class="section-title">How Every Topic Is Learned (The 5-Step Loop)</h2>
+    <h2 class="section-title">How Every Concept Is Mastered (The 5-Step Loop)</h2>
     <section class="steps-grid">
       <div class="step-box">
         <div class="step-num">Step 1</div>
-        <h4>Visual HTML Lesson</h4>
-        <p>Architecture diagrams, attacker vs. defender perspective, and interactive quizzes.</p>
+        <h4>Visual HTML Lecture</h4>
+        <p>Architecture &amp; memory diagrams, attacker vs. defender perspective, and concept quizzes.</p>
       </div>
       <div class="step-box">
         <div class="step-num">Step 2</div>
-        <h4>Interactive Q&amp;A</h4>
-        <p>Deepen intuition with analogies and clarify edge cases before touching tools.</p>
+        <h4>First-Principles Q&amp;A</h4>
+        <p>Clarify mental models and edge cases until zero "black box magic" remains.</p>
       </div>
       <div class="step-box">
         <div class="step-num">Step 3</div>
-        <h4>Live Docker Lab</h4>
-        <p>Exploit, inspect packets, and patch vulnerabilities manually in lightweight containers.</p>
+        <h4>Build &amp; Break Lab</h4>
+        <p>Write small C/Python/Linux targets, inspect with <code>gdb</code>/<code>strace</code>/<code>tshark</code>, and break them manually.</p>
       </div>
       <div class="step-box">
         <div class="step-num">Step 4</div>
-        <h4>AI &amp; Python Tooling</h4>
-        <p>Automate the repetitive 80% into reusable CLI tools and AI security agents.</p>
+        <h4>Fix &amp; Engineer Tool</h4>
+        <p>Patch the root cause cleanly and write deterministic C/Python/Bash inspection tools.</p>
       </div>
       <div class="step-box">
         <div class="step-num">Step 5</div>
-        <h4>Writeup &amp; Deploy</h4>
-        <p>Verify mastery with Feynman summaries, update checklists, and publish to GitHub.</p>
+        <h4>Mastery Gate &amp; Writeup</h4>
+        <p>Pass Feynman verification, record lab proof in <code>writeups/</code>, and publish cleanly.</p>
       </div>
     </section>
 
@@ -293,35 +249,34 @@
     <section class="cards-grid">
       <div class="card active">
         <div>
-          <div class="card-tag">★ Active Phase • Months 1–2</div>
-          <h3>Phase 1: Core Foundations &amp; Hybrid AI Workflow</h3>
-          <p>Linux OS internals, TCP/IP packet dissection (<code>tshark</code>/Scapy), <code>nftables</code> firewalls, applied cryptography, STRIDE threat modeling, and Portfolio Tool #1.</p>
+          <div class="card-tag">★ Active Now • Tier I, Stage 0</div>
+          <h3>Stage 0: CS &amp; Systems Bedrock (Security Lens)</h3>
+          <p>Bits &amp; integer overflows, C memory internals, build toolchain &amp; ELF anatomy, reading x86_64 assembly in <code>gdb</code>, virtual memory, and Ring 3 → Ring 0 syscalls.</p>
         </div>
         <div>
-          <a class="card-link" href="./Phase_1_Core_Foundations/phase_1_detailed_plan.html">Open 8-Week Syllabus →</a>
+          <a class="card-link" href="./Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html">Open Stage 0 Syllabus (Modules 0.1–0.5) →</a>
         </div>
       </div>
 
       <div class="card">
         <div>
-          <div class="card-tag">Master Curriculum • 17 Domains</div>
-          <h3>5-Year Master Roadmap (v2.0)</h3>
-          <p>Full 60-month progression from 7th semester to Cloud/DevSecOps, Reverse Engineering, AI Red Teaming, 0-Day Research, and Principal Architecture.</p>
+          <div class="card-tag">Master Curriculum • Stages 0 → 7</div>
+          <h3>First-Principles Master Roadmap (v3.0)</h3>
+          <p>Bottom-up dependency progression across Tier I (CS Bedrock), Tier II (Core Offense &amp; Defense Craft), and Tier III (Deep Master Pillars A–E) with explicit Mastery Gates.</p>
         </div>
         <div>
-          <a class="card-link" href="./cybersecurity_5_year_roadmap.html">Open Interactive Checklist →</a>
+          <a class="card-link" href="./master_roadmap.html">Open Interactive Roadmap →</a>
         </div>
       </div>
 
-      <div class="card active">
+      <div class="card">
         <div>
-          <div class="card-tag">Week 1 • Live Lesson &amp; Lab</div>
-          <h3>Lesson 1 &amp; Lab 1A: Linux OS Internals</h3>
-          <p>Interactive visual lecture covering <code>/proc</code>, DAC permissions calculator, SUID vs. <code>EUID</code>, and POSIX Capabilities—paired with a ~3 MB Docker privilege escalation &amp; hardening lab.</p>
+          <div class="card-tag">Pre-Staged • Tier I, Stage 1</div>
+          <h3>Stage 1 Preview: Linux OS Internals &amp; Lab 1A</h3>
+          <p>Already-built visual lecture on <code>/proc</code>, DAC permissions, SUID &amp; POSIX Capabilities paired with the ultra-lightweight Docker SUID/Capabilities hardening lab (unlocks after Mastery Gate 0).</p>
         </div>
-        <div style="display:flex; flex-wrap:wrap; gap:14px;">
-          <a class="card-link" href="./Phase_1_Core_Foundations/lessons/week1_lesson1_linux_internals.html">Open Lesson 1 →</a>
-          <a class="card-link" href="./Phase_1_Core_Foundations/lessons/week1_lesson1_linux_internals.html#sec-lab" style="color:var(--accent-emerald);">Launch Lab 1A →</a>
+        <div>
+          <a class="card-link" href="./Stage_1_OS_Internals/lessons/stage1_lesson1_linux_internals.html">Preview Stage 1 Lesson 1 →</a>
         </div>
       </div>
     </section>

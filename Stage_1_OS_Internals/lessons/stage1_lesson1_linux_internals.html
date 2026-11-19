@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Week 1 Lesson 1: Linux OS Internals, DAC Permissions, SUID &amp; Capabilities</title>
+  <title>Stage 1 Lesson 1: Linux OS Internals, DAC Permissions, SUID &amp; Capabilities</title>
   <style>
     :root {
       --bg-primary: #0b0f19;
@@ -500,14 +500,14 @@
       <div class="nav-bar">
         <div class="nav-links">
           <a class="btn-nav" href="../../index.html">← Learning Hub</a>
-          <a class="btn-nav" href="../phase_1_detailed_plan.html">Phase 1 (8-Week Syllabus)</a>
-          <a class="btn-nav" href="../../cybersecurity_5_year_roadmap.html">5-Year Master Roadmap</a>
+          <a class="btn-nav" href="../../master_roadmap.html">Master Roadmap</a>
+          <a class="btn-nav" href="../../Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html">Stage 0 (Prerequisite)</a>
         </div>
         <span style="color: var(--text-muted); font-weight: 600;">5-Step Loop • Step 1: Visual HTML Lecture</span>
       </div>
 
       <div class="badge-row">
-        <span class="badge badge-emerald">Phase 1 • Week 1 • Lesson 1</span>
+        <span class="badge badge-emerald">Tier I • Stage 1 • Module 1.1–1.2</span>
         <span class="badge badge-cyan">Linux OS Internals</span>
         <span class="badge badge-purple">Attacker vs. Defender</span>
       </div>
@@ -951,17 +951,17 @@
         <div class="section-num">Module 1.7 • Step 3: Live Docker Lab</div>
         <h2>7. Next Step: Launch Lab 1A (SUID &amp; Capabilities PrivEsc + Hardening)</h2>
         <p>
-          Now switch from reading to hands-on terminal practice in <code>Phase_1_Core_Foundations/labs/week1_lab1_suid_caps/</code>.
+          Now switch from reading to hands-on terminal practice in <code>Stage_1_OS_Internals/labs/lab1a_suid_caps/</code>.
         </p>
         <ul>
           <li><strong>Environment:</strong> Ultra-lightweight Ubuntu 24.04 Docker container (~3–20 MB RAM).</li>
           <li><strong>Your Mission (Manual First):</strong> Enter as low-privilege user <code>student</code>, discover <strong>3 intentionally misconfigured binaries</strong> (SUID &amp; Capabilities), independently verify privilege escalation / secret extraction for all 3 vectors, and then switch to root admin to remediate every flaw and pass <code>verify_hardening.sh</code>!</li>
         </ul>
 <pre><span class="cmt"># Build and enter Lab 1A as low-priv user 'student'</span>
-<span class="cmd">cd Phase_1_Core_Foundations/labs/week1_lab1_suid_caps</span>
+<span class="cmd">cd Stage_1_OS_Internals/labs/lab1a_suid_caps</span>
 <span class="cmd">./run_lab.sh</span></pre>
         <p style="font-size:0.86rem; color:var(--text-muted); margin-top:8px;">
-          Follow the step-by-step instructions and progressive hints inside <a href="../labs/week1_lab1_suid_caps/README.md"><code>Phase_1_Core_Foundations/labs/week1_lab1_suid_caps/README.md</code></a> (or <a href="https://github.com/marajulcsecu/cybersecurity-5-year-journey/tree/main/Phase_1_Core_Foundations/labs/week1_lab1_suid_caps" target="_blank" rel="noopener">view Lab 1A on GitHub</a>). Do NOT jump straight to scripts until you solve all 3 manually!
+          Follow the step-by-step instructions and progressive hints inside <a href="../labs/lab1a_suid_caps/README.md"><code>Stage_1_OS_Internals/labs/lab1a_suid_caps/README.md</code></a> (or <a href="https://github.com/marajulcsecu/cybersecurity-5-year-journey/tree/main/Stage_1_OS_Internals/labs/lab1a_suid_caps" target="_blank" rel="noopener">view Lab 1A on GitHub</a>). Do NOT jump straight to scripts until you solve all 3 manually!
         </p>
       </section>
 

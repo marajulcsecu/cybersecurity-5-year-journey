@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stage 0 Detailed Plan: CS &amp; Systems Bedrock (Security Lens)</title>
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #111827;
+      --bg-card: #161f33;
+      --bg-card-hover: #1c2740;
+      --border: #26334d;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-cyan: #06b6d4;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --radius: 12px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding-bottom: 64px;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 0.86em;
+      background: rgba(6, 182, 212, 0.1);
+      color: #67e8f9;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    header {
+      background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.16), transparent 45%),
+                  radial-gradient(circle at top left, rgba(6, 182, 212, 0.14), transparent 45%),
+                  var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 26px 24px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .container { max-width: 1220px; margin: 0 auto; }
+
+    .hero-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .badge-stage {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.38);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+
+    h1 { font-size: 1.78rem; font-weight: 800; color: #ffffff; margin-bottom: 4px; }
+    .subtitle { color: var(--text-secondary); font-size: 0.92rem; max-width: 800px; }
+
+    .action-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    button, a.btn-link {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.81rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button:hover, a.btn-link:hover { background: var(--bg-card-hover); border-color: var(--accent-cyan); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-emerald), var(--accent-cyan));
+      color: #05130d !important;
+      border: none;
+    }
+
+    .progress-wrap {
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 13px 18px;
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.86rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .progress-pct { font-size: 1.25rem; font-weight: 800; color: var(--accent-emerald); }
+    .progress-track { height: 10px; background: #1e293b; border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-emerald), var(--accent-cyan)); transition: width 0.25s ease; }
+
+    main { max-width: 1220px; margin: 26px auto 0; padding: 0 24px; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 900px) { .info-grid { grid-template-columns: 1fr; } }
+
+    .info-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+    }
+
+    .info-card h3 { font-size: 0.89rem; color: var(--accent-cyan); margin-bottom: 6px; }
+    .info-card li { font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 4px; }
+    .info-card ul { padding-left: 16px; }
+
+    .mod-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    .mod-card.active-mod {
+      border-color: var(--accent-emerald);
+      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35), var(--shadow);
+    }
+
+    .mod-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+    }
+
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+
+    .m-pill {
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.36);
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .t-pill {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 6px;
+    }
+
+    .mod-card h2 { font-size: 1.15rem; color: #ffffff; margin-bottom: 4px; }
+    .mod-goal { font-size: 0.85rem; color: var(--text-secondary); }
+
+    .three-cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 920px) { .three-cols { grid-template-columns: 1fr; } }
+
+    .col-box {
+      background: rgba(11, 15, 25, 0.56);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 13px 14px;
+    }
+
+    .col-box h4 {
+      font-size: 0.77rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+      color: var(--accent-cyan);
+    }
+
+    .col-box.lab-col h4 { color: var(--accent-amber); }
+    .col-box.sec-col h4 { color: var(--accent-purple); }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 5px 0;
+      cursor: pointer;
+      font-size: 0.84rem;
+      color: var(--text-primary);
+    }
+
+    .check-item input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      border: 2px solid var(--text-muted);
+      border-radius: 4px;
+      background: var(--bg-primary);
+      cursor: pointer;
+      margin-top: 3px;
+      position: relative;
+    }
+
+    .check-item input[type="checkbox"]:checked {
+      background: var(--accent-emerald);
+      border-color: var(--accent-emerald);
+    }
+
+    .check-item input[type="checkbox"]:checked::after {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 0;
+      width: 4px;
+      height: 8px;
+      border: solid #05130d;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .check-item.completed span { text-decoration: line-through; color: var(--text-muted); }
+
+    .notes-area {
+      margin-top: 12px;
+      width: 100%;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 0.81rem;
+      min-height: 46px;
+    }
+
+    @media print {
+      header { position: static; background: #fff !important; color: #000 !important; border-bottom: 2px solid #000; }
+      body { background: #fff !important; color: #000 !important; }
+      .action-buttons { display: none !important; }
+      .info-card, .mod-card, .col-box, .progress-wrap { background: #fff !important; color: #000 !important; border: 1px solid #ccc !important; box-shadow: none !important; page-break-inside: avoid; }
+      h1, h2, h3, h4, .check-item, .subtitle, .mod-goal, .info-card li { color: #111 !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <div class="hero-top">
+        <div>
+          <div class="badge-stage">Tier I • Stage 0 Detailed Syllabus (Self-Paced, Mastery-Gated)</div>
+          <h1>Stage 0: Computing &amp; Systems Bedrock (Security Lens)</h1>
+          <p class="subtitle">
+            Rebuilding C, Memory, Compilers, ELF, CPU Architecture &amp; Virtual Memory specifically through Attacker + Defender eyes—zero calendar rush, pure engineering depth.
+          </p>
+        </div>
+        <div class="action-buttons">
+          <a class="btn-link" href="../index.html">← Learning Hub</a>
+          <a class="btn-link" href="../master_roadmap.html">Master Roadmap</a>
+          <button class="btn-primary" onclick="window.print()">Print / Save PDF</button>
+          <button onclick="exportS0()">Export JSON</button>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-row">
+          <span>Stage 0 Completion (<span id="s0Done">0</span> / <span id="s0Total">0</span> Checkpoints)</span>
+          <span class="progress-pct" id="s0Pct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="s0Fill"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="info-grid">
+      <div class="info-card">
+        <h3>Why Start at Stage 0?</h3>
+        <ul>
+          <li>University courses teach C/COA/OS for exams—not how bugs emerge in real binaries and kernels.</li>
+          <li>Mastering Stage 0 removes every "black box" before Stage 1 (OS), Stage 2 (Net), and Stage 5 (Binary RE).</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h3>The 5-Step Mastery Loop</h3>
+        <ul>
+          <li><strong>1. Visual HTML Lecture</strong> → <strong>2. Bangla Q&amp;A</strong> → <strong>3. Build &amp; Break Lab</strong> (GCC/GDB/Docker) → <strong>4. Fix &amp; Verify</strong> → <strong>5. Feynman Writeup</strong>.</li>
+          <li>Zero LLM-wrapper distractions—pure C, Bash, Python, and primary Linux tools.</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h3>Lightweight Local Toolchain</h3>
+        <ul>
+          <li>Zero heavy VMs: native Linux / tiny Docker lab with <code>gcc</code>, <code>gdb</code>, <code>readelf</code>, <code>objdump</code>, <code>strace</code>, <code>ltrace</code>.</li>
+          <li>Runs comfortably in &lt; 30 MB RAM on your existing laptop.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div id="modulesContainer"></div>
+  </main>
+
+  <script>
+    const MODULES_DATA = [
+      {
+        id: "m01",
+        code: "Module 0.1",
+        tag: "Start Here • Bits & Encoding",
+        active: true,
+        title: "Data Representation, Two's Complement, Integer Overflows & Encoding Pitfalls",
+        goal: "See data the way the CPU and parsers actually see it—raw bytes, sign bits, byte order, and why 'impossible' negative lengths break real C/web software.",
+        theory: [
+          "Binary, Hexadecimal, Bitwise operators (&, |, ^, ~, <<, >>) and bitmasking",
+          "Two's Complement representation: signed vs unsigned integers (int32_t vs uint32_t, size_t)",
+          "Endianness (Little-Endian on x86_64/ARM64 vs Big-Endian Network Byte Order)",
+          "ASCII, UTF-8 multi-byte encoding, Null-byte (0x00) termination & parser mismatch basics"
+        ],
+        securityLens: [
+          "How Integer Overflow / Wrap-around bypasses size checks before malloc() (classic CVE pattern!)",
+          "Signed-to-unsigned implicit C promotion traps (negative length becoming huge size_t)",
+          "Why byte-order bugs & UTF-8 overlong/normalization mismatches cause auth & filter bypasses"
+        ],
+        labs: [
+          "Lab 0A: Build a small C byte/hex inspector showing Little-Endian memory bytes of integers, floats, and strings",
+          "Lab 0A (Break & Fix): Exploit a vulnerable C allocator/balance-check via integer overflow & signedness bug, then patch it cleanly with checked arithmetic"
+        ]
+      },
+      {
+        id: "m02",
+        code: "Module 0.2",
+        tag: "C & Memory Reality",
+        active: false,
+        title: "C Programming & Memory Internals: Pointers, Stack, Heap & Undefined Behavior",
+        goal: "Move past textbook C syntax into exact memory layout—understanding every byte between local variables, structs, and heap chunks.",
+        theory: [
+          "Pointers, pointer arithmetic, void*, function pointers, and why arrays decay to pointers",
+          "Structs, memory alignment, struct padding, and sizeof() surprises",
+          "Stack allocation (automatic, LIFO, fast) vs Heap allocation (malloc, calloc, realloc, free)",
+          "Undefined Behavior (UB) in C and why compilers optimize away 'impossible' checks"
+        ],
+        securityLens: [
+          "Out-of-Bounds (OOB) Read/Write & Stack Buffer Overflows (strcpy/gets/sprintf vs bounded copies)",
+          "Use-After-Free (UAF), Double Free, Dangling Pointers & Uninitialized Memory leaks",
+          "Compiling with AddressSanitizer (-fsanitize=address,undefined) to catch memory corruption deterministically"
+        ],
+        labs: [
+          "Lab 0B: Write a C memory-map printer displaying live addresses of .text, .data, .bss, heap, stack, and argv/envp",
+          "Lab 0B (Break & Fix): Trigger an OOB overwrite and a Use-After-Free on your own C code, observe with ASan + gdb, and fix both root causes"
+        ]
+      },
+      {
+        id: "m03",
+        code: "Module 0.3",
+        tag: "Toolchain & ELF",
+        active: false,
+        title: "Build Toolchain, Linking & ELF Binary Anatomy",
+        goal: "Demystify how C source code turns into an executable Linux binary—the bridge to Reverse Engineering and OS internals.",
+        theory: [
+          "The 4 compilation stages: Preprocessing (gcc -E) → Compilation (-S) → Assembly (-c) → Linking",
+          "ELF format internals: ELF header, Program Headers (segments) vs Section Headers (.text, .rodata, .data, .bss)",
+          "Static vs Dynamic linking: shared libraries (.so), ld-linux.so dynamic loader, ldd, LD_PRELOAD concept",
+          "Symbol tables & stripping: readelf, objdump, nm, strings — what disappears when a binary is stripped"
+        ],
+        securityLens: [
+          "Intro to PLT/GOT (how dynamically linked calls like printf() resolve at runtime)",
+          "Why LD_PRELOAD is ignored by the dynamic linker on SUID binaries (and dangerous on normal ones!)",
+          "Checking binary hardening flags with readelf / checksec concepts (NX, PIE, Canary, RELRO)"
+        ],
+        labs: [
+          "Lab 0C: Compile one C program across all 4 gcc stages, compare static vs dynamic binaries with readelf/ldd/nm/strings",
+          "Lab 0C (Security Inspection): Demonstrate LD_PRELOAD function interposition on a normal binary and observe how the loader blocks it on privileged binaries"
+        ]
+      },
+      {
+        id: "m04",
+        code: "Module 0.4",
+        tag: "CPU & Assembly Reading",
+        active: false,
+        title: "CPU Architecture, x86_64 Assembly Reading & GDB Craft",
+        goal: "Learn to comfortably READ compiled disassembly of your own C functions and inspect live registers & stack frames in gdb.",
+        theory: [
+          "x86_64 general-purpose registers (RAX..R15), RIP (instruction pointer), RSP (stack pointer), RBP (frame pointer), RFLAGS",
+          "Essential instructions: mov, lea, add/sub, cmp/test, jmp/je/jne/jg, push/pop, call/ret",
+          "System V AMD64 Calling Convention: arguments in RDI, RSI, RDX, RCX, R8, R9; return value in RAX",
+          "Anatomy of a Stack Frame: function prologue, local variables, saved RBP, and the Saved Return Address (Saved RIP)"
+        ],
+        securityLens: [
+          "Seeing exactly why overflowing a local stack buffer overwrites Saved RBP and Saved RIP",
+          "Comparing -O0 (unoptimized) vs -O2 (optimized) assembly and understanding compiler transforms",
+          "Using gdb fluently: breakpoints, x/16gx $rsp, info registers, disas, backtrace, stepping (ni/si)"
+        ],
+        labs: [
+          "Lab 0D: Disassemble 5 small C patterns (if/else, loop, pointer deref, struct access, function call) and map every ASM line back to C",
+          "Lab 0D (GDB Challenge): Trace a live stack frame in gdb, locate the exact Saved RIP address on the stack, and solve a beginner reverse-engineering check using gdb alone"
+        ]
+      },
+      {
+        id: "m05",
+        code: "Module 0.5",
+        tag: "Virtual Memory & Syscalls",
+        active: false,
+        title: "Virtual Memory, Protection Rings & the System Call Boundary",
+        goal: "Connect hardware protection to OS security—understanding how every process thinks it owns memory and how Ring 3 asks Ring 0 for help.",
+        theory: [
+          "Virtual Memory & Paging: Virtual Address Space vs Physical RAM, Page Tables, Page Permissions (Read / Write / Execute)",
+          "Inspecting a live process memory map via /proc/<PID>/maps (code, heap, mmap libs, stack, vDSO)",
+          "Hardware Privilege Rings: User Space (Ring 3) vs Kernel Space (Ring 0) and why user processes cannot touch hardware directly",
+          "The System Call Interface (syscall instruction): how libc wrappers (open, read, write, execve) transition into the kernel"
+        ],
+        securityLens: [
+          "Why W^X (Write XOR Execute / NX bit) prevents executing shellcode placed on the stack or heap",
+          "Why ASLR randomizes stack/heap/libc base addresses on every run (verify empirically via /proc/self/maps!)",
+          "Observing exact program behavior directly with strace (syscalls) and ltrace (library calls)"
+        ],
+        labs: [
+          "Lab 0E: Inspect /proc/self/maps across multiple runs to observe ASLR and R/W/X page permissions directly",
+          "Lab 0E (Observability): Trace a compiled binary with strace/ltrace to reverse its hidden file/network behavior without reading source code"
+        ]
+      },
+      {
+        id: "m0gate",
+        code: "Mastery Gate 0",
+        tag: "Verification Checkpoint",
+        active: false,
+        title: "Stage 0 Capstone & Mastery Gate (Required Before Stage 1)",
+        goal: "Prove genuine first-principles command over C, memory, ELF, assembly reading, and virtual memory before entering Stage 1 (OS Internals).",
+        theory: [
+          "Whiteboard Check: Draw a complete Linux x86_64 process virtual memory layout from low to high addresses from memory",
+          "Whiteboard Check: Trace a C function call's stack frame (args, saved RIP, saved RBP, locals) without notes",
+          "Feynman Check: Explain Integer Overflow, UAF, Ring 3→Ring 0 syscalls, and NX/ASLR in clear 4–5 line explanations"
+        ],
+        securityLens: [
+          "Diagnose an unfamiliar buggy C program containing 3 distinct flaws (integer bug, stack OOB, UAF) using gdb + ASan",
+          "Write clean, minimal security patches and verify zero warnings/errors under -Wall -Wextra -fsanitize=address,undefined"
+        ],
+        labs: [
+          "Capstone Tool (Pure C): Build a clean CLI binary/memory lab tool (mem_elf_inspector) and publish your Stage 0 Feynman writeup in Stage_0_CS_Systems_Bedrock/writeups/"
+        ]
+      }
+    ];
+
+    const S0_KEY = "marajul_cyber_stage0_v3";
+    let s0State = (() => {
+      try { const r = localStorage.getItem(S0_KEY); return r ? JSON.parse(r) : { checked: {}, notes: {} }; }
+      catch { return { checked: {}, notes: {} }; }
+    })();
+
+    function saveS0() { try { localStorage.setItem(S0_KEY, JSON.stringify(s0State)); } catch {} }
+
+    function renderModules() {
+      const wrap = document.getElementById("modulesContainer");
+      wrap.innerHTML = "";
+
+      MODULES_DATA.forEach(m => {
+        const card = document.createElement("div");
+        card.className = `mod-card ${m.active ? "active-mod" : ""}`;
+
+        const renderList = (arr, p) => arr.map((txt, i) => {
+          const id = `${m.id}_${p}_${i}`;
+          const done = !!s0State.checked[id];
+          return `
+            <label class="check-item ${done ? "completed" : ""}" id="lbl_${id}">
+              <input type="checkbox" ${done ? "checked" : ""} onchange="toggleS0('${id}', this)" />
+              <span>${txt}</span>
+            </label>
+          `;
+        }).join("");
+
+        const note = s0State.notes[m.id] || "";
+        card.innerHTML = `
+          <div class="mod-header">
+            <div class="badges">
+              <span class="m-pill">${m.code}</span>
+              <span class="t-pill">${m.tag}</span>
+              ${m.active ? '<span class="m-pill" style="background:rgba(6,182,212,0.2);color:#22d3ee;border-color:rgba(6,182,212,0.4);">★ Next Up</span>' : ''}
+            </div>
+            <h2>${m.title}</h2>
+            <p class="mod-goal">${m.goal}</p>
+          </div>
+          <div class="three-cols">
+            <div class="col-box">
+              <h4>1. CS &amp; Systems Theory</h4>
+              ${renderList(m.theory, "t")}
+            </div>
+            <div class="col-box sec-col">
+              <h4>2. Security Lens (Why It Breaks)</h4>
+              ${renderList(m.securityLens, "s")}
+            </div>
+            <div class="col-box lab-col">
+              <h4>3. Build / Break / Fix Lab</h4>
+              ${renderList(m.labs, "l")}
+            </div>
+          </div>
+          <textarea class="notes-area" placeholder="Notes, commands, gdb findings, or questions for ${m.code}..." oninput="saveS0Note('${m.id}', this.value)">${note}</textarea>
+        `;
+        wrap.appendChild(card);
+      });
+
+      updateS0Progress();
+    }
+
+    function toggleS0(id, el) {
+      s0State.checked[id] = el.checked;
+      saveS0();
+      const lbl = document.getElementById("lbl_" + id);
+      if (lbl) lbl.classList.toggle("completed", el.checked);
+      updateS0Progress();
+    }
+
+    function saveS0Note(id, val) { s0State.notes[id] = val; saveS0(); }
+
+    function updateS0Progress() {
+      let total = 0, done = 0;
+      MODULES_DATA.forEach(m => {
+        [["t", m.theory], ["s", m.securityLens], ["l", m.labs]].forEach(([p, arr]) => {
+          arr.forEach((_, i) => { total++; if (s0State.checked[`${m.id}_${p}_${i}`]) done++; });
+        });
+      });
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      document.getElementById("s0Done").textContent = done;
+      document.getElementById("s0Total").textContent = total;
+      document.getElementById("s0Pct").textContent = `${pct}%`;
+      document.getElementById("s0Fill").style.width = `${pct}%`;
+    }
+
+    function exportS0() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(s0State, null, 2));
+      const a = document.createElement("a");
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", "stage_0_progress.json");
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    renderModules();
+  </script>
+</body>
+</html>

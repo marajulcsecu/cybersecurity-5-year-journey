@@ -1,30 +1,25 @@
-# 5-Year AI-Era Cybersecurity Master Workspace (2026–2031)
+# First-Principles Cybersecurity Mastery Workspace (Beginner → Master)
 
-Welcome to your central cybersecurity engineering & AI automation workspace.
+A timeless, **Mastery-Gated** cybersecurity engineering curriculum built from true Computer Science & Systems first principles—with zero rushed calendar deadlines, zero script-kiddie shortcuts, and zero premature AI-wrapper distractions.
 
-## Master Roadmap & Portal Files
+## Portal & Master Curriculum
 - **Live GitHub Pages Learning Hub:** <https://marajulcsecu.github.io/cybersecurity-5-year-journey/>
-- **Public Learning Hub (Local / Pages Entry):** [`index.html`](./index.html)
-- **Interactive HTML Checklist (Browser Dashboard):** [`cybersecurity_5_year_roadmap.html`](./cybersecurity_5_year_roadmap.html)
-  - Tracks your milestone completion in `localStorage`, supports JSON Export/Import backups, year/keyword filtering, and per-phase rolling notes.
-- **Printable PDF Master Roadmap:** [`cybersecurity_5_year_roadmap.pdf`](./cybersecurity_5_year_roadmap.pdf)
+- **Public Learning Hub (Local Entry):** [`index.html`](./index.html)
+- **Interactive Master Roadmap (Stages 0–7, v3.0):** [`master_roadmap.html`](./master_roadmap.html)
+  - Tracks Mastery Gates in `localStorage`, supports JSON Export/Import, Tier filtering, and Print-to-PDF.
 - **Persistent AI Mentor Memory & Progress Log:** [`AGENT.md`](./AGENT.md)
-- **Week 1 Lesson 1 & Lab 1A:** [`week1_lesson1_linux_internals.html`](./Phase_1_Core_Foundations/lessons/week1_lesson1_linux_internals.html) | [`Lab 1A`](./Phase_1_Core_Foundations/labs/week1_lab1_suid_caps/README.md)
 
 ---
 
-## Core Operating Principles
-1. **Sequential Multi-Domain ("Comb-Shaped") Mastery:** Focus on one domain at a time (2–4 months per phase), pair it with a real AI/Automation portfolio project, and stack 17 domains across 5 years.
-2. **The 3-Step AI-Era Loop:**
-   - **Manual First:** Understand the raw protocol/vulnerability and exploit/defend it once by hand.
-   - **Automate Second:** Build a reusable Python/Bash/Go script or AI agent to automate the repetitive 80%.
-   - **Break & Fix:** Audit the code, patch the vulnerability, and verify the fix.
-3. **Hardware & Hybrid LLM Strategy:**
-   - **Year 1 (8GB → 16GB RAM Laptop):** Native Linux + lightweight Docker labs (50–200MB RAM) + Antigravity/Gemini Pro + Google Colab T4/L4 GPU tunneled for open-weight security LLMs (Ollama/vLLM).
-   - **Year 2+:** Upgrade to a 32GB–64GB RAM High-Spec PC using your first cybersecurity job salary.
+## Core Engineering Philosophy
+1. **Mastery-Gated, Not Calendar-Rushed:** Advance from Stage `N` to Stage `N+1` ONLY after passing concrete Build / Break / Fix / Feynman Mastery Gates—whether the full journey takes 5, 15, or 30 years.
+2. **Strict Bottom-Up Dependency Order:** Never exploit or forensically analyze a system whose underlying memory, OS, protocol, or math you haven't built or dissected first.
+3. **Builder-to-Breaker Advantage:** Leverage real software engineering (Web, Mobile, Game Dev, C, Python) to build systems from scratch, inspect internals with primary tools (`gdb`, `readelf`, `strace`, `tshark`, `curl`), break them manually, and engineer clean fixes.
+4. **Pure Fundamentals First, AI Security Later:** During Stages 0–6, focus 100% on sharp human intuition and pure deterministic code (C/Python/Bash/Go). Study AI/LLM/Agent Security deeply in Stage 7 once systems mastery is rock-solid.
 
 ---
 
-## Current Active Phase
-- **Year 1 — Phase 1 (Months 1–2):** *Core Foundations & Hybrid AI Workflow*
-  - Linux OS Internals, TCP/IP & Packet Analysis (`Wireshark`/`tshark`), Applied Cryptography, Python/Bash for Security, Docker Lab Engine, and Cloud-GPU LLM Tunnel setup.
+## Current Active Stage
+- **Tier I — Stage 0:** [`Stage_0_CS_Systems_Bedrock/`](./Stage_0_CS_Systems_Bedrock/README.md) — *Computing & Systems Bedrock (Bits, C Memory, Build Toolchain/ELF, x86_64 Assembly Reading, Virtual Memory & Syscalls)*
+  - Interactive Syllabus: [`Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html`](./Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html)
+- **Tier I — Stage 1 (Pre-Staged, unlocks after Mastery Gate 0):** [`Stage_1_OS_Internals/`](./Stage_1_OS_Internals/README.md) — includes Lesson 1 & Docker Lab 1A (`lab1a_suid_caps`).

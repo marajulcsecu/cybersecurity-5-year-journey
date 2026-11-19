@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>First-Principles Cybersecurity Master Roadmap (Beginner → Master)</title>
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #111827;
+      --bg-card: #161f33;
+      --bg-card-hover: #1c2740;
+      --bg-code: #080c15;
+      --border: #26334d;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-cyan: #06b6d4;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --radius: 12px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding-bottom: 64px;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 0.86em;
+      background: rgba(6, 182, 212, 0.1);
+      color: #67e8f9;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    header {
+      background: radial-gradient(circle at top right, rgba(6, 182, 212, 0.16), transparent 45%),
+                  radial-gradient(circle at top left, rgba(16, 185, 129, 0.14), transparent 45%),
+                  var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 26px 24px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .container { max-width: 1260px; margin: 0 auto; }
+
+    .hero-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .badge-era {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.14);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      max-width: 800px;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button, a.btn-link {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      padding: 8px 13px;
+      border-radius: 8px;
+      font-size: 0.81rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button:hover, a.btn-link:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-cyan);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      color: #06101e !important;
+      border: none;
+    }
+
+    .btn-emerald {
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399 !important;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-danger {
+      color: #fda4af;
+      border-color: rgba(244, 63, 94, 0.32);
+    }
+
+    .btn-danger:hover {
+      background: rgba(244, 63, 94, 0.15);
+      border-color: var(--accent-rose);
+    }
+
+    .progress-dashboard {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      display: grid;
+      grid-template-columns: 1.3fr 2fr;
+      gap: 20px;
+      align-items: center;
+    }
+
+    @media (max-width: 860px) {
+      .progress-dashboard { grid-template-columns: 1fr; }
+    }
+
+    .progress-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .progress-pct {
+      font-size: 1.28rem;
+      font-weight: 800;
+      color: var(--accent-emerald);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: #1e293b;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-emerald), var(--accent-cyan));
+      transition: width 0.25s ease;
+    }
+
+    .tier-mini-bars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .tier-mini-bars { grid-template-columns: 1fr; }
+    }
+
+    .tier-mini-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 0.75rem;
+    }
+
+    .tier-mini-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .tier-mini-track {
+      height: 5px;
+      background: #0f172a;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .tier-mini-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent-cyan);
+      transition: width 0.25s ease;
+    }
+
+    .main-content {
+      max-width: 1260px;
+      margin: 26px auto 0;
+      padding: 0 24px;
+    }
+
+    .principles-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    @media (max-width: 960px) {
+      .principles-grid { grid-template-columns: 1fr; }
+    }
+
+    .principle-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+    }
+
+    .principle-card h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      margin-bottom: 8px;
+    }
+
+    .principle-card li {
+      font-size: 0.83rem;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+    }
+
+    .principle-card ul { padding-left: 17px; }
+
+    .diagram-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+    }
+
+    .diagram-card h3 {
+      font-size: 0.9rem;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      margin-bottom: 26px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .filter-btn {
+      padding: 6px 12px;
+      font-size: 0.79rem;
+      border-radius: 6px;
+    }
+
+    .filter-btn.active {
+      background: var(--accent-cyan);
+      color: #06101e;
+      border-color: var(--accent-cyan);
+      font-weight: 700;
+    }
+
+    .search-input {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      min-width: 260px;
+    }
+
+    .tier-section { margin-bottom: 36px; }
+
+    .tier-header {
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.14), rgba(17, 24, 39, 0.92));
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent-emerald);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tier-header.t2 {
+      background: linear-gradient(90deg, rgba(6, 182, 212, 0.14), rgba(17, 24, 39, 0.92));
+      border-left-color: var(--accent-cyan);
+    }
+
+    .tier-header.t3 {
+      background: linear-gradient(90deg, rgba(139, 92, 246, 0.16), rgba(17, 24, 39, 0.92));
+      border-left-color: var(--accent-purple);
+    }
+
+    .tier-header h2 {
+      font-size: 1.24rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .tier-header p {
+      font-size: 0.86rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .tier-badge {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.77rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .stages-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .stage-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .stage-card.active-stage {
+      border-color: var(--accent-emerald);
+      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35), var(--shadow);
+    }
+
+    .stage-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stage-pill {
+      background: rgba(59, 130, 246, 0.16);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.32);
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .prereq-pill {
+      background: rgba(139, 92, 246, 0.14);
+      color: #c4b5fd;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    .active-pill {
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.38);
+      font-size: 0.73rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .stage-card h3 {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-top: 6px;
+    }
+
+    .stage-desc {
+      font-size: 0.86rem;
+      color: var(--text-secondary);
+      margin-top: 3px;
+    }
+
+    .stage-cols {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 820px) {
+      .stage-cols { grid-template-columns: 1fr; }
+    }
+
+    .checklist-box {
+      background: rgba(11, 15, 25, 0.58);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 13px 15px;
+    }
+
+    .checklist-box h4 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-cyan);
+      margin-bottom: 8px;
+    }
+
+    .checklist-box.build-col h4 { color: var(--accent-amber); }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 5px 0;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+    }
+
+    .check-item:hover { color: var(--accent-cyan); }
+
+    .check-item input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 17px;
+      height: 17px;
+      min-width: 17px;
+      border: 2px solid var(--text-muted);
+      border-radius: 5px;
+      background: var(--bg-primary);
+      cursor: pointer;
+      margin-top: 3px;
+      position: relative;
+    }
+
+    .check-item input[type="checkbox"]:checked {
+      background: var(--accent-emerald);
+      border-color: var(--accent-emerald);
+    }
+
+    .check-item input[type="checkbox"]:checked::after {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 1px;
+      width: 4px;
+      height: 8px;
+      border: solid #05130d;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .check-item.completed span {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .mastery-gate {
+      margin-top: 14px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-left: 4px solid var(--accent-emerald);
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-size: 0.84rem;
+      color: #d1fae5;
+    }
+
+    .mastery-gate strong { color: #34d399; }
+
+    .notes-area {
+      margin-top: 12px;
+      width: 100%;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 0.82rem;
+      resize: vertical;
+      min-height: 48px;
+    }
+
+    @media print {
+      header { position: static; background: #fff !important; color: #000 !important; border-bottom: 2px solid #000; }
+      body { background: #fff !important; color: #000 !important; }
+      .action-buttons, .filter-bar { display: none !important; }
+      .principle-card, .diagram-card, .stage-card, .tier-header, .checklist-box, .progress-dashboard, .tier-mini-card, .mastery-gate {
+        background: #fff !important; color: #000 !important; border: 1px solid #ccc !important; box-shadow: none !important; page-break-inside: avoid;
+      }
+      h1, h2, h3, h4, .check-item, .subtitle, .stage-desc, .principle-card li, .mastery-gate { color: #111 !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <div class="hero-top">
+        <div>
+          <div class="badge-era">v3.0 Timeless First-Principles Curriculum • Mastery-Gated (Zero Artificial Deadlines)</div>
+          <h1>First-Principles Cybersecurity Master Roadmap</h1>
+          <p class="subtitle">
+            From CS &amp; Systems Bedrock to True Security Mastery: Build Systems → Inspect Internals → Break Manually → Engineer Fixes. No script-kiddie shortcuts, no rushed job-sprint cramming, no premature AI-wrapper distractions.
+          </p>
+        </div>
+        <div class="action-buttons">
+          <a class="btn-link" href="./index.html">← Learning Hub</a>
+          <a class="btn-link btn-emerald" href="./Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html">Start Stage 0 →</a>
+          <button class="btn-primary" onclick="window.print()">Print / Save PDF</button>
+          <button onclick="exportProgress()">Export JSON</button>
+          <button onclick="document.getElementById('importFile').click()">Import JSON</button>
+          <input type="file" id="importFile" style="display:none" accept=".json" onchange="importProgress(event)" />
+          <button class="btn-danger" onclick="resetProgress()">Reset</button>
+        </div>
+      </div>
+
+      <div class="progress-dashboard">
+        <div>
+          <div class="progress-label-row">
+            <span>Overall Mastery Progress (<span id="doneCount">0</span> / <span id="totalCount">0</span> Checkpoints)</span>
+            <span class="progress-pct" id="overallPct">0%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="overallFill"></div>
+          </div>
+        </div>
+        <div class="tier-mini-bars" id="tierMiniBars"></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <section class="principles-grid">
+      <div class="principle-card">
+        <h3>1. Mastery-Gated, Not Calendar-Rushed</h3>
+        <ul>
+          <li><strong>No fake deadlines:</strong> Take 5 years or 15 years—advance ONLY after passing each Stage's Mastery Gate.</li>
+          <li><strong>Strict dependency order:</strong> Never exploit or analyze a system whose underlying memory, OS, or protocol you haven't built or dissected first.</li>
+        </ul>
+      </div>
+      <div class="principle-card">
+        <h3>2. Builder-to-Breaker Advantage</h3>
+        <ul>
+          <li><strong>Dev Superpower:</strong> Your Web, Mobile &amp; Game dev background lets you write vulnerable &amp; secure systems from scratch.</li>
+          <li><strong>Direct Observation:</strong> Master primary truth tools (<code>gdb</code>, <code>strace</code>, <code>readelf</code>, <code>tshark</code>, <code>curl</code>) before any automated scanner.</li>
+        </ul>
+      </div>
+      <div class="principle-card">
+        <h3>3. Pure Fundamentals First, AI Later</h3>
+        <ul>
+          <li><strong>AI as Mentor Only (Stages 0–6):</strong> Zero distracting LLM-wrapper projects early—build razor-sharp human intuition and pure C/Python/Go code tools.</li>
+          <li><strong>AI Security Deep Dive (Stage 7):</strong> Study LLM/Agent security from first principles once you are already a solid systems engineer.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="diagram-card">
+      <h3>Bottom-Up Dependency Architecture (Why Every Stage Unlocks the Next)</h3>
+      <svg viewBox="0 0 1160 155" width="100%" height="auto" role="img" aria-label="Bottom-up dependency graph from Stage 0 to Stage 7">
+        <rect x="4" y="4" width="1152" height="147" rx="10" fill="#080c15" stroke="#26334d" />
+
+        <!-- Tier I Band -->
+        <rect x="18" y="16" width="560" height="122" rx="8" fill="#0c1b1d" stroke="#10b981" stroke-dasharray="4 3" />
+        <text x="30" y="34" fill="#34d399" font-size="11" font-weight="700">TIER I: UNIVERSAL CS &amp; SYSTEMS BEDROCK (SECURITY LENS)</text>
+
+        <rect x="28" y="48" width="124" height="76" rx="6" fill="#132a2c" stroke="#10b981" />
+        <text x="90" y="68" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Stage 0 ★</text>
+        <text x="90" y="85" text-anchor="middle" fill="#a7f3d0" font-size="9.5">Bits, C, Memory,</text>
+        <text x="90" y="99" text-anchor="middle" fill="#a7f3d0" font-size="9.5">ELF, ASM &amp; VM</text>
+
+        <line x1="152" y1="86" x2="168" y2="86" stroke="#10b981" stroke-width="2" />
+        <polygon points="166,81 174,86 166,91" fill="#10b981" />
+
+        <rect x="174" y="48" width="122" height="76" rx="6" fill="#162238" stroke="#06b6d4" />
+        <text x="235" y="68" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Stage 1</text>
+        <text x="235" y="85" text-anchor="middle" fill="#cbd5e1" font-size="9.5">Linux &amp; Windows</text>
+        <text x="235" y="99" text-anchor="middle" fill="#cbd5e1" font-size="9.5">OS + Containers</text>
+
+        <line x1="296" y1="86" x2="312" y2="86" stroke="#06b6d4" stroke-width="2" />
+        <polygon points="310,81 318,86 310,91" fill="#06b6d4" />
+
+        <rect x="318" y="48" width="122" height="76" rx="6" fill="#162238" stroke="#06b6d4" />
+        <text x="379" y="68" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Stage 2</text>
+        <text x="379" y="85" text-anchor="middle" fill="#cbd5e1" font-size="9.5">Networking L1–L7,</text>
+        <text x="379" y="99" text-anchor="middle" fill="#cbd5e1" font-size="9.5">Sockets &amp; Firewalls</text>
+
+        <line x1="440" y1="86" x2="456" y2="86" stroke="#06b6d4" stroke-width="2" />
+        <polygon points="454,81 462,86 454,91" fill="#06b6d4" />
+
+        <rect x="462" y="48" width="106" height="76" rx="6" fill="#162238" stroke="#06b6d4" />
+        <text x="515" y="68" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Stage 3</text>
+        <text x="515" y="85" text-anchor="middle" fill="#cbd5e1" font-size="9.5">Crypto Math,</text>
+        <text x="515" y="99" text-anchor="middle" fill="#cbd5e1" font-size="9.5">TLS 1.3 &amp; PKI</text>
+
+        <!-- Bridge Tier I -> II -->
+        <line x1="578" y1="86" x2="598" y2="86" stroke="#3b82f6" stroke-width="2.5" />
+        <polygon points="595,81 604,86 595,91" fill="#3b82f6" />
+
+        <!-- Tier II Band -->
+        <rect x="604" y="16" width="386" height="122" rx="8" fill="#0e1729" stroke="#3b82f6" stroke-dasharray="4 3" />
+        <text x="616" y="34" fill="#60a5fa" font-size="11" font-weight="700">TIER II: CORE SECURITY CRAFT (OFFENSE + DEFENSE)</text>
+
+        <rect x="614" y="48" width="114" height="76" rx="6" fill="#162238" stroke="#3b82f6" />
+        <text x="671" y="68" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Stage 4</text>
+        <text x="671" y="85" text-anchor="middle" fill="#cbd5e1" font-size="9.5">Web, API, DB,</text>
+        <text x="671" y="99" text-anchor="middle" fill="#cbd5e1" font-size="9.5">LangSec &amp; Auth</text>
+
+        <line x1="728" y1="86" x2="740" y2="86" stroke="#3b82f6" stroke-width="2" />
+        <polygon points="738,81 746,86 738,91" fill="#3b82f6" />
+
+        <rect x="746" y="48" width="112" height="76" rx="6" fill="#162238" stroke="#3b82f6" />
+        <text x="802" y="68" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Stage 5</text>
+        <text x="802" y="85" text-anchor="middle" fill="#cbd5e1" font-size="9.5">Binary RE, Pwn</text>
+        <text x="802" y="99" text-anchor="middle" fill="#cbd5e1" font-size="9.5">&amp; Fuzzing</text>
+
+        <line x1="858" y1="86" x2="870" y2="86" stroke="#3b82f6" stroke-width="2" />
+        <polygon points="868,81 876,86 868,91" fill="#3b82f6" />
+
+        <rect x="876" y="48" width="104" height="76" rx="6" fill="#162238" stroke="#3b82f6" />
+        <text x="928" y="68" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Stage 6</text>
+        <text x="928" y="85" text-anchor="middle" fill="#cbd5e1" font-size="9.5">DFIR, Detection,</text>
+        <text x="928" y="99" text-anchor="middle" fill="#cbd5e1" font-size="9.5">AD &amp; Cloud</text>
+
+        <!-- Bridge Tier II -> III -->
+        <line x1="990" y1="86" x2="1008" y2="86" stroke="#8b5cf6" stroke-width="2.5" />
+        <polygon points="1006,81 1015,86 1006,91" fill="#8b5cf6" />
+
+        <!-- Tier III Band -->
+        <rect x="1015" y="16" width="128" height="122" rx="8" fill="#1b142d" stroke="#8b5cf6" />
+        <text x="1079" y="34" text-anchor="middle" fill="#c4b5fd" font-size="10.5" font-weight="700">TIER III</text>
+        <text x="1079" y="56" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Stage 7</text>
+        <text x="1079" y="75" text-anchor="middle" fill="#ddd6fe" font-size="9">Deep Master</text>
+        <text x="1079" y="89" text-anchor="middle" fill="#ddd6fe" font-size="9">Pillars (A–E):</text>
+        <text x="1079" y="104" text-anchor="middle" fill="#c4b5fd" font-size="8.5">0-Day • Mobile/Game</text>
+        <text x="1079" y="118" text-anchor="middle" fill="#c4b5fd" font-size="8.5">Red • Cloud • AI Sec</text>
+      </svg>
+    </section>
+
+    <section class="filter-bar">
+      <div class="filter-group">
+        <span style="font-size:0.82rem;color:var(--text-secondary);font-weight:600;">Filter Tier:</span>
+        <button class="filter-btn active" onclick="filterTier('all', this)">All Stages (0–7)</button>
+        <button class="filter-btn" onclick="filterTier('1', this)">Tier I: CS Bedrock (0–3)</button>
+        <button class="filter-btn" onclick="filterTier('2', this)">Tier II: Core Craft (4–6)</button>
+        <button class="filter-btn" onclick="filterTier('3', this)">Tier III: Master Pillars (7)</button>
+      </div>
+      <div class="filter-group">
+        <input type="text" id="searchBox" class="search-input" placeholder="Search topic, tool, concept, or gate..." oninput="renderRoadmap()" />
+      </div>
+    </section>
+
+    <div id="roadmapContainer"></div>
+  </main>
+
+  <script>
+    const ROADMAP_DATA = [
+      {
+        tier: 1,
+        cssClass: "t1",
+        title: "TIER I: Universal CS & Systems Bedrock (Security Lens)",
+        subtitle: "Rebuild core Computer Science foundations specifically to see how machines execute bytes, isolate processes, move packets, and prove cryptographic trust.",
+        badge: "Stages 0 → 3 • Non-Negotiable Foundation",
+        stages: [
+          {
+            id: "s0",
+            label: "Stage 0",
+            prereq: "Prerequisite: Basic Programming (CSE Background)",
+            active: true,
+            detailLink: "./Stage_0_CS_Systems_Bedrock/stage_0_detailed_plan.html",
+            detailLabel: "Open Stage 0 Detailed Syllabus →",
+            title: "Computing & Systems Foundation: Bits, C Memory, Build Toolchain, ELF & CPU Architecture",
+            desc: "Every OS, browser, database, game engine, and exploit reduces to machine instructions operating on bytes in virtual memory. Remove all low-level 'magic' first.",
+            concepts: [
+              "Data Representation & Bitwise Reality: Binary/Hex, Two's Complement, Integer Overflow & Signedness Bugs, Endianness, UTF-8/Unicode encoding pitfalls",
+              "C Programming & Memory Internals: Pointers, pointer arithmetic, arrays vs pointers, structs/alignment, stack frames, heap allocation (malloc/free), Undefined Behavior",
+              "Build Toolchain & ELF Internals: gcc stages (preprocess → compile → assemble → link), ELF sections (.text, .rodata, .data, .bss), static vs dynamic linking (GOT/PLT, readelf, objdump, nm)",
+              "CPU Architecture & Assembly Reading (x86_64 + ARM64 basics): Registers, RIP/RSP/RBP, System V AMD64 calling convention, reading disassembly of your own C programs in gdb",
+              "Virtual Memory & Protection Rings: Paging, virtual vs physical addresses, R/W/X page permissions, Ring 3 (User) vs Ring 0 (Kernel), Syscall boundary (strace)"
+            ],
+            deliverables: [
+              "Build a C memory-layout & hex-dump inspector that prints addresses of code, globals, heap, stack, and env vars",
+              "Compile small C targets with & without flags (-O0/-O2, -fno-stack-protector) and trace stack frames step-by-step in gdb",
+              "Intentionally trigger, diagnose in gdb, and patch an Integer Overflow, Stack Buffer Overflow, and Use-After-Free in your own C code",
+              "Trace real Linux binaries with strace/ltrace to observe exact syscalls & shared library calls"
+            ],
+            gate: "Without notes, draw a Linux process virtual memory map, trace a C function's stack frame & return address in gdb, explain Ring 3 → Ring 0 syscalls, and fix 3 real C memory bugs."
+          },
+          {
+            id: "s1",
+            label: "Stage 1",
+            prereq: "Requires: Mastery Gate 0",
+            active: false,
+            detailLink: "./Stage_1_OS_Internals/lessons/stage1_lesson1_linux_internals.html",
+            detailLabel: "Preview Stage 1 Lesson 1 →",
+            title: "Operating Systems Internals & Host Security (Linux Deep-Dive → Windows Internals)",
+            desc: "Understand how kernels manage processes, enforce identity & access control, isolate containers without hypervisors, and record security telemetry.",
+            concepts: [
+              "Linux Process Lifecycle & Virtual FS: Boot/init (PID 1/systemd), fork()/execve(), signals, file descriptors, pipes, /proc, /sys, /dev, and CLI triage fluency (find, grep, awk, sed, xargs)",
+              "Linux Access Control & Privilege Mechanics: DAC (rwx, umask, directory delete trap), SUID/SGID/Sticky Bit (RUID vs EUID, dash -p), POSIX Capabilities (getcap/setcap), PAM, /etc/shadow, sudoers",
+              "Container & Kernel Isolation Internals: Linux Namespaces (PID, NET, MNT, USER, IPC, UTS), cgroups, pivot_root, seccomp filters, and MAC (AppArmor/SELinux) concepts",
+              "Linux Hardening & Host Auditing: SSH key mechanics & sshd_config hardening, journalctl/auth.log forensics, and auditd syscall rules",
+              "Windows OS Internals Foundation: Processes/Threads, Access Tokens & SIDs, Integrity Levels, ACLs/DACLs, Registry, Services, Win32/NT API boundary, PowerShell & Event Logs"
+            ],
+            deliverables: [
+              "Complete Lab 1A (Docker SUID & POSIX Capabilities PrivEsc + Hardening verification — already pre-staged in Stage_1_OS_Internals/)",
+              "Solve OverTheWire Bandit Levels 0 → 25 purely manually for fluent Linux CLI mastery",
+              "Build a minimal container-like sandbox manually using Linux unshare (namespaces) & inspect /proc/<pid>/ns",
+              "Write a clean deterministic Python auditor (suid_cap_scanner.py & host hardening checker) with zero LLM fluff"
+            ],
+            gate: "Explain RUID/EUID, capabilities, Linux namespaces, and Windows Access Tokens from scratch; manually break & harden a misconfigured Linux host; audit an auth.log breach timeline."
+          },
+          {
+            id: "s2",
+            label: "Stage 2",
+            prereq: "Requires: Mastery Gate 1",
+            active: false,
+            title: "Computer Networking from Wire to Application & Network Defense",
+            desc: "Stop memorizing abstract OSI boxes. Read raw packet headers byte-by-byte, write network code on raw sockets, and build stateful firewalls.",
+            concepts: [
+              "Layers 1–3 (Wire, Ethernet, ARP & IP): Frames, MACs, switching, ARP & stateless ARP spoofing, IPv4/IPv6 headers, CIDR/subnetting, routing tables, ICMP, NAT, VLAN isolation",
+              "Layer 4 (TCP, UDP & Socket Programming): TCP 3-way handshake, seq/ack numbers, flags (SYN/ACK/FIN/RST) during port scans, flow control, UDP, and Python/C socket programming",
+              "Core Network Infrastructure Protocols: Recursive vs Authoritative DNS, zone transfers & DNS tunneling concepts, DHCP, SSH tunneling/SOCKS pivoting, WireGuard/IPsec VPN architecture",
+              "Raw Packet Dissection & Traffic Forensics: tcpdump, tshark, and Wireshark display/capture filters—spotting anomalies directly from wire captures",
+              "Network Defense & Filtering: Linux Netfilter hooks, stateful vs stateless firewalls (nftables/ufw), default-deny egress/ingress policies, IDS/IPS (Suricata/Zeek mental model)"
+            ],
+            deliverables: [
+              "Write a TCP/UDP client-server and a custom raw-packet / protocol inspector in Python (socket / scapy)",
+              "Build a multi-container Docker mini-network, run SYN/Connect/UDP scans, and compare exact packet sequences in tshark",
+              "Configure stateful default-deny nftables rules with rate limiting and verify blocked traffic in logs",
+              "Manually dissect a forensic PCAP containing ARP spoofing, port scanning, and DNS data exfiltration"
+            ],
+            gate: "Read an unfamiliar PCAP in tshark/Wireshark and reconstruct the full attack timeline by hand; write stateful nftables rules; explain TCP state, ARP spoofing, and DNS resolution at packet level."
+          },
+          {
+            id: "s3",
+            label: "Stage 3",
+            prereq: "Requires: Mastery Gate 2",
+            active: false,
+            title: "Discrete Math Essentials, Applied Cryptography & Attacking Broken Crypto",
+            desc: "Understand the real math intuition behind modern crypto primitives, how TLS 1.3 & PKI establish global trust, and why implementation flaws destroy strong ciphers.",
+            concepts: [
+              "Practical Crypto Math & Randomness: Modular arithmetic, XOR algebra, prime/discrete-log intuition, entropy, OS CSPRNG (/dev/urandom, secrets) vs predictable PRNGs (Mersenne Twister)",
+              "Symmetric Encryption & AEAD: Block vs stream ciphers, why ECB leaks patterns & CBC needs auth, modern AEAD (AES-256-GCM, ChaCha20-Poly1305), and fatal Nonce/IV reuse",
+              "Hashing, MACs & Password Security: SHA-256/SHA-3, length-extension flaws, HMAC, HKDF, cryptographic salts, and memory-hard KDFs (Argon2id, bcrypt)",
+              "Asymmetric Crypto, PKI & TLS 1.3: RSA, ECDHE forward secrecy, Ed25519 signatures, X.509 certificate chains & CA trust stores, TLS 1.3 handshake + SSLKEYLOGFILE decryption",
+              "Crypto Implementation Attacks (Cryptopals-Style): Repeating-key XOR, ECB block shuffling, CBC bit-flipping, Two-Time Pad / Nonce reuse recovery, predictable reset tokens"
+            ],
+            deliverables: [
+              "Build a clean cryptographic CLI vault (AES-256-GCM file encryption, Argon2id password KDF, Ed25519 signing/verification)",
+              "Generate a local mini-CA with openssl, issue TLS certs for a Docker HTTPS server, and decrypt live TLS 1.3 traffic via SSLKEYLOGFILE",
+              "Solve & patch a 4-challenge Broken Crypto lab (Nonce reuse, ECB forgery, CBC bit-flip, predictable PRNG token) manually in Python"
+            ],
+            gate: "Explain why HMAC ≠ SHA256(key||msg), why Nonce reuse breaks AES-GCM, trace a TLS 1.3 handshake in Wireshark, and manually exploit + patch 4 broken crypto implementations."
+          }
+        ]
+      },
+      {
+        tier: 2,
+        cssClass: "t2",
+        title: "TIER II: Core Security Craft (Universal Offense + Defense)",
+        subtitle: "Apply your Tier I bedrock across applications, binaries, telemetry, and enterprise/cloud systems—always understanding root causes from both attacker and defender sides.",
+        badge: "Stages 4 → 6 • Full-Stack Security Engineering",
+        stages: [
+          {
+            id: "s4",
+            label: "Stage 4",
+            prereq: "Requires: Tier I Complete (Gates 0–3)",
+            active: false,
+            title: "Web, API, Database & Browser Internals + Whitebox Application Security",
+            desc: "Leverage your developer background to master LangSec, parser differentials, browser isolation, auth protocols, and source-to-sink whitebox code auditing.",
+            concepts: [
+              "Web, Browser & Database Internals: HTTP/1.1–3 parsing & Request Smuggling, Browser security model (SOP, CORS, Cookies/SameSite/HttpOnly, DOM, CSP), SQL/NoSQL query parsers, Concurrency & DB locks",
+              "LangSec & Server-Side Vulnerability Classes: Source-to-sink analysis of SQLi/NoSQLi, Command Injection, Path Traversal/Zip Slip, SSRF, SSTI, XXE, Insecure Deserialization, Race Conditions",
+              "Client-Side & Modern Identity/Auth: XSS (Reflected/Stored/DOM), CSRF, Session design, JWT internals & attacks, OAuth 2.0 / OIDC flows & subtle flaws, IDOR/BOLA, GraphQL",
+              "Threat Modeling & Secure Code Review: STRIDE Threat Modeling, Data Flow Diagrams & Trust Boundaries, OWASP ASVS, CWE/CVSS v4.0, reading unfamiliar codebases & writing targeted Semgrep rules"
+            ],
+            deliverables: [
+              "Build minimal vulnerable web/API/DB apps yourself, exploit them manually with raw curl/Python before using intercepting proxies, then write clean patches + security unit tests",
+              "Complete core PortSwigger Web Security Academy tracks manually with clear root-cause writeups",
+              "Perform a full whitebox source audit + STRIDE Threat Model on a realistic multi-tier open-source application"
+            ],
+            gate: "Given an unfamiliar backend + frontend repo, draw its Trust Boundary DFD, uncover 3+ real vulnerabilities via source review, write manual PoCs, and ship regression-tested patches."
+          },
+          {
+            id: "s5",
+            label: "Stage 5",
+            prereq: "Requires: Mastery Gate 0 + Stage 1",
+            active: false,
+            title: "Binary Reverse Engineering, Memory Exploitation & Fuzzing Fundamentals",
+            desc: "Go beneath high-level languages—read stripped compiled binaries cleanly, understand memory corruption & modern mitigations, and discover real bugs with fuzzers.",
+            concepts: [
+              "Reverse Engineering Craft: Static & dynamic analysis in gdb (pwndbg/gef), Ghidra, and Rizin/Cutter; reconstructing structs, vtables, control flow, and stripped ELF/PE binaries",
+              "Memory Corruption Primitives: Stack overflows, shellcode vs NX/DEP, Return-Oriented Programming (ROP), Format Strings, Integer/Type bugs, glibc Heap (ptmalloc) & Use-After-Free (UAF)",
+              "Modern Exploit Mitigations: Stack Canaries, ASLR, PIE, NX, Full RELRO, CFI/PAC/MTE—how defenders engineered them and how leaks/primitives interact with them",
+              "Coverage-Guided Fuzzing & Sanitizers: Building fuzzing harnesses (libFuzzer / AFL++), compiling with ASan/UBSan/MSan, crash deduplication, and root-cause triage"
+            ],
+            deliverables: [
+              "Reverse-engineer stripped C/C++ crackmes & custom binaries cleanly using Ghidra/Rizin + gdb",
+              "Complete foundational pwn.college / local compiled binary exploitation labs (stack, format string, ROP, basic heap) manually",
+              "Write a libFuzzer/AFL++ harness with ASan for a small C parser library, find real crashes, triage in gdb, and patch the root cause"
+            ],
+            gate: "Reverse-engineer an unknown stripped binary into clean pseudocode, analyze a memory crash in gdb to explain exploitability + active mitigations, and patch a fuzz-discovered C bug."
+          },
+          {
+            id: "s6",
+            label: "Stage 6",
+            prereq: "Requires: Stages 1–5 Solid",
+            active: false,
+            title: "Defensive Engineering, Detection, DFIR & Enterprise/Cloud Security",
+            desc: "Turn offensive mastery into resilient architecture, behavioral detection, and deep forensic investigation across Linux, Windows/AD, containers, and cloud.",
+            concepts: [
+              "Host & Kernel Telemetry Engineering: Linux auditd & eBPF fundamentals, Windows Sysmon & Event Logs, structured log ingestion & signal-to-noise design",
+              "Detection Engineering & Threat Hunting: Mapping adversary TTPs (MITRE ATT&CK), authoring high-signal Sigma, YARA, and Suricata rules, Purple Team atomic validation",
+              "Digital Forensics & Incident Response (DFIR): Live triage, disk/log/PCAP timeline correlation, Memory Forensics (Volatility 3 — now backed by real VM & OS internals!)",
+              "Enterprise Identity & Cloud/K8s Defense: Active Directory internals (Kerberos, NTLM, LDAP, GPOs — attack & defense), Cloud IAM trust graphs (AWS/GCP), Kubernetes hardening & Supply Chain (SBOM/signing)"
+            ],
+            deliverables: [
+              "Run a complete Purple Team simulation in a local lab: execute attacks, capture telemetry, write Sigma/YARA detections, and eliminate false positives",
+              "Investigate a multi-artifact incident bundle (PCAP + auth/Sysmon logs + memory dump) manually into a full Root Cause Analysis (RCA) report",
+              "Design & harden a containerized CI/CD + cloud deployment blueprint with least-privilege IAM and reproducible security gates"
+            ],
+            gate: "Reconstruct a multi-stage simulated breach from raw PCAP, host logs, and memory artifacts without external help, and produce verified detection rules + architectural hardening fixes."
+          }
+        ]
+      },
+      {
+        tier: 3,
+        cssClass: "t3",
+        title: "TIER III: Deep Master Specialization Pillars (Lifetime Mastery)",
+        subtitle: "After completing Stages 0–6, you possess genuine full-stack first-principles depth. Pick ONE pillar at a time and go world-class deep—stacking new pillars organically over the years.",
+        badge: "Stage 7 • Choose Your Frontier Pillars",
+        stages: [
+          {
+            id: "s7",
+            label: "Stage 7 (Pillars A–E)",
+            prereq: "Requires: Tier I + Tier II Complete (Gates 0–6)",
+            active: false,
+            title: "World-Class Specialization Tracks (Pick 1 Primary Pillar at a Time)",
+            desc: "True masters don't skim 17 fields simultaneously—they stack deep pillars sequentially after building an unshakeable bedrock.",
+            concepts: [
+              "Pillar A — Vulnerability Research, Kernel & 0-Day Engineering: Linux/Windows kernel internals, KVM/hypervisor security, Browser/V8 & WASM engines, 1-day patch diffing, CodeQL/Joern variant analysis, responsible CVE research",
+              "Pillar B — Mobile, Game & Embedded/IoT Reverse Engineering (High Dev Synergy!): Android ART/DEX/JNI & iOS internals, Frida instrumentation, Game engine & Anti-Cheat internals (Unity IL2CPP/Unreal), firmware extraction & QEMU ARM/MIPS",
+              "Pillar C — Adversary Operations, Malware & EDR Internals: Multi-forest AD & ADCS, Windows kernel callbacks/ETW/AMSI/EDR architecture, malware unpacking/deobfuscation & C2 protocol reversing",
+              "Pillar D — Cloud-Native, Zero-Trust & Cryptography Engineering: Multi-cloud IAM graphs, eBPF runtime enforcement (Cilium/Tetragon), SPIFFE/SPIRE mTLS Zero-Trust, HSM/KMS, Post-Quantum Crypto (ML-KEM/ML-DSA) & Formal Verification",
+              "Pillar E — Frontier AI / LLM & Agentic Security Research: Threat modeling & breaking LLM agents/RAG/MCP servers (indirect prompt injection, tool-call hijacking, model/supply-chain attacks), deterministic agent sandboxing, Cyber Reasoning Systems (CRS)"
+            ],
+            deliverables: [
+              "Publish original deep-dive technical research writeups, open-source security tools, or responsible vulnerability disclosures (CVEs)",
+              "Build a flagship systems-level security project in your chosen pillar (fuzzer/analyzer, mobile/game RE toolkit, eBPF runtime monitor, or deterministic AI agent sandbox)",
+              "Mentor others & stress-test designs via conference talks, code audits, or architectural reviews"
+            ],
+            gate: "Independently discover, analyze, or architect solutions to novel, undocumented security problems in your chosen pillar—backed by original public research or production-grade engineering."
+          }
+        ]
+      }
+    ];
+
+    const STORAGE_KEY = "marajul_cyber_first_principles_v3";
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : { checked: {}, notes: {} };
+      } catch (e) {
+        return { checked: {}, notes: {} };
+      }
+    }
+
+    function saveState(st) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(st)); } catch (e) {}
+    }
+
+    let appState = loadState();
+    let currentTierFilter = "all";
+
+    function renderRoadmap() {
+      const container = document.getElementById("roadmapContainer");
+      container.innerHTML = "";
+      const query = (document.getElementById("searchBox").value || "").toLowerCase().trim();
+
+      ROADMAP_DATA.forEach(tierObj => {
+        if (currentTierFilter !== "all" && String(tierObj.tier) !== String(currentTierFilter)) return;
+
+        const filteredStages = tierObj.stages.filter(s => {
+          if (!query) return true;
+          const hay = [s.label, s.prereq, s.title, s.desc, s.gate, ...s.concepts, ...s.deliverables].join(" ").toLowerCase();
+          return hay.includes(query);
+        });
+        if (!filteredStages.length) return;
+
+        const sec = document.createElement("section");
+        sec.className = "tier-section";
+        sec.innerHTML = `
+          <div class="tier-header ${tierObj.cssClass}">
+            <div>
+              <h2>${tierObj.title}</h2>
+              <p>${tierObj.subtitle}</p>
+            </div>
+            <div class="tier-badge">${tierObj.badge}</div>
+          </div>
+          <div class="stages-grid" id="tier-stages-${tierObj.tier}"></div>
+        `;
+        container.appendChild(sec);
+        const grid = sec.querySelector(`#tier-stages-${tierObj.tier}`);
+
+        filteredStages.forEach(stage => {
+          const card = document.createElement("div");
+          card.className = `stage-card ${stage.active ? "active-stage" : ""}`;
+
+          const renderItems = (arr, prefix) => arr.map((txt, idx) => {
+            const id = `${stage.id}_${prefix}_${idx}`;
+            const checked = !!appState.checked[id];
+            return `
+              <label class="check-item ${checked ? "completed" : ""}" id="lbl_${id}">
+                <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleCheck('${id}', this)" />
+                <span>${txt}</span>
+              </label>
+            `;
+          }).join("");
+
+          const gateId = `${stage.id}_gate`;
+          const gateDone = !!appState.checked[gateId];
+          const noteVal = appState.notes[stage.id] || "";
+          const detailBtn = stage.detailLink
+            ? `<a class="btn-link btn-emerald" href="${stage.detailLink}">${stage.detailLabel || "Open Detailed Plan →"}</a>`
+            : "";
+
+          card.innerHTML = `
+            <div class="stage-top">
+              <div style="flex:1;">
+                <div class="pill-row">
+                  <span class="stage-pill">${stage.label}</span>
+                  <span class="prereq-pill">${stage.prereq}</span>
+                  ${stage.active ? '<span class="active-pill">★ Active Stage</span>' : ''}
+                </div>
+                <h3>${stage.title}</h3>
+                <p class="stage-desc">${stage.desc}</p>
+              </div>
+              <div>${detailBtn}</div>
+            </div>
+            <div class="stage-cols">
+              <div class="checklist-box">
+                <h4>1. First-Principles Concepts (Security Lens)</h4>
+                ${renderItems(stage.concepts, "c")}
+              </div>
+              <div class="checklist-box build-col">
+                <h4>2. Hands-On Build / Break / Fix Labs</h4>
+                ${renderItems(stage.deliverables, "d")}
+              </div>
+            </div>
+            <div class="mastery-gate">
+              <label class="check-item ${gateDone ? "completed" : ""}" id="lbl_${gateId}" style="padding:0;">
+                <input type="checkbox" ${gateDone ? "checked" : ""} onchange="toggleCheck('${gateId}', this)" />
+                <span><strong>Mastery Gate (${stage.label}):</strong> ${stage.gate}</span>
+              </label>
+            </div>
+            <textarea class="notes-area" placeholder="Notes, lab writeup links, or key insights for ${stage.label}..." oninput="saveNote('${stage.id}', this.value)">${noteVal}</textarea>
+          `;
+          grid.appendChild(card);
+        });
+      });
+
+      updateProgressStats();
+    }
+
+    function toggleCheck(id, el) {
+      appState.checked[id] = el.checked;
+      saveState(appState);
+      const lbl = document.getElementById("lbl_" + id);
+      if (lbl) lbl.classList.toggle("completed", el.checked);
+      updateProgressStats();
+    }
+
+    function saveNote(stageId, val) {
+      appState.notes[stageId] = val;
+      saveState(appState);
+    }
+
+    function updateProgressStats() {
+      let total = 0, done = 0;
+      const tierStats = {};
+      const tierNames = { 1: "Tier I (Bedrock)", 2: "Tier II (Core Craft)", 3: "Tier III (Pillars)" };
+
+      ROADMAP_DATA.forEach(t => {
+        let tTotal = 0, tDone = 0;
+        t.stages.forEach(s => {
+          s.concepts.forEach((_, i) => { total++; tTotal++; if (appState.checked[`${s.id}_c_${i}`]) { done++; tDone++; } });
+          s.deliverables.forEach((_, i) => { total++; tTotal++; if (appState.checked[`${s.id}_d_${i}`]) { done++; tDone++; } });
+          total++; tTotal++;
+          if (appState.checked[`${s.id}_gate`]) { done++; tDone++; }
+        });
+        tierStats[t.tier] = { total: tTotal, done: tDone, pct: tTotal ? Math.round((tDone / tTotal) * 100) : 0 };
+      });
+
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      document.getElementById("doneCount").textContent = done;
+      document.getElementById("totalCount").textContent = total;
+      document.getElementById("overallPct").textContent = `${pct}%`;
+      document.getElementById("overallFill").style.width = `${pct}%`;
+
+      document.getElementById("tierMiniBars").innerHTML = [1, 2, 3].map(k => {
+        const st = tierStats[k];
+        return `
+          <div class="tier-mini-card">
+            <div class="tier-mini-header">
+              <span>${tierNames[k]}</span>
+              <span>${st.pct}% (${st.done}/${st.total})</span>
+            </div>
+            <div class="tier-mini-track">
+              <div class="tier-mini-fill" style="width:${st.pct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function filterTier(tier, btn) {
+      currentTierFilter = tier;
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      if (btn) btn.classList.add("active");
+      renderRoadmap();
+    }
+
+    function exportProgress() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+      const a = document.createElement("a");
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", "cybersecurity_master_roadmap_progress.json");
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function importProgress(ev) {
+      const file = ev.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed && typeof parsed === "object") {
+            appState = { checked: parsed.checked || {}, notes: parsed.notes || {} };
+            saveState(appState);
+            renderRoadmap();
+            alert("Progress imported successfully!");
+          }
+        } catch {
+          alert("Invalid JSON file.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetProgress() {
+      if (confirm("Reset all roadmap checkboxes and notes?")) {
+        appState = { checked: {}, notes: {} };
+        saveState(appState);
+        renderRoadmap();
+      }
+    }
+
+    renderRoadmap();
+  </script>
+</body>
+</html>
